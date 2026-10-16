@@ -135,6 +135,7 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
       <label class="fld">日付<input type="date" id="day-date"></label>
     </div>
     <textarea id="day-paste" placeholder="ここにその日の列を貼り付け" style="min-height:140px"></textarea>
+    <div class="bar"><button class="btn" id="day-clear">貼り付けを消す</button></div>
     <p class="muted" id="day-msg" style="margin:0"></p>
     <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
     <p class="muted" style="margin:0">名前と時間がずれていないか、ざっと確認してください。ずれていたら、コピーした行の範囲が名簿と違います。</p>
@@ -166,12 +167,13 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
     <textarea id="roster-paste" placeholder="ここにC列の名前を貼り付け" style="min-height:140px"></textarea>
     <div class="bar">
       <button class="btn primary" id="roster-load">名簿を登録</button>
+      <button class="btn" id="roster-clear">貼り付けを消す</button>
       <span class="muted" id="roster-msg"></span>
     </div>
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>0 見習い</b>はその後、<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締めGOD</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -207,7 +209,7 @@ const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
 const ROLE={baito:"PN",pnleader:"PNリーダー",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
 const ROLE_RANK={baito:0,rookie:1,sub:2,pnleader:3};   // レジに入る役職の順番
 const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3",4:"レベル4"};
-const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い",4:"めったに入らない（最終手段）"};
+const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い（自動では入れない）",4:"めったに入らない（最終手段）"};
 const LEVELS=[1,2,3,0,4];
 const rank=l=>l===0?4:l;   // 見習いは一番後回し
 // 役職が先、同じ役職の中でレベル順。見習いは役職に関係なく最後
@@ -225,7 +227,7 @@ const eligible=p=>(p.role in ROLE_RANK)&&p.dept<4;
 /* ---------- 例のデータ ---------- */
 const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
 const SAMPLE_CLOSER=["例）青木","例）江口","例）久保"];
-const SAMPLE_ROLE={"例）佐藤":["baito",0],"例）清水":["sub",3],"例）鈴木":["sub",3],"例）森":["leader",1],"例）石田":["baito",2],"例）大西":["baito",2],"例）小林":["baito",2],"例）川村":["baito",3],"例）田中":["baito",2]};
+const SAMPLE_ROLE={"例）清水":["sub",3],"例）鈴木":["sub",3],"例）森":["leader",1],"例）石田":["baito",2],"例）大西":["baito",2],"例）小林":["baito",2],"例）川村":["baito",3],"例）田中":["baito",2]};
 const SAMPLE_DAY=["9-18","","8-17","9-18","","8:30-18","10-19:30","9-14","8:30-18","","17-21:30","12-21:30","8:30-13","9-18","","13-21:30","11:00-20","9-18","12-21:30","","18:30-21:30","14-21:30","9-18"].join("\n");
 
 /* ---------- state ---------- */
@@ -318,7 +320,7 @@ function generate(){
     const present=people.filter(p=>p.start<=s&&p.end>=e);
     const deptCount=[0,0,0,0];present.forEach(p=>{if(isFloor(p.dept))deptCount[p.dept]++});
     const maxReg=Math.max(...deptReg);
-    const cands=present.filter(p=>eligible(p)&&!breaks.has(p.id+"|"+i)&&!(out[i-1]?.id===p.id&&out[i-2]?.id===p.id));
+    const cands=present.filter(p=>eligible(p)&&p.level!==0&&!breaks.has(p.id+"|"+i)&&!(out[i-1]?.id===p.id&&out[i-2]?.id===p.id));
     const score=p=>{
       const floor=isFloor(p.dept)&&deptCount[p.dept]-1<1?1:0;
       const consec=out[i-1]?.id===p.id?1:0;
@@ -439,6 +441,10 @@ $("#day-paste").addEventListener("input",e=>{
   clearTimeout(pasteTimer);
   pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits={locks:{},breaks:[]};saveDay();renderDay()},200);
 });
+$("#day-clear").onclick=()=>{
+  $("#day-paste").value="";day.text="";day.edits={locks:{},breaks:[]};saveDay();renderDay();$("#day-paste").focus();toast("消しました");
+};
+$("#roster-clear").onclick=()=>{$("#roster-paste").value="";$("#roster-msg").textContent="";$("#roster-paste").focus()};
 $("#day-date").onchange=e=>{day.date=e.target.value;saveDay();renderPlan()};
 $("#to-plan").onclick=()=>{day.text=$("#day-paste").value;saveDay();showTab("plan")};
 
