@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; form-action 'none'">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="POSition">
+<meta name="theme-color" content="#1d58b8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>POSition</title>
+<style>
+/* Layout: one working column for iPad/phone — summary strip, then the hour-by-hour register roll like a receipt */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#18222c; --muted:#5b6876; --line:#d6dde4; --accent:#1d58b8; --accent-ink:#ffffff;
+  --warn:#a85412; --warn-bg:#fdf0e3; --bad:#b8322a; --bad-bg:#fbe9e7; --soft:#e4ebf3;
+  --d0:#0f7a6c; --d0bg:#ddf2ee; --d1:#9a6a00; --d1bg:#f8eed2; --d2:#b03a62; --d2bg:#f8e2ea; --d3:#5b4bb7; --d3bg:#e8e5f8;
+  --font-body:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1a2129; --ink:#e6ebf0; --muted:#93a1ae; --line:#2c3642; --accent:#6f9ef0; --accent-ink:#0d1520;
+  --warn:#f0a35e; --warn-bg:#3a2a1a; --bad:#f08a80; --bad-bg:#3b1f1d; --soft:#232d38;
+  --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1a2129; --ink:#e6ebf0; --muted:#93a1ae; --line:#2c3642; --accent:#6f9ef0; --accent-ink:#0d1520;
+  --warn:#f0a35e; --warn-bg:#3a2a1a; --bad:#f08a80; --bad-bg:#3b1f1d; --soft:#232d38;
+  --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{color-scheme:light}body{margin:0;-webkit-text-size-adjust:100%;padding-top:env(safe-area-inset-top,0px);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-size:1.8rem;margin:0;letter-spacing:.01em;text-wrap:balance;font-weight:700}
+h1 .pos{color:var(--accent);letter-spacing:.04em}
+.sub{color:var(--muted);font-size:.85rem;margin:0}
+.tabs{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;padding:10px 12px;border-radius:9px;cursor:pointer;min-height:44px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:14px}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+label.fld{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-height:44px}
+.btn{font:inherit;font-weight:700;border-radius:10px;padding:10px 16px;min-height:44px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{padding:6px 12px;min-height:36px;font-size:.85rem}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+.tile .k{font-size:.8rem;color:var(--muted)}
+.tile .v{font-family:var(--font-mono);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:.8rem;color:var(--muted);font-family:var(--font-body)}
+.roll{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.slot{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border-top:1px dashed var(--line);cursor:pointer;background:var(--surface);width:100%;text-align:left;font:inherit;color:inherit;border-left:0;border-right:0;border-bottom:0}
+.slot:first-child{border-top:0}
+.slot:hover{background:var(--soft)}
+.time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600;font-size:.95rem}
+.time span{display:block;color:var(--muted);font-weight:500;font-size:.75rem}
+.who{display:flex;flex-direction:column;gap:4px;min-width:0}
+.name{font-weight:700;font-size:1.1rem;overflow-wrap:anywhere}
+.name.none{color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.lock{background:var(--accent);color:var(--accent-ink)}
+.chip.d0{background:var(--d0bg);color:var(--d0)}.chip.d1{background:var(--d1bg);color:var(--d1)}.chip.d2{background:var(--d2bg);color:var(--d2)}.chip.d3{background:var(--d3bg);color:var(--d3)}
+.edit{color:var(--accent);font-size:.85rem;font-weight:700}
+textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;gap:4px;max-width:65ch}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:8px 12px;border-top:1px solid var(--line);text-align:left;font-size:.9rem}
+th{font-size:.75rem;color:var(--muted);letter-spacing:.06em;border-top:0;font-weight:700}
+td select{min-height:38px;padding:4px 8px}
+.depts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.sheet{position:fixed;inset:0;background:rgb(10 15 20 / .45);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:0 max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px))}
+.sheet-box{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sheet-box h2{margin:0;font-size:1.15rem}
+.cand{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:48px}
+.cand[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.muted{color:var(--muted);font-size:.85rem}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:700;z-index:30}
+@media (max-width:480px){.slot{grid-template-columns:70px minmax(0,1fr) auto;gap:8px}}
+@media (prefers-reduced-motion:no-preference){.slot{transition:background .15s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span class="pos">POS</span>ition</h1>
+      <p class="sub">レジ番メーカー｜9:00〜21:00・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-plan" aria-selected="true">レジ番表</button>
+    <button role="tab" id="tab-paste" aria-selected="false">シフト貼り付け</button>
+    <button role="tab" id="tab-staff" aria-selected="false">スタッフ</button>
+  </div>
+
+  <!-- レジ番表 -->
+  <section class="panel" id="p-plan">
+    <div class="notice" id="sample-note">いま表示しているのは例のデータです。「シフト貼り付け」から実際のシフト表を貼ると切り替わります。</div>
+    <div class="bar">
+      <label class="fld">日付<select id="date-sel"></select></label>
+      <button class="btn" id="regen">作り直す</button>
+      <button class="btn" id="clear-edits">手動変更をリセット</button>
+      <button class="btn primary" id="copy-out">テキストでコピー</button>
+    </div>
+    <div class="tally" id="tally"></div>
+    <div class="roll" id="roll"></div>
+    <p class="muted">時間帯をタップすると担当を変更したり、休憩で外したりできます。変更した時間は固定され、ほかの時間が組み直されます。</p>
+  </section>
+
+  <!-- 貼り付け -->
+  <section class="panel" id="p-paste" hidden>
+    <ol class="steps">
+      <li>Googleスプレッドシートで、名前の列（一番左）から日付の列まで範囲を選んでコピー</li>
+      <li>下の欄に貼り付けて「読み込む」</li>
+      <li>日付を選ぶとレジ番表が作られます。名前は自動でスタッフに追加されます</li>
+    </ol>
+    <textarea id="paste" placeholder="ここに貼り付け"></textarea>
+    <div class="bar">
+      <button class="btn primary" id="load">読み込む</button>
+      <span class="muted" id="load-msg"></span>
+    </div>
+  </section>
+
+  <!-- スタッフ -->
+  <section class="panel" id="p-staff" hidden>
+    <div>
+      <p class="muted" style="margin:0 0 6px">部門名</p>
+      <div class="depts" id="dept-names"></div>
+    </div>
+    <div class="bar">
+      <button class="btn" id="export">書き出し（バックアップ）</button>
+      <label class="btn" for="import" style="display:inline-flex;align-items:center">読み込み（復元）</label>
+      <input type="file" id="import" accept=".json,application/json" hidden>
+    </div>
+    <div class="bar">
+      <label class="fld" style="flex:1;min-width:200px">名前で絞り込み<input type="text" id="filter"></label>
+      <span class="muted" id="staff-count"></span>
+    </div>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>と<b>副リーダー</b>だけです。リーダーと店長はレジに入らず、フロアの人数にだけ数えます。<br>レベルは <b>1 優先して入る</b> → <b>2 普通</b> → <b>3 足りない時だけ</b> の順で割り当てます。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th></th></tr></thead>
+      <tbody id="staff-body"></tbody>
+    </table></div>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <h2 id="sheet-title"></h2>
+    <div id="sheet-cands" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="bar">
+      <button class="btn" id="sheet-break">今の担当を休憩で外す</button>
+      <button class="btn" id="sheet-unlock">固定を外す</button>
+      <button class="btn" id="sheet-close" style="margin-left:auto">閉じる</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
+const ROLE={baito:"PN",sub:"副リーダー",leader:"リーダー",manager:"店長"};
+const LEVEL_LABEL={1:"レベル1",2:"レベル2",3:"レベル3"};
+const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ"};
+const eligible=p=>p.role==="baito"||p.role==="sub";
+function normStaff(s){ // 旧データの移行
+  if(!s.role){s.role=s.level===2?"sub":s.level===3?"manager":"baito";s.level=s.level===2?3:1}
+  if(![1,2,3].includes(s.level))s.level=1;
+  return s;
+}
+const LS_ROSTER="regiban.roster", LS_PASTE="regiban.paste", LS_DAY="regiban.day";
+
+/* ---------- sample (例) ---------- */
+const SAMPLE_TSV=[
+ "名前\t28日\t29日\t30日",
+ "例）青木\t9-18\t8:30-18\t",
+ "例）石田\t\t10-19:30\t9-18",
+ "例）上野\t12-21:30\t9-14\t",
+ "例）江口\t\t17-21:30\t12-21:30",
+ "例）大西\t9-18\t12-21:30\t",
+ "例）川村\t\t8:30-13\t9-18",
+ "例）木下\t\t13-21:30\t",
+ "例）久保\t10-19\t11:00-20\t",
+ "例）小林\t\t9-18\t9-18",
+ "例）佐藤\t\t18:30-21:30\t",
+ "例）清水（副リーダー）\t9-18\t8:30-18\t9-18",
+ "例）鈴木（副リーダー）\t\t12-21:30\t",
+ "例）森（リーダー）\t\t9-18\t9-18",
+ "例）高橋（店長）\t9-18\t9-18\t",
+ "例）田中\t\t14-21:30\t"
+].join("\n");
+const SAMPLE_META={"例）青木":[0,"baito",1],"例）石田":[0,"baito",2],"例）上野":[0,"baito",1],"例）江口":[1,"baito",1],"例）大西":[1,"baito",2],"例）川村":[1,"baito",3],"例）木下":[2,"baito",1],"例）久保":[2,"baito",1],"例）小林":[2,"baito",2],"例）佐藤":[3,"baito",1],"例）清水（副リーダー）":[0,"sub",3],"例）鈴木（副リーダー）":[2,"sub",3],"例）森（リーダー）":[3,"leader",1],"例）高橋（店長）":[1,"manager",1],"例）田中":[3,"baito",2]};
+
+/* ---------- state ---------- */
+const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
+let roster={depts:[...DEFAULT_DEPTS],staff:{}};
+let sampleRoster=null;
+let isSample=true;
+let sheetRows=[]; let dateCols=[]; let selDate=null;
+let edits={}; // per date: {locks:{i:id}, breaks:[ "id|i" ]}
+let plan=[];
+
+const $=s=>document.querySelector(s);
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+
+function normName(s){return String(s||"").replace(/[\s　]+/g," ").trim()}
+function idOf(name){let h=2166136261;for(const c of name){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return "s"+(h>>>0).toString(16)}
+function toHalf(s){return String(s||"").replace(/[０-９：]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))}
+function parseTime(s){
+  const m=toHalf(s).match(/(\d{1,2})(?:[:.](\d{2}))?\s*[-~〜～ー－−]\s*(\d{1,2})(?:[:.](\d{2}))?/);
+  if(!m)return null;
+  const a=+m[1]*60+(+m[2]||0), b=+m[3]*60+(+m[4]||0);
+  return b>a?{start:a,end:b}:null;
+}
+const fmt=m=>Math.floor(m/60)+":"+String(m%60).padStart(2,"0");
+
+function activeRoster(){return isSample?sampleRoster:roster}
+
+/* ---------- parsing ---------- */
+function parseSheet(text){
+  const rows=text.split(/\r?\n/).map(r=>r.split("\t"));
+  let headIdx=-1,best=0;
+  rows.forEach((r,i)=>{const n=r.filter(c=>/^\s*\d{1,2}\s*日/.test(toHalf(c))).length;if(n>best){best=n;headIdx=i}});
+  const cols=[];
+  if(headIdx>=0){rows[headIdx].forEach((c,j)=>{if(/^\s*\d{1,2}\s*日/.test(toHalf(c)))cols.push({col:j,label:toHalf(c).trim()})})}
+  else{
+    // 日付の見出しなし: 名前+1日分だけ貼った場合
+    const w=Math.max(...rows.map(r=>r.length));
+    for(let j=w-1;j>0;j--){if(rows.some(r=>parseTime(r[j]))){cols.push({col:j,label:"貼り付けた日"});break}}
+  }
+  const people=rows.filter((r,i)=>i!==headIdx&&normName(r[0])&&r.slice(1).some(c=>parseTime(c)));
+  return {rows:people,cols};
+}
+function peopleOn(col){
+  const out=[];
+  for(const r of sheetRows){const t=parseTime(r[col]);if(t){const name=normName(r[0]);out.push({id:idOf(name),name,...t})}}
+  return out;
+}
+
+/* ---------- assignment ---------- */
+function staffOf(p){const s=activeRoster().staff[p.id];return s?normStaff(s):{name:p.name,dept:-1,role:"baito",level:1}}
+function generate(){
+  const col=dateCols.find(c=>c.label===selDate);
+  if(!col){plan=[];return}
+  const people=peopleOn(col.col);
+  const ed=edits[selDate]||{locks:{},breaks:[]};
+  const breaks=new Set(ed.breaks);
+  const deptReg=[0,0,0,0], personReg={};
+  const out=[];
+  HOURS.forEach((h,i)=>{
+    const s=h*60,e=s+60;
+    const present=people.filter(p=>p.start<=s&&p.end>=e).map(p=>({...p,...staffOf(p),id:p.id,name:p.name}));
+    const deptCount=[0,0,0,0];present.forEach(p=>{if(p.dept>=0)deptCount[p.dept]++});
+    const maxReg=Math.max(...deptReg);
+    const cands=present.filter(p=>eligible(p)&&!breaks.has(p.id+"|"+i)&&!(out[i-1]?.id===p.id&&out[i-2]?.id===p.id));
+    const score=p=>{
+      const floor=p.dept>=0&&deptCount[p.dept]-1<1?1:0;
+      const consec=out[i-1]?.id===p.id?1:0;
+      const dr=p.dept>=0?deptReg[p.dept]:maxReg;
+      const spare=p.dept>=0?-(deptCount[p.dept]):0;
+      return [floor,p.level,consec,dr,spare,personReg[p.id]||0];
+    };
+    let pick=null, locked=false;
+    const lockId=ed.locks[i];
+    if(lockId){pick=present.find(p=>p.id===lockId)||null;locked=!!pick}
+    if(!pick&&cands.length){
+      cands.sort((a,b)=>{const x=score(a),y=score(b);for(let k=0;k<x.length;k++)if(x[k]!==y[k])return x[k]-y[k];return a.name.localeCompare(b.name,"ja")});
+      pick=cands[0];
+    }
+    const flags=[];
+    if(pick){
+      if(pick.dept>=0&&deptCount[pick.dept]-1<1)flags.push(["bad","部門が空く"]);
+      if(out[i-1]?.id===pick.id)flags.push(["warn","2時間連続"]);
+      if(pick.level===3)flags.push(["warn","レベル3が担当"]);
+      if(pick.dept<0)flags.push(["warn","部門未設定"]);
+      if(pick.dept>=0)deptReg[pick.dept]++;
+      personReg[pick.id]=(personReg[pick.id]||0)+1;
+    }
+    out.push({i,h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,level:pick?.level,role:pick?.role,locked,flags,present,deptCount});
+  });
+  plan=out;
+}
+
+/* ---------- render ---------- */
+function deptChip(d){const r=activeRoster();return d>=0?`<span class="chip d${d}">${esc(r.depts[d])}</span>`:`<span class="chip">部門未設定</span>`}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+function renderPlan(){
+  $("#sample-note").hidden=!isSample;
+  const sel=$("#date-sel");
+  sel.innerHTML=dateCols.map(c=>`<option ${c.label===selDate?"selected":""}>${esc(c.label)}</option>`).join("");
+  const r=activeRoster();
+  const reg=[0,0,0,0];plan.forEach(p=>{if(p.dept>=0)reg[p.dept]++});
+  const filled=plan.filter(p=>p.id).length;
+  $("#tally").innerHTML=r.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v">${reg[k]}<small> 時間</small></span></div>`).join("")+
+    `<div class="tile"><span class="k">埋まった時間</span><span class="v">${filled}<small> / ${HOURS.length}</small></span></div>`;
+  $("#roll").innerHTML=plan.map(p=>{
+    const chips=[];
+    if(p.id){chips.push(deptChip(p.dept));if(p.role==="sub")chips.push(`<span class="chip">副リーダー</span>`);if(p.locked)chips.push(`<span class="chip lock">手動</span>`)}
+    p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
+    return `<button class="slot" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
+      <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
+      <span class="edit">変更</span></button>`}).join("")||`<p class="muted" style="padding:14px">シフト表を貼り付けると、ここにレジ番が並びます。</p>`;
+}
+
+function renderStaff(){
+  const r=roster;
+  $("#dept-names").innerHTML=r.depts.map((d,k)=>`<input type="text" id="dept-${k}" data-k="${k}" value="${esc(d)}" aria-label="部門${k+1}の名前">`).join("");
+  const q=normName($("#filter").value);
+  const list=Object.entries(r.staff).filter(([,s])=>!q||s.name.includes(q)).sort((a,b)=>a[1].name.localeCompare(b[1].name,"ja"));
+  const unset=Object.values(r.staff).filter(s=>s.dept<0).length;
+  $("#staff-count").textContent=`${Object.keys(r.staff).length}人登録${unset?` ・部門未設定 ${unset}人`:""}`;
+  $("#staff-body").innerHTML=list.map(([id,s])=>`<tr>
+    <td>${esc(s.name)}</td>
+    <td><select data-id="${id}" data-f="dept" aria-label="${esc(s.name)}の部門"><option value="-1">未設定</option>${r.depts.map((d,k)=>`<option value="${k}" ${s.dept===k?"selected":""}>${esc(d)}</option>`).join("")}</select></td>
+    <td><select data-id="${id}" data-f="role" aria-label="${esc(s.name)}の役職">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${s.role===k?"selected":""}>${v}</option>`).join("")}</select></td>
+    <td>${eligible(s)?`<select data-id="${id}" data-f="level" aria-label="${esc(s.name)}のレベル">${[1,2,3].map(l=>`<option value="${l}" ${s.level===l?"selected":""}>${l}　${LEVEL_HINT[l]}</option>`).join("")}</select>`:`<span class="muted">レジに入らない</span>`}</td>
+    <td><button class="btn small" data-del="${id}">削除</button></td></tr>`).join("")||
+    `<tr><td colspan="5" class="muted">まだ登録がありません。シフト表を貼り付けると名前が自動で入ります。</td></tr>`;
+}
+
+function refresh(){generate();renderPlan()}
+
+/* ---------- persistence ---------- */
+let saveTimer=null;
+function saveRoster(){
+  lsSet(LS_ROSTER,JSON.stringify(roster));
+
+}
+function saveDay(){lsSet(LS_DAY,JSON.stringify({selDate,edits}))}
+
+/* ---------- interactions ---------- */
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,2000)}
+
+function showTab(name){
+  ["plan","paste","staff"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
+  if(name==="staff")renderStaff();
+  if(name==="plan")refresh();
+}
+$("#tab-plan").onclick=()=>showTab("plan");
+$("#tab-paste").onclick=()=>showTab("paste");
+$("#tab-staff").onclick=()=>showTab("staff");
+
+function loadText(text,fromUser){
+  const {rows,cols}=parseSheet(text);
+  if(!rows.length||!cols.length){$("#load-msg").textContent="時間の入ったセルが見つかりませんでした。名前の列から日付の列まで選んでコピーしてください。";return false}
+  sheetRows=rows;dateCols=cols;
+  if(fromUser){
+    isSample=false;
+    let added=0;
+    rows.forEach(r=>{const name=normName(r[0]);const id=idOf(name);if(!roster.staff[id]){roster.staff[id]={name,dept:-1,role:"baito",level:1};added++}});
+    if(added)saveRoster();
+    lsSet(LS_PASTE,text);
+    $("#load-msg").textContent=`${rows.length}人・${cols.length}日分を読み込みました${added?`（新しく${added}人をスタッフに追加）`:""}`;
+  }
+  if(!cols.find(c=>c.label===selDate))selDate=cols[0].label;
+  return true;
+}
+$("#load").onclick=()=>{
+  const t=$("#paste").value;
+  if(loadText(t,true)){edits={};saveDay();toast("読み込みました");showTab("plan")}
+};
+$("#date-sel").onchange=e=>{selDate=e.target.value;saveDay();refresh()};
+$("#regen").onclick=()=>{refresh();toast("作り直しました")};
+$("#clear-edits").onclick=()=>{delete edits[selDate];saveDay();refresh();toast("手動変更を戻しました")};
+$("#copy-out").onclick=async()=>{
+  const lines=[`${selDate} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?(p.name.endsWith("さん")?p.name:p.name+"さん"):"（担当なし）"}`)];
+  const txt=lines.join("\n");
+  try{await navigator.clipboard.writeText(txt);toast("コピーしました")}
+  catch(e){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("コピーしました")}catch(_){toast("コピーできませんでした")}ta.remove()}
+};
+
+/* slot editor */
+let sheetSlot=null;
+$("#roll").addEventListener("click",e=>{const b=e.target.closest(".slot");if(b)openSheet(+b.dataset.i)});
+function openSheet(i){
+  sheetSlot=i;const p=plan[i];
+  $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当`;
+  const ed=edits[selDate]||{locks:{},breaks:[]};
+  const cands=p.present.filter(eligible).sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,"ja"));
+  $("#sheet-cands").innerHTML=cands.map(c=>{
+    const onBreak=ed.breaks.includes(c.id+"|"+i);
+    return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}"><span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}</span></span><span class="chips">${deptChip(c.dept)}<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>${onBreak?'<span class="chip warn">休憩</span>':""}</span></button>`}).join("")||
+    `<p class="muted">この時間に入れる人がいません。</p>`;
+  $("#sheet-break").disabled=!p.id;
+  $("#sheet-unlock").disabled=!p.locked;
+  $("#sheet").hidden=false;
+}
+function closeSheet(){$("#sheet").hidden=true}
+function edFor(){return edits[selDate]||(edits[selDate]={locks:{},breaks:[]})}
+$("#sheet-cands").addEventListener("click",e=>{
+  const b=e.target.closest(".cand");if(!b)return;
+  const ed=edFor();ed.locks[sheetSlot]=b.dataset.id;
+  ed.breaks=ed.breaks.filter(x=>x!==b.dataset.id+"|"+sheetSlot);
+  saveDay();closeSheet();refresh();
+});
+$("#sheet-break").onclick=()=>{
+  const p=plan[sheetSlot];if(!p.id)return;
+  const ed=edFor();delete ed.locks[sheetSlot];
+  // 休憩は前後含め1時間：その時間帯だけ外す
+  ed.breaks.push(p.id+"|"+sheetSlot);
+  saveDay();closeSheet();refresh();toast(`${p.name}さんを休憩で外しました`);
+};
+$("#sheet-unlock").onclick=()=>{const ed=edFor();delete ed.locks[sheetSlot];saveDay();closeSheet();refresh()};
+$("#sheet-close").onclick=closeSheet;
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+
+/* staff edits */
+$("#staff-body").addEventListener("change",e=>{
+  const t=e.target;if(!t.dataset.id)return;
+  const s=roster.staff[t.dataset.id];if(!s)return;
+  s[t.dataset.f]=t.dataset.f==="role"?t.value:+t.value;saveRoster();renderStaff();
+});
+$("#staff-body").addEventListener("click",e=>{
+  const id=e.target.dataset?.del;if(!id)return;
+  const b=e.target;
+  if(b.dataset.armed){delete roster.staff[id];saveRoster();renderStaff();return}
+  b.dataset.armed="1";b.textContent="本当に削除";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="削除"}},3000);
+});
+$("#dept-names").addEventListener("change",e=>{const k=+e.target.dataset.k;roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];saveRoster();renderStaff()});
+$("#filter").addEventListener("input",renderStaff);
+
+/* ---------- backup ---------- */
+$("#export").onclick=()=>{
+  const d=new Date();const stamp=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+  const blob=new Blob([JSON.stringify({app:"regiban",version:1,roster},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`regiban-staff-${stamp}.json`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  toast("書き出しました");
+};
+$("#import").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);const ro=data.roster||data;
+      if(!ro.staff||!Array.isArray(ro.depts))throw 0;
+      roster={depts:ro.depts.slice(0,4),staff:ro.staff};Object.values(roster.staff).forEach(normStaff);
+      sampleRoster.depts=roster.depts;saveRoster();renderStaff();refresh();
+      toast(`${Object.keys(roster.staff).length}人分を復元しました`);
+    }catch(_){toast("このファイルは読み込めません。書き出したファイルを選んでください")}
+    e.target.value="";
+  };
+  r.readAsText(f);
+};
+
+/* ---------- boot ---------- */
+(function boot(){
+  sampleRoster={depts:roster.depts,staff:{}};
+  Object.entries(SAMPLE_META).forEach(([n,[d,r,l]])=>sampleRoster.staff[idOf(n)]={name:n,dept:d,role:r,level:l});
+  try{const r=JSON.parse(lsGet(LS_ROSTER)||"null");if(r&&r.staff){roster=r;if(roster.depts.join()==="部門A,部門B,部門C,部門D")roster.depts=[...DEFAULT_DEPTS];Object.values(roster.staff).forEach(normStaff)}}catch(e){}
+  sampleRoster.depts=roster.depts;
+  try{const d=JSON.parse(lsGet(LS_DAY)||"null");if(d){selDate=d.selDate;edits=d.edits||{}}}catch(e){}
+  const saved=lsGet(LS_PASTE);
+  if(saved&&loadText(saved,false)){isSample=false;$("#paste").value=saved}
+  else{loadText(SAMPLE_TSV,false);selDate="29日";isSample=true}
+  refresh();
+
+  if("serviceWorker" in navigator&&location.protocol!=="file:"){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+})();
+</script>
+
+</body>
+</html>
