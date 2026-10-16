@@ -207,7 +207,7 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。締めGODの中ではレベル <b>2</b> → <b>1</b> → <b>3</b> の順です。</p>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締めGOD</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -249,6 +249,7 @@ const rank=l=>l===0?4:l;   // 見習いは一番後回し
 // 役職が先、同じ役職の中でレベル順。見習いは役職に関係なく最後
 const prio=p=>p.level===4?200+ROLE_RANK[p.role]:p.level===0?100+ROLE_RANK[p.role]:ROLE_RANK[p.role]*10+p.level;
 const CLOSE_SLOT=11;       // 20:00〜21:00 はレジ締め
+const CLOSE_LV={2:0,1:1,3:2,4:3,0:4}; // 締めはレベル2 → 1 → 3 → 4 の順
 const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
 const WD="日月火水木金土";
 const LS_ROSTER="position.roster", LS_DAY="position.day";
@@ -365,10 +366,8 @@ function generate(){
       // 締めまでいる締めGODは「締めで1回入る予定」として数え、日中はなるべく後回しにする
       const willClose=i<CLOSE_SLOT&&p.closer&&p.end>=(HOURS[CLOSE_SLOT]+1)*60?1:0;
       const count=(personReg[p.id]||0)+willClose;
-      const prevDept=out[i-1]?.dept;
-      const sameDept=isFloor(p.dept)&&isFloor(prevDept)&&p.dept===prevDept?1:0;
-      // 優先順位：締めGOD → 部門を空けない → 今日の回数が少ない人 → 前の時間と同じ部門を避ける → 役職とレベル → 連続しない → 部門のレジ回数を均等に
-      return [i===CLOSE_SLOT&&!p.closer?1:0,floor,p.level===4?1:0,count,sameDept,prio(p),isFloor(p.dept)?-backlog[p.dept]:0,consec,dr,spare];
+      // 優先順位：締めGOD（締めの枠はレベル2 → 1 → 3） → 部門を空けない → 今日の回数が少ない人 → 役職とレベル → 連続しない → 部門のレジ回数を均等に
+      return [i===CLOSE_SLOT&&!p.closer?1:0,i===CLOSE_SLOT&&p.closer?CLOSE_LV[p.level]:0,floor,p.level===4?1:0,count,prio(p),isFloor(p.dept)?-backlog[p.dept]:0,consec,dr,spare];
     };
     let pick=null,locked=false;
     const lockId=ed.locks[i];
@@ -381,7 +380,6 @@ function generate(){
     if(pick){
       if(isFloor(pick.dept)&&deptCount[pick.dept]-1<1)flags.push(["bad","部門が空く"]);
       if(out[i-1]?.id===pick.id)flags.push(["warn","2時間連続"]);
-      else if(isFloor(pick.dept)&&out[i-1]?.dept===pick.dept)flags.push(["warn","同じ部門が連続"]);
       if(pick.level===3)flags.push(["warn","レベル3が担当"]);
       if(pick.level===0)flags.push(["warn","見習いが担当"]);
       if(pick.level===4)flags.push(["warn","レベル4が担当"]);
@@ -567,7 +565,7 @@ function openSheet(i){
   sheetSlot=i;const p=plan[i];
   $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当`;
   const ed=day.edits;
-  const cands=p.present.filter(eligible).sort((a,b)=>(i===CLOSE_SLOT?(b.closer-a.closer):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
+  const cands=p.present.filter(eligible).sort((a,b)=>(i===CLOSE_SLOT?(b.closer-a.closer)||(CLOSE_LV[a.level]-CLOSE_LV[b.level]):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
   $("#sheet-cands").innerHTML=cands.map(c=>{
     const onBreak=ed.breaks.includes(c.id+"|"+i);
     return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}"><span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}</span></span><span class="chips">${deptChip(c.dept)}<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>${c.closer?'<span class="chip ok">締めGOD</span>':""}${onBreak?'<span class="chip warn">休憩</span>':""}</span></button>`}).join("")||
