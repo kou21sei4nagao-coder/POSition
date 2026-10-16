@@ -171,7 +171,7 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>だけです。リーダーと店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>レベルは <b>1 優先して入る</b> → <b>2 普通</b> → <b>3 足りない時だけ</b> → <b>0 見習い</b> の順で割り当てます。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>だけで、この順番で回します。PNリーダー・リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>0 見習い</b>は役職に関係なく最後です。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締めGOD</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -204,11 +204,14 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
 
 <script>
 const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
-const ROLE={baito:"PN",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
+const ROLE={baito:"PN",pnleader:"PNリーダー",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
+const ROLE_RANK={baito:0,rookie:1,sub:2};   // レジに入る役職の順番
 const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3"};
 const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い（他に誰もいない時だけ）"};
 const LEVELS=[1,2,3,0];
 const rank=l=>l===0?4:l;   // 見習いは一番後回し
+// 役職が先、同じ役職の中でレベル順。見習いは役職に関係なく最後
+const prio=p=>p.level===0?100+ROLE_RANK[p.role]:ROLE_RANK[p.role]*10+p.level;
 const CLOSE_SLOT=11;       // 20:00〜21:00 はレジ締め
 const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
 const WD="日月火水木金土";
@@ -321,8 +324,11 @@ function generate(){
       const consec=out[i-1]?.id===p.id?1:0;
       const dr=isFloor(p.dept)?deptReg[p.dept]:maxReg;
       const spare=isFloor(p.dept)?-deptCount[p.dept]:0;
-      const saveCloser=i===CLOSE_SLOT-1&&p.closer&&p.end>=(HOURS[CLOSE_SLOT]+1)*60?1:0; // 締めの直前は締めGODを温存
-      return [i===CLOSE_SLOT&&!p.closer?1:0,floor,rank(p.level),saveCloser,consec,dr,spare,personReg[p.id]||0];
+      // 締めまでいる締めGODは「締めで1回入る予定」として数え、日中はなるべく後回しにする
+      const willClose=i<CLOSE_SLOT&&p.closer&&p.end>=(HOURS[CLOSE_SLOT]+1)*60?1:0;
+      const count=(personReg[p.id]||0)+willClose;
+      // 優先順位：締めGOD → 部門を空けない → 今日の回数が少ない人 → 役職とレベル → 連続しない → 部門のレジ回数を均等に
+      return [i===CLOSE_SLOT&&!p.closer?1:0,floor,count,prio(p),consec,dr,spare];
     };
     let pick=null,locked=false;
     const lockId=ed.locks[i];
@@ -482,7 +488,7 @@ function openSheet(i){
   sheetSlot=i;const p=plan[i];
   $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当`;
   const ed=day.edits;
-  const cands=p.present.filter(eligible).sort((a,b)=>(i===CLOSE_SLOT?(b.closer-a.closer):0)||rank(a.level)-rank(b.level)||a.name.localeCompare(b.name,"ja"));
+  const cands=p.present.filter(eligible).sort((a,b)=>(i===CLOSE_SLOT?(b.closer-a.closer):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
   $("#sheet-cands").innerHTML=cands.map(c=>{
     const onBreak=ed.breaks.includes(c.id+"|"+i);
     return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}"><span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}</span></span><span class="chips">${deptChip(c.dept)}<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>${c.closer?'<span class="chip ok">締めGOD</span>':""}${onBreak?'<span class="chip warn">休憩</span>':""}</span></button>`}).join("")||
