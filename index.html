@@ -171,7 +171,7 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>と<b>副リーダー</b>だけです。リーダーと店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>レベルは <b>1 優先して入る</b> → <b>2 普通</b> → <b>3 足りない時だけ</b> → <b>0 見習い</b> の順で割り当てます。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>だけです。リーダーと店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>レベルは <b>1 優先して入る</b> → <b>2 普通</b> → <b>3 足りない時だけ</b> → <b>0 見習い</b> の順で割り当てます。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締めGOD</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -204,7 +204,7 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
 
 <script>
 const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
-const ROLE={baito:"PN",sub:"副リーダー",leader:"リーダー",manager:"店長"};
+const ROLE={baito:"PN",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
 const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3"};
 const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い（他に誰もいない時だけ）"};
 const LEVELS=[1,2,3,0];
@@ -217,7 +217,7 @@ const EXTRA_DEPTS=["店長","流通便"];          // レジにもフロア人�
 const isFloor=d=>d>=0&&d<4;
 const deptName=d=>d>=4?EXTRA_DEPTS[d-4]:roster.depts[d];
 const allDepts=()=>[...roster.depts,...EXTRA_DEPTS];
-const eligible=p=>(p.role==="baito"||p.role==="sub")&&p.dept<4;
+const eligible=p=>(p.role==="baito"||p.role==="rookie"||p.role==="sub")&&p.dept<4;
 
 /* ---------- 例のデータ ---------- */
 const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
@@ -384,7 +384,7 @@ function renderPlan(){
     `<div class="tile"><span class="k">埋まった時間</span><span class="v">${filled}<small> / ${HOURS.length}</small></span></div>`;
   $("#roll").innerHTML=plan.map(p=>{
     const chips=[];
-    if(p.id){chips.push(deptChip(p.dept));if(p.role==="sub")chips.push(`<span class="chip">副リーダー</span>`);if(p.locked)chips.push(`<span class="chip lock">手動</span>`)}
+    if(p.id){chips.push(deptChip(p.dept));if(p.role==="sub"||p.role==="rookie")chips.push(`<span class="chip">${ROLE[p.role]}</span>`);if(p.locked)chips.push(`<span class="chip lock">手動</span>`)}
     p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
     return `<button class="slot" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
       <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
