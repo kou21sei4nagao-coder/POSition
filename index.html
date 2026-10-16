@@ -171,7 +171,7 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>だけで、この順番で回します。PNリーダー・リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>0 見習い</b>は役職に関係なく最後です。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>0 見習い</b>はその後、<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。</p>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締めGOD</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -205,13 +205,13 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
 <script>
 const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
 const ROLE={baito:"PN",pnleader:"PNリーダー",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
-const ROLE_RANK={baito:0,rookie:1,sub:2};   // レジに入る役職の順番
-const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3"};
-const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い（他に誰もいない時だけ）"};
-const LEVELS=[1,2,3,0];
+const ROLE_RANK={baito:0,rookie:1,sub:2,pnleader:3};   // レジに入る役職の順番
+const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3",4:"レベル4"};
+const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い",4:"めったに入らない（最終手段）"};
+const LEVELS=[1,2,3,0,4];
 const rank=l=>l===0?4:l;   // 見習いは一番後回し
 // 役職が先、同じ役職の中でレベル順。見習いは役職に関係なく最後
-const prio=p=>p.level===0?100+ROLE_RANK[p.role]:ROLE_RANK[p.role]*10+p.level;
+const prio=p=>p.level===4?200+ROLE_RANK[p.role]:p.level===0?100+ROLE_RANK[p.role]:ROLE_RANK[p.role]*10+p.level;
 const CLOSE_SLOT=11;       // 20:00〜21:00 はレジ締め
 const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
 const WD="日月火水木金土";
@@ -220,7 +220,7 @@ const EXTRA_DEPTS=["店長","流通便"];          // レジにもフロア人�
 const isFloor=d=>d>=0&&d<4;
 const deptName=d=>d>=4?EXTRA_DEPTS[d-4]:roster.depts[d];
 const allDepts=()=>[...roster.depts,...EXTRA_DEPTS];
-const eligible=p=>(p.role==="baito"||p.role==="rookie"||p.role==="sub")&&p.dept<4;
+const eligible=p=>(p.role in ROLE_RANK)&&p.dept<4;
 
 /* ---------- 例のデータ ---------- */
 const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
@@ -254,7 +254,7 @@ function lines(text){
   while(ls.length&&!ls[ls.length-1].trim())ls.pop();
   return ls;
 }
-function normStaff(s){if(!ROLE[s.role])s.role="baito";if(![0,1,2,3].includes(s.level))s.level=1;s.closer=!!s.closer;if(typeof s.dept!=="number")s.dept=-1;return s}
+function normStaff(s){if(!ROLE[s.role])s.role="baito";if(![0,1,2,3,4].includes(s.level))s.level=1;s.closer=!!s.closer;if(typeof s.dept!=="number")s.dept=-1;return s}
 
 /* ---------- 名簿 ---------- */
 // C列の貼り付けから、行の並び（空白行も含む）とグループ（空白で区切られた塊）を作る
@@ -328,7 +328,7 @@ function generate(){
       const willClose=i<CLOSE_SLOT&&p.closer&&p.end>=(HOURS[CLOSE_SLOT]+1)*60?1:0;
       const count=(personReg[p.id]||0)+willClose;
       // 優先順位：締めGOD → 部門を空けない → 今日の回数が少ない人 → 役職とレベル → 連続しない → 部門のレジ回数を均等に
-      return [i===CLOSE_SLOT&&!p.closer?1:0,floor,count,prio(p),consec,dr,spare];
+      return [i===CLOSE_SLOT&&!p.closer?1:0,floor,p.level===4?1:0,count,prio(p),consec,dr,spare];
     };
     let pick=null,locked=false;
     const lockId=ed.locks[i];
@@ -343,6 +343,7 @@ function generate(){
       if(out[i-1]?.id===pick.id)flags.push(["warn","2時間連続"]);
       if(pick.level===3)flags.push(["warn","レベル3が担当"]);
       if(pick.level===0)flags.push(["warn","見習いが担当"]);
+      if(pick.level===4)flags.push(["warn","レベル4が担当"]);
       if(i===CLOSE_SLOT)flags.push(pick.closer?["ok","締めGOD"]:["bad","締めGODではない"]);
       if(isFloor(pick.dept))deptReg[pick.dept]++;
       personReg[pick.id]=(personReg[pick.id]||0)+1;
@@ -390,7 +391,7 @@ function renderPlan(){
     `<div class="tile"><span class="k">埋まった時間</span><span class="v">${filled}<small> / ${HOURS.length}</small></span></div>`;
   $("#roll").innerHTML=plan.map(p=>{
     const chips=[];
-    if(p.id){chips.push(deptChip(p.dept));if(p.role==="sub"||p.role==="rookie")chips.push(`<span class="chip">${ROLE[p.role]}</span>`);if(p.locked)chips.push(`<span class="chip lock">手動</span>`)}
+    if(p.id){chips.push(deptChip(p.dept));if(p.role!=="baito")chips.push(`<span class="chip">${ROLE[p.role]}</span>`);if(p.locked)chips.push(`<span class="chip lock">手動</span>`)}
     p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
     return `<button class="slot" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
       <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
@@ -468,7 +469,8 @@ $("#staff-body").addEventListener("change",e=>{
     saveRoster();renderRoster();return;
   }
   const s=roster.staff[t.dataset.id];if(!s)return;
-  s[t.dataset.f]=t.dataset.f==="role"?t.value:t.dataset.f==="closer"?t.checked:+t.value;saveRoster();renderRoster();
+  s[t.dataset.f]=t.dataset.f==="role"?t.value:t.dataset.f==="closer"?t.checked:+t.value;
+  if(t.dataset.f==="role"&&t.value==="pnleader")s.level=4;saveRoster();renderRoster();
 });
 $("#dept-names").addEventListener("change",e=>{const k=+e.target.dataset.k;roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];saveRoster();renderRoster()});
 
