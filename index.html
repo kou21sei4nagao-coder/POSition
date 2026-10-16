@@ -16,7 +16,7 @@
 /* Layout: one working column for iPad/phone — summary strip, then the hour-by-hour register roll like a receipt */
 :root{
   --bg:#eef1f4; --surface:#ffffff; --ink:#18222c; --muted:#5b6876; --line:#d6dde4; --accent:#1d58b8; --accent-ink:#ffffff;
-  --on:#d3e0f3; --warn:#a85412; --warn-bg:#fdf0e3; --bad:#b8322a; --bad-bg:#fbe9e7; --soft:#e4ebf3;
+  --on:#c4d5ee; --warn:#a85412; --warn-bg:#fdf0e3; --bad:#b8322a; --bad-bg:#fbe9e7; --soft:#e4ebf3;
   --d0:#0f7a6c; --d0bg:#ddf2ee; --d1:#9a6a00; --d1bg:#f8eed2; --d2:#b03a62; --d2bg:#f8e2ea; --d3:#5b4bb7; --d3bg:#e8e5f8;
   --font-body:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
   --font-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -98,7 +98,7 @@ td select{min-height:38px;padding:4px 8px}
 .side{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 0;max-height:calc(100vh - 40px);overflow:auto}
 .side-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 12px 6px}
 .pr{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;align-items:center;padding:5px 12px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
-.pr[aria-pressed="true"]{background:var(--soft)}
+.pr[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
 .pr .nm{font-size:.88rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pr .nm small{display:block;font-weight:500;color:var(--muted);font-size:.68rem;white-space:normal;line-height:1.35}
 .pr .cnt{font-family:var(--font-mono);font-weight:700;text-align:right;font-size:.85rem}
@@ -110,7 +110,11 @@ td select{min-height:38px;padding:4px 8px}
 .cell.brk{background:var(--warn-bg);border-color:var(--warn)}
 .hours{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;padding:0 12px 4px}
 .hours .hrow{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
-.dept-head{padding:8px 12px 4px;border-top:1px solid var(--line)}
+.dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) 70%,var(--surface));margin-top:8px}
+.dsec.d0{--dc:var(--d0);--dt:var(--d0bg)}.dsec.d1{--dc:var(--d1);--dt:var(--d1bg)}.dsec.d2{--dc:var(--d2);--dt:var(--d2bg)}.dsec.d3{--dc:var(--d3);--dt:var(--d3bg)}
+.dsec .pr{border-top-color:color-mix(in srgb,var(--dc) 18%,transparent)}
+.dept-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 12px 6px;color:var(--dc);font-weight:700;font-size:.92rem}
+.dept-head span{font-weight:500;font-size:.75rem;color:var(--muted)}
 .legend{display:flex;flex-wrap:wrap;gap:12px;padding:8px 12px 0;font-size:.75rem;color:var(--muted)}
 .legend .cell{width:14px;vertical-align:-2px;margin-right:4px}
 .slot.hl{background:var(--soft);box-shadow:inset 4px 0 0 var(--accent)}
@@ -207,9 +211,9 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締めGOD</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。締めGODの中ではレベル <b>2</b> → <b>1</b> → <b>3</b> の順です。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締め</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。締めの人の中ではレベル <b>1</b> → <b>2</b> → <b>3</b> の順です。</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締めGOD</th></tr></thead>
+      <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締め</th></tr></thead>
       <tbody id="staff-body"></tbody>
     </table></div>
 
@@ -249,7 +253,7 @@ const rank=l=>l===0?4:l;   // 見習いは一番後回し
 // 役職が先、同じ役職の中でレベル順。見習いは役職に関係なく最後
 const prio=p=>p.level===4?200+ROLE_RANK[p.role]:p.level===0?100+ROLE_RANK[p.role]:ROLE_RANK[p.role]*10+p.level;
 const CLOSE_SLOT=11;       // 20:00〜21:00 はレジ締め
-const CLOSE_LV={2:0,1:1,3:2,4:3,0:4}; // 締めはレベル2 → 1 → 3 → 4 の順
+const CLOSE_LV={1:0,2:1,3:2,4:3,0:4}; // 締めはレベル1 → 2 → 3 → 4 の順
 const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
 const WD="日月火水木金土";
 const LS_ROSTER="position.roster", LS_DAY="position.day";
@@ -363,10 +367,10 @@ function generate(){
       const consec=out[i-1]?.id===p.id?1:0;
       const dr=isFloor(p.dept)?deptReg[p.dept]:maxReg;
       const spare=isFloor(p.dept)?-deptCount[p.dept]:0;
-      // 締めまでいる締めGODは「締めで1回入る予定」として数え、日中はなるべく後回しにする
+      // 締めまでいる締めの人は「締めで1回入る予定」として数え、日中はなるべく後回しにする
       const willClose=i<CLOSE_SLOT&&p.closer&&p.end>=(HOURS[CLOSE_SLOT]+1)*60?1:0;
       const count=(personReg[p.id]||0)+willClose;
-      // 優先順位：締めGOD（締めの枠はレベル2 → 1 → 3） → 部門を空けない → 今日の回数が少ない人 → 役職とレベル → 連続しない → 部門のレジ回数を均等に
+      // 優先順位：締め（締めの枠はレベル1 → 2 → 3） → 部門を空けない → 今日の回数が少ない人 → 役職とレベル → 連続しない → 部門のレジ回数を均等に
       return [i===CLOSE_SLOT&&!p.closer?1:0,i===CLOSE_SLOT&&p.closer?CLOSE_LV[p.level]:0,floor,p.level===4?1:0,count,prio(p),isFloor(p.dept)?-backlog[p.dept]:0,consec,dr,spare];
     };
     let pick=null,locked=false;
@@ -383,11 +387,11 @@ function generate(){
       if(pick.level===3)flags.push(["warn","レベル3が担当"]);
       if(pick.level===0)flags.push(["warn","見習いが担当"]);
       if(pick.level===4)flags.push(["warn","レベル4が担当"]);
-      if(i===CLOSE_SLOT)flags.push(pick.closer?["ok","締めGOD"]:["bad","締めGODではない"]);
+      if(i===CLOSE_SLOT)flags.push(pick.closer?["ok","締め"]:["bad","締めの人ではない"]);
       if(isFloor(pick.dept))deptReg[pick.dept]++;
       personReg[pick.id]=(personReg[pick.id]||0)+1;
     }
-    if(!pick&&i===CLOSE_SLOT)flags.push(["bad","締めGODがいない"]);
+    if(!pick&&i===CLOSE_SLOT)flags.push(["bad","締めの人がいない"]);
     out.push({i,h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,role:pick?.role,locked,flags,present});
   });
   plan=out;
@@ -449,8 +453,9 @@ function renderSide(){
   const html=order.map(d=>{
     const ps=people.filter(p=>p.dept===d);
     if(!ps.length)return "";
-    const head=d===-1?`<span class="chip">部門未設定</span>`:deptChip(d);
-    return `<div class="dept-head">${head}</div>`+ps.map(p=>{
+    const label=d===-1?"部門未設定":deptName(d);
+    const regN=ps.reduce((a,p)=>a+(regBy[p.id]?.size||0),0);
+    return `<section class="dsec ${isFloor(d)?"d"+d:""}"><div class="dept-head">${esc(label)}<span>${ps.length}人${isFloor(d)?`・レジ${regN}回`:""}</span></div>`+ps.map(p=>{
       const n=regBy[p.id]?.size||0, can=eligible(p)&&p.level!==0;
       const tag=!eligible(p)?"レジ外":p.level===0?"見習い":ROLE[p.role]+(p.level?"・Lv"+p.level:"");
       const cells=HOURS.map((h,i)=>{
@@ -459,7 +464,7 @@ function renderSide(){
         return `<i class="cell ${cls}"></i>`;
       }).join("");
       return `<button class="pr ${can?"":"off"}" data-id="${p.id}" aria-pressed="${focusId===p.id}"><span class="nm">${esc(p.name)}${p.closer?' <span class="chip ok" style="font-size:.6rem;padding:0 5px">締</span>':""}<small>${fmt(p.start)}-${fmt(p.end)}<br>${tag}</small></span><span class="bars">${cells}</span><span class="cnt">${n?n+"回":""}</span></button>`;
-    }).join("");
+    }).join("")+`</section>`;
   }).join("");
   $("#side-list").innerHTML=html||`<p class="muted" style="padding:0 12px">シフトを貼り付けると、ここに出勤者が並びます。</p>`;
   document.querySelectorAll("#roll .slot").forEach(el=>{const p=plan[+el.dataset.i];el.classList.toggle("hl",!!focusId&&p.id===focusId)});
@@ -485,7 +490,7 @@ function renderRoster(){
       <td><select data-id="${id}" data-f="dept" aria-label="${esc(s.name)}の部門"><option value="-1">未設定</option>${allDepts().map((d,k)=>`<option value="${k}" ${s.dept===k?"selected":""}>${esc(d)}</option>`).join("")}</select></td>
       <td>${s.dept>=4?`<span class="muted">—</span>`:`<select data-id="${id}" data-f="role" aria-label="${esc(s.name)}の役職">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${s.role===k?"selected":""}>${v}</option>`).join("")}</select>`}</td>
       <td>${eligible(s)?`<select data-id="${id}" data-f="level" aria-label="${esc(s.name)}のレベル">${LEVELS.map(l=>`<option value="${l}" ${s.level===l?"selected":""}>${l}　${LEVEL_HINT[l]}</option>`).join("")}</select>`:`<span class="muted">レジに入らない</span>`}</td>
-      <td>${eligible(s)?`<label class="closer"><input type="checkbox" data-id="${id}" data-f="closer" ${s.closer?"checked":""} aria-label="${esc(s.name)}は締めGOD"> 締められる</label>`:""}</td></tr>`);
+      <td>${eligible(s)?`<label class="closer"><input type="checkbox" data-id="${id}" data-f="closer" ${s.closer?"checked":""} aria-label="${esc(s.name)}は締め"> 締められる</label>`:""}</td></tr>`);
   });
   $("#staff-body").innerHTML=rows.join("")||`<tr><td colspan="6" class="muted">まだ名簿がありません。</td></tr>`;
 }
@@ -568,7 +573,7 @@ function openSheet(i){
   const cands=p.present.filter(eligible).sort((a,b)=>(i===CLOSE_SLOT?(b.closer-a.closer)||(CLOSE_LV[a.level]-CLOSE_LV[b.level]):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
   $("#sheet-cands").innerHTML=cands.map(c=>{
     const onBreak=ed.breaks.includes(c.id+"|"+i);
-    return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}"><span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}</span></span><span class="chips">${deptChip(c.dept)}<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>${c.closer?'<span class="chip ok">締めGOD</span>':""}${onBreak?'<span class="chip warn">休憩</span>':""}</span></button>`}).join("")||
+    return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}"><span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}</span></span><span class="chips">${deptChip(c.dept)}<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>${c.closer?'<span class="chip ok">締め</span>':""}${onBreak?'<span class="chip warn">休憩</span>':""}</span></button>`}).join("")||
     `<p class="muted">この時間に入れる人がいません。</p>`;
   $("#sheet-break").disabled=!p.id;
   $("#sheet-unlock").disabled=!p.locked;
