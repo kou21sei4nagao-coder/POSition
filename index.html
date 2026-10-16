@@ -124,11 +124,12 @@ td select{min-height:38px;padding:4px 8px}
   <!-- 貼り付け -->
   <section class="panel" id="p-paste" hidden>
     <ol class="steps">
-      <li>Googleスプレッドシートで、名前の列（一番左）から日付の列まで範囲を選んでコピー</li>
+      <li>Googleスプレッドシートで、左上の角（Aと1の間のマス）をタップしてシート全体を選び、コピー</li>
       <li>下の欄に貼り付けて「読み込む」</li>
       <li>日付を選ぶとレジ番表が作られます。名前は自動でスタッフに追加されます</li>
     </ol>
-    <textarea id="paste" placeholder="ここに貼り付け"></textarea>
+    <textarea id="paste" placeholder="ここに貼り付け、または1行に1人ずつ入力&#10;&#10;例）&#10;上野 9-14&#10;青木 8:30-18&#10;江口 17-21:30"></textarea>
+    <p class="muted" style="margin:0">手入力するときは「名前 スペース 時間」を1行に1人ずつ。時間は 9-18、8:30-18、17-21:30 のどの書き方でも読めます。</p>
     <div class="bar">
       <button class="btn primary" id="load">読み込む</button>
       <span class="muted" id="load-msg"></span>
@@ -233,7 +234,14 @@ function activeRoster(){return isSample?sampleRoster:roster}
 
 /* ---------- parsing ---------- */
 function parseSheet(text){
-  const rows=text.split(/\r?\n/).map(r=>r.split("\t"));
+  // タブ区切り（スプレッドシートのコピー）と「名前 9-18」の手入力の両方に対応
+  const TIME=/\d{1,2}(?:[:：.]\d{2})?\s*[-~〜～ー－−]\s*\d{1,2}(?:[:：.]\d{2})?/;
+  const rows=text.split(/\r?\n/).filter(l=>l.trim()).map(l=>{
+    if(l.includes("\t"))return l.split("\t");
+    const h=toHalf(l), m=h.match(TIME);
+    if(!m)return [l];
+    return [h.slice(0,m.index).replace(/[\s　,，、:：]+$/,""),m[0]];
+  });
   let headIdx=-1,best=0;
   rows.forEach((r,i)=>{const n=r.filter(c=>/^\s*\d{1,2}\s*日/.test(toHalf(c))).length;if(n>best){best=n;headIdx=i}});
   const cols=[];
@@ -243,7 +251,22 @@ function parseSheet(text){
     const w=Math.max(...rows.map(r=>r.length));
     for(let j=w-1;j>0;j--){if(rows.some(r=>parseTime(r[j]))){cols.push({col:j,label:"貼り付けた日"});break}}
   }
-  const people=rows.filter((r,i)=>i!==headIdx&&normName(r[0])&&r.slice(1).some(c=>parseTime(c)));
+  // 名前の列を探す：日付の列より左で、人ごとに違う文字が一番多く入っている列
+  const firstDate=cols.length?Math.min(...cols.map(c=>c.col)):1;
+  const dataRows=rows.filter((r,i)=>i!==headIdx&&cols.some(c=>parseTime(r[c.col])));
+  // シート全体をコピーした場合はC列（3列目）が名前。範囲だけコピーした場合は自動で探す
+  const NAME_COL=2;
+  const counts=[];
+  for(let j=0;j<firstDate;j++){
+    const set=new Set();
+    dataRows.forEach(r=>{const v=normName(r[j]);if(v&&/[ぁ-ゖァ-ヺ一-龯A-Za-z]/.test(v)&&!TIME.test(toHalf(v)))set.add(v)});
+    counts[j]=set.size;
+  }
+  let nameCol=0,bestN=0;
+  counts.forEach((n,j)=>{if(n>bestN){bestN=n;nameCol=j}});
+  if(counts[NAME_COL]>0&&counts[NAME_COL]>=bestN*0.8)nameCol=NAME_COL;
+  if(nameCol)rows.forEach(r=>{r[0]=r[nameCol]});
+  const people=rows.filter((r,i)=>i!==headIdx&&normName(r[0])&&cols.some(c=>parseTime(r[c.col])));
   return {rows:people,cols};
 }
 function peopleOn(col){
@@ -287,7 +310,6 @@ function generate(){
       if(pick.dept>=0&&deptCount[pick.dept]-1<1)flags.push(["bad","部門が空く"]);
       if(out[i-1]?.id===pick.id)flags.push(["warn","2時間連続"]);
       if(pick.level===3)flags.push(["warn","レベル3が担当"]);
-      if(pick.dept<0)flags.push(["warn","部門未設定"]);
       if(pick.dept>=0)deptReg[pick.dept]++;
       personReg[pick.id]=(personReg[pick.id]||0)+1;
     }
