@@ -89,8 +89,21 @@ td select{min-height:38px;padding:4px 8px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:700;z-index:30}
 @media (max-width:480px){.slot{grid-template-columns:70px minmax(0,1fr) auto;gap:8px}}
 @media (prefers-reduced-motion:no-preference){.slot{transition:background .15s}}
+.match{display:grid;grid-template-columns:2.4em minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 12px;border-top:1px solid var(--line);font-size:.92rem}
+.match:first-child{border-top:0}
+.match .no{font-family:var(--font-mono);color:var(--muted);font-size:.75rem;text-align:right}
+.match .t{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600}
+.match.off{color:var(--muted)}
+.match.gap{padding:2px 12px;background:var(--soft);min-height:8px}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;max-height:420px;overflow:auto}
+.group-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--soft);border-top:1px solid var(--line)}
+.group-head:first-child{border-top:0}
+.group-head b{font-size:.9rem}
+.stepno{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.8rem;margin-right:6px}
+h2.sec{font-size:1.05rem;margin:0}
+.ok{color:var(--d0);font-weight:700}
+input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-height:44px}
 </style>
-
 </head>
 <body>
 <div class="wrap">
@@ -102,16 +115,34 @@ td select{min-height:38px;padding:4px 8px}
   </header>
 
   <div class="tabs" role="tablist">
-    <button role="tab" id="tab-plan" aria-selected="true">レジ番表</button>
-    <button role="tab" id="tab-paste" aria-selected="false">シフト貼り付け</button>
-    <button role="tab" id="tab-staff" aria-selected="false">スタッフ</button>
+    <button role="tab" id="tab-day" aria-selected="true">今日のシフト</button>
+    <button role="tab" id="tab-plan" aria-selected="false">レジ番表</button>
+    <button role="tab" id="tab-roster" aria-selected="false">名簿</button>
   </div>
 
-  <!-- レジ番表 -->
-  <section class="panel" id="p-plan">
-    <div class="notice" id="sample-note">いま表示しているのは例のデータです。「シフト貼り付け」から実際のシフト表を貼ると切り替わります。</div>
+  <!-- 今日のシフト -->
+  <section class="panel" id="p-day">
+    <div class="notice" id="sample-note">いま入っているのは例のデータです。「名簿」で名前を登録すると切り替わります。</div>
+    <h2 class="sec"><span class="stepno">1</span>作りたい日の列を貼り付け</h2>
+    <ol class="steps">
+      <li>シフト表で、作りたい日の列を<b>名簿と同じ行から同じ行まで</b>選んでコピー</li>
+      <li>下に貼り付けると、照合結果の一覧で名前と時間が横並びで照合されます</li>
+    </ol>
     <div class="bar">
-      <label class="fld">日付<select id="date-sel"></select></label>
+      <label class="fld">日付<input type="date" id="day-date"></label>
+    </div>
+    <textarea id="day-paste" placeholder="ここにその日の列を貼り付け" style="min-height:140px"></textarea>
+    <p class="muted" id="day-msg" style="margin:0"></p>
+    <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
+    <p class="muted" style="margin:0">名前と時間がずれていないか、ざっと確認してください。ずれていたら、コピーした行の範囲が名簿と違います。</p>
+    <div class="list" id="day-list"></div>
+    <button class="btn primary" id="to-plan">レジ番表を作る</button>
+  </section>
+
+  <!-- レジ番表 -->
+  <section class="panel" id="p-plan" hidden>
+    <div class="bar">
+      <b id="plan-date"></b>
       <button class="btn" id="regen">作り直す</button>
       <button class="btn" id="clear-edits">手動変更をリセット</button>
       <button class="btn primary" id="copy-out">テキストでコピー</button>
@@ -121,23 +152,28 @@ td select{min-height:38px;padding:4px 8px}
     <p class="muted">時間帯をタップすると担当を変更したり、休憩で外したりできます。変更した時間は固定され、ほかの時間が組み直されます。</p>
   </section>
 
-  <!-- 貼り付け -->
-  <section class="panel" id="p-paste" hidden>
+  <!-- 名簿 -->
+  <section class="panel" id="p-roster" hidden>
+    <h2 class="sec">名簿の登録（最初の1回と、人が増減した時だけ）</h2>
     <ol class="steps">
-      <li>Googleスプレッドシートで、左上の角（Aと1の間のマス）をタップしてシート全体を選び、コピー</li>
-      <li>下の欄に貼り付けて「読み込む」</li>
-      <li>日付を選ぶとレジ番表が作られます。名前は自動でスタッフに追加されます</li>
+      <li>シフト表で、名前が並んでいる<b>C列</b>を一番上の人から一番下の人まで選んでコピー（部門の間の空白もそのまま）</li>
+      <li>下に貼り付けて「名簿を登録」</li>
+      <li>空白で区切られたグループごとに部門を選ぶ</li>
     </ol>
-    <textarea id="paste" placeholder="ここに貼り付け、または1行に1人ずつ入力&#10;&#10;例）&#10;上野 9-14&#10;青木 8:30-18&#10;江口 17-21:30"></textarea>
-    <p class="muted" style="margin:0">手入力するときは「名前 スペース 時間」を1行に1人ずつ。時間は 9-18、8:30-18、17-21:30 のどの書き方でも読めます。</p>
+    <textarea id="roster-paste" placeholder="ここにC列の名前を貼り付け" style="min-height:140px"></textarea>
     <div class="bar">
-      <button class="btn primary" id="load">読み込む</button>
-      <span class="muted" id="load-msg"></span>
+      <button class="btn primary" id="roster-load">名簿を登録</button>
+      <span class="muted" id="roster-msg"></span>
     </div>
-  </section>
+    <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
-  <!-- スタッフ -->
-  <section class="panel" id="p-staff" hidden>
+    <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>と<b>副リーダー</b>だけです。リーダーと店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>レベルは <b>1 優先して入る</b> → <b>2 普通</b> → <b>3 足りない時だけ</b> の順で割り当てます。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th></tr></thead>
+      <tbody id="staff-body"></tbody>
+    </table></div>
+
     <div>
       <p class="muted" style="margin:0 0 6px">部門名</p>
       <div class="depts" id="dept-names"></div>
@@ -147,15 +183,6 @@ td select{min-height:38px;padding:4px 8px}
       <label class="btn" for="import" style="display:inline-flex;align-items:center">読み込み（復元）</label>
       <input type="file" id="import" accept=".json,application/json" hidden>
     </div>
-    <div class="bar">
-      <label class="fld" style="flex:1;min-width:200px">名前で絞り込み<input type="text" id="filter"></label>
-      <span class="muted" id="staff-count"></span>
-    </div>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>と<b>副リーダー</b>だけです。リーダーと店長はレジに入らず、フロアの人数にだけ数えます。<br>レベルは <b>1 優先して入る</b> → <b>2 普通</b> → <b>3 足りない時だけ</b> の順で割り当てます。</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th></th></tr></thead>
-      <tbody id="staff-body"></tbody>
-    </table></div>
   </section>
 </div>
 
@@ -177,128 +204,119 @@ const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
 const ROLE={baito:"PN",sub:"副リーダー",leader:"リーダー",manager:"店長"};
 const LEVEL_LABEL={1:"レベル1",2:"レベル2",3:"レベル3"};
 const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ"};
-const eligible=p=>p.role==="baito"||p.role==="sub";
-function normStaff(s){ // 旧データの移行
-  if(!s.role){s.role=s.level===2?"sub":s.level===3?"manager":"baito";s.level=s.level===2?3:1}
-  if(![1,2,3].includes(s.level))s.level=1;
-  return s;
-}
-const LS_ROSTER="regiban.roster", LS_PASTE="regiban.paste", LS_DAY="regiban.day";
+const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
+const WD="日月火水木金土";
+const LS_ROSTER="position.roster", LS_DAY="position.day";
+const EXTRA_DEPTS=["店長","流通便"];          // レジにもフロア人数にも入らない所属
+const isFloor=d=>d>=0&&d<4;
+const deptName=d=>d>=4?EXTRA_DEPTS[d-4]:roster.depts[d];
+const allDepts=()=>[...roster.depts,...EXTRA_DEPTS];
+const eligible=p=>(p.role==="baito"||p.role==="sub")&&p.dept<4;
 
-/* ---------- sample (例) ---------- */
-const SAMPLE_TSV=[
- "名前\t28日\t29日\t30日",
- "例）青木\t9-18\t8:30-18\t",
- "例）石田\t\t10-19:30\t9-18",
- "例）上野\t12-21:30\t9-14\t",
- "例）江口\t\t17-21:30\t12-21:30",
- "例）大西\t9-18\t12-21:30\t",
- "例）川村\t\t8:30-13\t9-18",
- "例）木下\t\t13-21:30\t",
- "例）久保\t10-19\t11:00-20\t",
- "例）小林\t\t9-18\t9-18",
- "例）佐藤\t\t18:30-21:30\t",
- "例）清水（副リーダー）\t9-18\t8:30-18\t9-18",
- "例）鈴木（副リーダー）\t\t12-21:30\t",
- "例）森（リーダー）\t\t9-18\t9-18",
- "例）高橋（店長）\t9-18\t9-18\t",
- "例）田中\t\t14-21:30\t"
-].join("\n");
-const SAMPLE_META={"例）青木":[0,"baito",1],"例）石田":[0,"baito",2],"例）上野":[0,"baito",1],"例）江口":[1,"baito",1],"例）大西":[1,"baito",2],"例）川村":[1,"baito",3],"例）木下":[2,"baito",1],"例）久保":[2,"baito",1],"例）小林":[2,"baito",2],"例）佐藤":[3,"baito",1],"例）清水（副リーダー）":[0,"sub",3],"例）鈴木（副リーダー）":[2,"sub",3],"例）森（リーダー）":[3,"leader",1],"例）高橋（店長）":[1,"manager",1],"例）田中":[3,"baito",2]};
+/* ---------- 例のデータ ---------- */
+const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
+const SAMPLE_ROLE={"例）清水":["sub",3],"例）鈴木":["sub",3],"例）森":["leader",1],"例）石田":["baito",2],"例）大西":["baito",2],"例）小林":["baito",2],"例）川村":["baito",3],"例）田中":["baito",2]};
+const SAMPLE_DAY=["9-18","","8-17","9-18","","8:30-18","10-19:30","9-14","8:30-18","","17-21:30","12-21:30","8:30-13","9-18","","13-21:30","11:00-20","9-18","12-21:30","","18:30-21:30","14-21:30","9-18"].join("\n");
 
 /* ---------- state ---------- */
-const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
-let roster={depts:[...DEFAULT_DEPTS],staff:{}};
-let sampleRoster=null;
+let roster=null;      // {depts, order:[id|""], staff:{id:{name,dept,role,level}}}
 let isSample=true;
-let sheetRows=[]; let dateCols=[]; let selDate=null;
-let edits={}; // per date: {locks:{i:id}, breaks:[ "id|i" ]}
+let day={date:"",text:"",edits:{locks:{},breaks:[]}};
 let plan=[];
 
 const $=s=>document.querySelector(s);
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function normName(s){return String(s||"").replace(/[\s　]+/g," ").trim()}
 function idOf(name){let h=2166136261;for(const c of name){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return "s"+(h>>>0).toString(16)}
 function toHalf(s){return String(s||"").replace(/[０-９：]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))}
+const TIME_RE=/(\d{1,2})(?:[:.](\d{2}))?\s*[-~〜～ー－−]\s*(\d{1,2})(?:[:.](\d{2}))?/;
 function parseTime(s){
-  const m=toHalf(s).match(/(\d{1,2})(?:[:.](\d{2}))?\s*[-~〜～ー－−]\s*(\d{1,2})(?:[:.](\d{2}))?/);
+  const m=toHalf(s).match(TIME_RE);
   if(!m)return null;
   const a=+m[1]*60+(+m[2]||0), b=+m[3]*60+(+m[4]||0);
   return b>a?{start:a,end:b}:null;
 }
 const fmt=m=>Math.floor(m/60)+":"+String(m%60).padStart(2,"0");
+function lines(text){
+  const ls=String(text||"").replace(/\r/g,"").split("\n").map(l=>l.split("\t")[0]);
+  while(ls.length&&!ls[ls.length-1].trim())ls.pop();
+  return ls;
+}
+function normStaff(s){if(!ROLE[s.role])s.role="baito";if(![1,2,3].includes(s.level))s.level=1;if(typeof s.dept!=="number")s.dept=-1;return s}
 
-function activeRoster(){return isSample?sampleRoster:roster}
-
-/* ---------- parsing ---------- */
-function parseSheet(text){
-  // タブ区切り（スプレッドシートのコピー）と「名前 9-18」の手入力の両方に対応
-  const TIME=/\d{1,2}(?:[:：.]\d{2})?\s*[-~〜～ー－−]\s*\d{1,2}(?:[:：.]\d{2})?/;
-  const rows=text.split(/\r?\n/).filter(l=>l.trim()).map(l=>{
-    if(l.includes("\t"))return l.split("\t");
-    const h=toHalf(l), m=h.match(TIME);
-    if(!m)return [l];
-    return [h.slice(0,m.index).replace(/[\s　,，、:：]+$/,""),m[0]];
+/* ---------- 名簿 ---------- */
+// C列の貼り付けから、行の並び（空白行も含む）とグループ（空白で区切られた塊）を作る
+function buildRoster(text,prev){
+  const ls=lines(text).map(normName);
+  const order=[],staff={},groups=[];let g=-1,inGap=true,dup=[];
+  ls.forEach(n=>{
+    if(!n){order.push("");inGap=true;return}
+    if(inGap){g++;inGap=false}
+    let id=idOf(n);
+    if(staff[id]){dup.push(n);id=idOf(n+"#"+order.length)}
+    order.push(id);
+    const old=prev?.staff?.[id];
+    staff[id]=normStaff(old?{...old,name:n,group:g}:{name:n,dept:-1,role:"baito",level:1,group:g});
+    (groups[g]||(groups[g]=[])).push(id);
   });
-  let headIdx=-1,best=0;
-  rows.forEach((r,i)=>{const n=r.filter(c=>/^\s*\d{1,2}\s*日/.test(toHalf(c))).length;if(n>best){best=n;headIdx=i}});
-  const cols=[];
-  if(headIdx>=0){rows[headIdx].forEach((c,j)=>{if(/^\s*\d{1,2}\s*日/.test(toHalf(c)))cols.push({col:j,label:toHalf(c).trim()})})}
-  else{
-    // 日付の見出しなし: 名前+1日分だけ貼った場合
-    const w=Math.max(...rows.map(r=>r.length));
-    for(let j=w-1;j>0;j--){if(rows.some(r=>parseTime(r[j]))){cols.push({col:j,label:"貼り付けた日"});break}}
-  }
-  // 名前の列を探す：日付の列より左で、人ごとに違う文字が一番多く入っている列
-  const firstDate=cols.length?Math.min(...cols.map(c=>c.col)):1;
-  const dataRows=rows.filter((r,i)=>i!==headIdx&&cols.some(c=>parseTime(r[c.col])));
-  // シート全体をコピーした場合はC列（3列目）が名前。範囲だけコピーした場合は自動で探す
-  const NAME_COL=2;
-  const counts=[];
-  for(let j=0;j<firstDate;j++){
-    const set=new Set();
-    dataRows.forEach(r=>{const v=normName(r[j]);if(v&&/[ぁ-ゖァ-ヺ一-龯A-Za-z]/.test(v)&&!TIME.test(toHalf(v)))set.add(v)});
-    counts[j]=set.size;
-  }
-  let nameCol=0,bestN=0;
-  counts.forEach((n,j)=>{if(n>bestN){bestN=n;nameCol=j}});
-  if(counts[NAME_COL]>0&&counts[NAME_COL]>=bestN*0.8)nameCol=NAME_COL;
-  if(nameCol)rows.forEach(r=>{r[0]=r[nameCol]});
-  const people=rows.filter((r,i)=>i!==headIdx&&normName(r[0])&&cols.some(c=>parseTime(r[c.col])));
-  return {rows:people,cols};
+  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,dup};
 }
-function peopleOn(col){
-  const out=[];
-  for(const r of sheetRows){const t=parseTime(r[col]);if(t){const name=normName(r[0]);out.push({id:idOf(name),name,...t})}}
-  return out;
+function sampleRoster(){
+  const r=buildRoster(SAMPLE_NAMES.join("\n"),null);
+  Object.values(r.staff).forEach(s=>{s.dept=s.group===0?4:s.group===1?5:s.group-2;const x=SAMPLE_ROLE[s.name];if(x){s.role=x[0];s.level=x[1]}});
+  return r;
 }
 
-/* ---------- assignment ---------- */
-function staffOf(p){const s=activeRoster().staff[p.id];return s?normStaff(s):{name:p.name,dept:-1,role:"baito",level:1}}
+/* ---------- その日の照合 ---------- */
+function matchDay(){
+  const r=roster, ls=lines(day.text), out=[];
+  // 手入力「名前 9-18」にも対応：名前の入った行が多ければ名前で照合
+  const named=ls.filter(l=>{const h=toHalf(l);const m=h.match(TIME_RE);return m&&/[ぁ-ゖァ-ヺ一-龯A-Za-z]/.test(h.slice(0,m.index))});
+  if(named.length&&named.length>=ls.filter(l=>parseTime(l)).length/2){
+    const byName={};Object.entries(r.staff).forEach(([id,s])=>byName[s.name]=id);
+    named.forEach(l=>{
+      const h=toHalf(l),m=h.match(TIME_RE),n=normName(h.slice(0,m.index).replace(/[,，、:：]+$/,""));
+      const near=Object.keys(byName).find(k=>k.includes(n)||n.includes(k));
+      const id=byName[n]||(near?byName[near]:null);
+      out.push({row:null,id:id||null,name:id?r.staff[id].name:n,raw:l,t:parseTime(l),unknown:!id});
+    });
+    return {mode:"name",rows:out,extra:0};
+  }
+  ls.forEach((l,i)=>{
+    const id=r.order[i];
+    out.push({row:i,id:id||null,name:id?r.staff[id].name:"",raw:l.trim(),t:parseTime(l),gap:!id});
+  });
+  const extra=Math.max(0,ls.length-r.order.length);
+  return {mode:"row",rows:out,extra};
+}
+function presentPeople(){
+  const m=matchDay();
+  return m.rows.filter(x=>x.id&&x.t).map(x=>({id:x.id,...roster.staff[x.id],start:x.t.start,end:x.t.end}));
+}
+
+/* ---------- 割り当て ---------- */
 function generate(){
-  const col=dateCols.find(c=>c.label===selDate);
-  if(!col){plan=[];return}
-  const people=peopleOn(col.col);
-  const ed=edits[selDate]||{locks:{},breaks:[]};
+  const people=presentPeople();
+  const ed=day.edits||(day.edits={locks:{},breaks:[]});
   const breaks=new Set(ed.breaks);
   const deptReg=[0,0,0,0], personReg={};
   const out=[];
   HOURS.forEach((h,i)=>{
     const s=h*60,e=s+60;
-    const present=people.filter(p=>p.start<=s&&p.end>=e).map(p=>({...p,...staffOf(p),id:p.id,name:p.name}));
-    const deptCount=[0,0,0,0];present.forEach(p=>{if(p.dept>=0)deptCount[p.dept]++});
+    const present=people.filter(p=>p.start<=s&&p.end>=e);
+    const deptCount=[0,0,0,0];present.forEach(p=>{if(isFloor(p.dept))deptCount[p.dept]++});
     const maxReg=Math.max(...deptReg);
     const cands=present.filter(p=>eligible(p)&&!breaks.has(p.id+"|"+i)&&!(out[i-1]?.id===p.id&&out[i-2]?.id===p.id));
     const score=p=>{
-      const floor=p.dept>=0&&deptCount[p.dept]-1<1?1:0;
+      const floor=isFloor(p.dept)&&deptCount[p.dept]-1<1?1:0;
       const consec=out[i-1]?.id===p.id?1:0;
-      const dr=p.dept>=0?deptReg[p.dept]:maxReg;
-      const spare=p.dept>=0?-(deptCount[p.dept]):0;
+      const dr=isFloor(p.dept)?deptReg[p.dept]:maxReg;
+      const spare=isFloor(p.dept)?-deptCount[p.dept]:0;
       return [floor,p.level,consec,dr,spare,personReg[p.id]||0];
     };
-    let pick=null, locked=false;
+    let pick=null,locked=false;
     const lockId=ed.locks[i];
     if(lockId){pick=present.find(p=>p.id===lockId)||null;locked=!!pick}
     if(!pick&&cands.length){
@@ -307,29 +325,51 @@ function generate(){
     }
     const flags=[];
     if(pick){
-      if(pick.dept>=0&&deptCount[pick.dept]-1<1)flags.push(["bad","部門が空く"]);
+      if(isFloor(pick.dept)&&deptCount[pick.dept]-1<1)flags.push(["bad","部門が空く"]);
       if(out[i-1]?.id===pick.id)flags.push(["warn","2時間連続"]);
       if(pick.level===3)flags.push(["warn","レベル3が担当"]);
-      if(pick.dept>=0)deptReg[pick.dept]++;
+      if(isFloor(pick.dept))deptReg[pick.dept]++;
       personReg[pick.id]=(personReg[pick.id]||0)+1;
     }
-    out.push({i,h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,level:pick?.level,role:pick?.role,locked,flags,present,deptCount});
+    out.push({i,h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,role:pick?.role,locked,flags,present});
   });
   plan=out;
 }
 
-/* ---------- render ---------- */
-function deptChip(d){const r=activeRoster();return d>=0?`<span class="chip d${d}">${esc(r.depts[d])}</span>`:`<span class="chip">部門未設定</span>`}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-
-function renderPlan(){
+/* ---------- 表示 ---------- */
+function deptChip(d){return isFloor(d)?`<span class="chip d${d}">${esc(roster.depts[d])}</span>`:d>=4?`<span class="chip">${EXTRA_DEPTS[d-4]}</span>`:`<span class="chip">部門未設定</span>`}
+function dateLabel(){
+  if(!day.date)return "（日付未設定）";
+  const d=new Date(day.date+"T00:00:00");
+  return `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]})`;
+}
+function renderDay(){
   $("#sample-note").hidden=!isSample;
-  const sel=$("#date-sel");
-  sel.innerHTML=dateCols.map(c=>`<option ${c.label===selDate?"selected":""}>${esc(c.label)}</option>`).join("");
-  const r=activeRoster();
-  const reg=[0,0,0,0];plan.forEach(p=>{if(p.dept>=0)reg[p.dept]++});
+  const m=matchDay();
+  const list=$("#day-list");
+  const working=m.rows.filter(x=>x.id&&x.t).length;
+  if(!day.text.trim()){list.innerHTML=`<p class="muted" style="padding:12px;margin:0">貼り付けると、ここに名前と時間が並びます。</p>`;$("#day-msg").textContent="";return}
+  if(m.mode==="name"){
+    list.innerHTML=m.rows.map(x=>`<div class="match ${x.unknown?"off":""}"><span class="no"></span><span>${esc(x.name)}${x.unknown?' <span class="chip bad">名簿にいない</span>':""}</span><span class="t">${x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):""}</span></div>`).join("");
+    const unk=m.rows.filter(x=>x.unknown).length;
+    $("#day-msg").innerHTML=`手入力として名前で照合しました：<span class="ok">${working}人出勤</span>${unk?`・名簿にいない名前 ${unk}件（名簿の名前と同じ書き方にしてください）`:""}`;
+    return;
+  }
+  list.innerHTML=m.rows.map(x=>{
+    if(x.gap&&!x.raw)return `<div class="match gap"></div>`;
+    const off=!x.t;
+    return `<div class="match ${off?"off":""}"><span class="no">${x.row+1}</span><span>${x.id?esc(x.name):'<span class="chip bad">名簿の範囲外</span>'}</span><span class="t">${x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):esc(x.raw||"休み")}</span></div>`;
+  }).join("");
+  const stray=m.rows.filter(x=>!x.id&&x.t).length;
+  let msg=`<span class="ok">${working}人出勤</span>（名簿 ${Object.keys(roster.staff).length}人中）`;
+  if(m.extra||stray)msg+=`・<b style="color:var(--bad)">名簿より行が多いか、空白行に時間が入っています。名簿と同じ行から同じ行までコピーしたか確認してください</b>`;
+  $("#day-msg").innerHTML=msg;
+}
+function renderPlan(){
+  $("#plan-date").textContent=dateLabel()+" のレジ番";
+  const reg=[0,0,0,0];plan.forEach(p=>{if(isFloor(p.dept))reg[p.dept]++});
   const filled=plan.filter(p=>p.id).length;
-  $("#tally").innerHTML=r.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v">${reg[k]}<small> 時間</small></span></div>`).join("")+
+  $("#tally").innerHTML=roster.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v">${reg[k]}<small> 時間</small></span></div>`).join("")+
     `<div class="tile"><span class="k">埋まった時間</span><span class="v">${filled}<small> / ${HOURS.length}</small></span></div>`;
   $("#roll").innerHTML=plan.map(p=>{
     const chips=[];
@@ -337,83 +377,99 @@ function renderPlan(){
     p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
     return `<button class="slot" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
       <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
-      <span class="edit">変更</span></button>`}).join("")||`<p class="muted" style="padding:14px">シフト表を貼り付けると、ここにレジ番が並びます。</p>`;
+      <span class="edit">変更</span></button>`}).join("");
 }
-
-function renderStaff(){
-  const r=roster;
-  $("#dept-names").innerHTML=r.depts.map((d,k)=>`<input type="text" id="dept-${k}" data-k="${k}" value="${esc(d)}" aria-label="部門${k+1}の名前">`).join("");
-  const q=normName($("#filter").value);
-  const list=Object.entries(r.staff).filter(([,s])=>!q||s.name.includes(q)).sort((a,b)=>a[1].name.localeCompare(b[1].name,"ja"));
-  const unset=Object.values(r.staff).filter(s=>s.dept<0).length;
-  $("#staff-count").textContent=`${Object.keys(r.staff).length}人登録${unset?` ・部門未設定 ${unset}人`:""}`;
-  $("#staff-body").innerHTML=list.map(([id,s])=>`<tr>
-    <td>${esc(s.name)}</td>
-    <td><select data-id="${id}" data-f="dept" aria-label="${esc(s.name)}の部門"><option value="-1">未設定</option>${r.depts.map((d,k)=>`<option value="${k}" ${s.dept===k?"selected":""}>${esc(d)}</option>`).join("")}</select></td>
-    <td><select data-id="${id}" data-f="role" aria-label="${esc(s.name)}の役職">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${s.role===k?"selected":""}>${v}</option>`).join("")}</select></td>
-    <td>${eligible(s)?`<select data-id="${id}" data-f="level" aria-label="${esc(s.name)}のレベル">${[1,2,3].map(l=>`<option value="${l}" ${s.level===l?"selected":""}>${l}　${LEVEL_HINT[l]}</option>`).join("")}</select>`:`<span class="muted">レジに入らない</span>`}</td>
-    <td><button class="btn small" data-del="${id}">削除</button></td></tr>`).join("")||
-    `<tr><td colspan="5" class="muted">まだ登録がありません。シフト表を貼り付けると名前が自動で入ります。</td></tr>`;
+function renderRoster(){
+  $("#dept-names").innerHTML=roster.depts.map((d,k)=>`<input type="text" id="dept-${k}" data-k="${k}" value="${esc(d)}" aria-label="部門${k+1}の名前">`).join("");
+  const rows=[];let lastG=-1;
+  roster.order.forEach((id,i)=>{
+    if(!id)return;
+    const s=roster.staff[id];
+    if(s.group!==lastG){
+      lastG=s.group;
+      const ids=roster.order.filter(x=>x&&roster.staff[x].group===s.group);
+      const ds=new Set(ids.map(x=>roster.staff[x].dept));const cur=ds.size===1?[...ds][0]:"mixed";
+      rows.push(`<tr><td colspan="5" style="background:var(--soft)"><div class="bar" style="justify-content:space-between"><b>グループ${s.group+1}（${ids.length}人）</b>
+        <label class="muted">このグループをまとめて <select data-group="${s.group}" aria-label="グループ${s.group+1}の部門">${cur==="mixed"?'<option value="">混在</option>':""}<option value="-1" ${cur===-1?"selected":""}>部門を選ぶ</option>${allDepts().map((d,k)=>`<option value="${k}" ${cur===k?"selected":""}>${esc(d)}</option>`).join("")}</select></label></div></td></tr>`);
+    }
+    rows.push(`<tr><td class="muted">${i+1}</td><td>${esc(s.name)}</td>
+      <td><select data-id="${id}" data-f="dept" aria-label="${esc(s.name)}の部門"><option value="-1">未設定</option>${allDepts().map((d,k)=>`<option value="${k}" ${s.dept===k?"selected":""}>${esc(d)}</option>`).join("")}</select></td>
+      <td>${s.dept>=4?`<span class="muted">—</span>`:`<select data-id="${id}" data-f="role" aria-label="${esc(s.name)}の役職">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${s.role===k?"selected":""}>${v}</option>`).join("")}</select>`}</td>
+      <td>${eligible(s)?`<select data-id="${id}" data-f="level" aria-label="${esc(s.name)}のレベル">${[1,2,3].map(l=>`<option value="${l}" ${s.level===l?"selected":""}>${l}　${LEVEL_HINT[l]}</option>`).join("")}</select>`:`<span class="muted">レジに入らない</span>`}</td></tr>`);
+  });
+  $("#staff-body").innerHTML=rows.join("")||`<tr><td colspan="5" class="muted">まだ名簿がありません。</td></tr>`;
 }
+function refresh(){generate();renderDay();renderPlan()}
 
-function refresh(){generate();renderPlan()}
+/* ---------- 保存 ---------- */
+function saveRoster(){if(!isSample)lsSet(LS_ROSTER,JSON.stringify(roster))}
+function saveDay(){if(!isSample)lsSet(LS_DAY,JSON.stringify(day))}
 
-/* ---------- persistence ---------- */
-let saveTimer=null;
-function saveRoster(){
-  lsSet(LS_ROSTER,JSON.stringify(roster));
-
-}
-function saveDay(){lsSet(LS_DAY,JSON.stringify({selDate,edits}))}
-
-/* ---------- interactions ---------- */
-function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,2000)}
-
+/* ---------- 操作 ---------- */
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,2200)}
 function showTab(name){
-  ["plan","paste","staff"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
-  if(name==="staff")renderStaff();
-  if(name==="plan")refresh();
+  ["day","plan","roster"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
+  if(name==="roster")renderRoster(); else refresh();
 }
+$("#tab-day").onclick=()=>showTab("day");
 $("#tab-plan").onclick=()=>showTab("plan");
-$("#tab-paste").onclick=()=>showTab("paste");
-$("#tab-staff").onclick=()=>showTab("staff");
+$("#tab-roster").onclick=()=>showTab("roster");
 
-function loadText(text,fromUser){
-  const {rows,cols}=parseSheet(text);
-  if(!rows.length||!cols.length){$("#load-msg").textContent="時間の入ったセルが見つかりませんでした。名前の列から日付の列まで選んでコピーしてください。";return false}
-  sheetRows=rows;dateCols=cols;
-  if(fromUser){
-    isSample=false;
-    let added=0;
-    rows.forEach(r=>{const name=normName(r[0]);const id=idOf(name);if(!roster.staff[id]){roster.staff[id]={name,dept:-1,role:"baito",level:1};added++}});
-    if(added)saveRoster();
-    lsSet(LS_PASTE,text);
-    $("#load-msg").textContent=`${rows.length}人・${cols.length}日分を読み込みました${added?`（新しく${added}人をスタッフに追加）`:""}`;
-  }
-  if(!cols.find(c=>c.label===selDate))selDate=cols[0].label;
-  return true;
-}
-$("#load").onclick=()=>{
-  const t=$("#paste").value;
-  if(loadText(t,true)){edits={};saveDay();toast("読み込みました");showTab("plan")}
+let pasteTimer=null;
+$("#day-paste").addEventListener("input",e=>{
+  clearTimeout(pasteTimer);
+  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits={locks:{},breaks:[]};saveDay();renderDay()},200);
+});
+$("#day-date").onchange=e=>{day.date=e.target.value;saveDay();renderPlan()};
+$("#to-plan").onclick=()=>{day.text=$("#day-paste").value;saveDay();showTab("plan")};
+
+$("#roster-load").onclick=()=>{
+  const t=$("#roster-paste").value;
+  const prev=isSample?null:roster;
+  const r=buildRoster(t,prev);
+  const n=Object.keys(r.staff).length;
+  if(!n){$("#roster-msg").textContent="名前が見つかりませんでした。C列の名前をコピーして貼り付けてください。";return}
+  const before=prev?Object.keys(prev.staff).length:0;
+  const kept=prev?Object.keys(r.staff).filter(id=>prev.staff[id]).length:0;
+  // 新規登録でグループがちょうど4つなら、上から部門を割り当てる
+  if(!prev&&r.groups===4)Object.values(r.staff).forEach(s=>{s.dept=s.group});
+  delete r.dup;
+  roster=r;isSample=false;
+  if(!prev){day={date:day.date,text:"",edits:{locks:{},breaks:[]}};$("#day-paste").value=""}
+  saveRoster();saveDay();renderRoster();
+  $("#roster-paste").value="";
+  $("#roster-msg").textContent=prev?`${n}人で登録し直しました（設定を引き継いだ人 ${kept}人・新しい人 ${n-kept}人・外れた人 ${Math.max(0,before-kept)}人）`:`${n}人・${r.groups}グループを登録しました${r.groups===4?"（グループを上から季節AV・家電・情報・通信にしました。違えば直してください）":""}`;
+  toast("名簿を登録しました");
 };
-$("#date-sel").onchange=e=>{selDate=e.target.value;saveDay();refresh()};
+$("#staff-body").addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.group!==undefined){
+    if(t.value==="")return;
+    const g=+t.dataset.group,v=+t.value;
+    Object.values(roster.staff).forEach(s=>{if(s.group===g)s.dept=v});
+    saveRoster();renderRoster();return;
+  }
+  const s=roster.staff[t.dataset.id];if(!s)return;
+  s[t.dataset.f]=t.dataset.f==="role"?t.value:+t.value;saveRoster();renderRoster();
+});
+$("#dept-names").addEventListener("change",e=>{const k=+e.target.dataset.k;roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];saveRoster();renderRoster()});
+
 $("#regen").onclick=()=>{refresh();toast("作り直しました")};
-$("#clear-edits").onclick=()=>{delete edits[selDate];saveDay();refresh();toast("手動変更を戻しました")};
+$("#clear-edits").onclick=()=>{day.edits={locks:{},breaks:[]};saveDay();refresh();toast("手動変更を戻しました")};
 $("#copy-out").onclick=async()=>{
-  const lines=[`${selDate} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?(p.name.endsWith("さん")?p.name:p.name+"さん"):"（担当なし）"}`)];
-  const txt=lines.join("\n");
+  const lines2=[`${dateLabel()} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?(p.name.endsWith("さん")?p.name:p.name+"さん"):"（担当なし）"}`)];
+  const txt=lines2.join("\n");
   try{await navigator.clipboard.writeText(txt);toast("コピーしました")}
   catch(e){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("コピーしました")}catch(_){toast("コピーできませんでした")}ta.remove()}
 };
 
-/* slot editor */
+/* 担当の変更 */
 let sheetSlot=null;
 $("#roll").addEventListener("click",e=>{const b=e.target.closest(".slot");if(b)openSheet(+b.dataset.i)});
 function openSheet(i){
   sheetSlot=i;const p=plan[i];
   $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当`;
-  const ed=edits[selDate]||{locks:{},breaks:[]};
+  const ed=day.edits;
   const cands=p.present.filter(eligible).sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,"ja"));
   $("#sheet-cands").innerHTML=cands.map(c=>{
     const onBreak=ed.breaks.includes(c.id+"|"+i);
@@ -424,78 +480,59 @@ function openSheet(i){
   $("#sheet").hidden=false;
 }
 function closeSheet(){$("#sheet").hidden=true}
-function edFor(){return edits[selDate]||(edits[selDate]={locks:{},breaks:[]})}
 $("#sheet-cands").addEventListener("click",e=>{
   const b=e.target.closest(".cand");if(!b)return;
-  const ed=edFor();ed.locks[sheetSlot]=b.dataset.id;
-  ed.breaks=ed.breaks.filter(x=>x!==b.dataset.id+"|"+sheetSlot);
+  day.edits.locks[sheetSlot]=b.dataset.id;
+  day.edits.breaks=day.edits.breaks.filter(x=>x!==b.dataset.id+"|"+sheetSlot);
   saveDay();closeSheet();refresh();
 });
 $("#sheet-break").onclick=()=>{
   const p=plan[sheetSlot];if(!p.id)return;
-  const ed=edFor();delete ed.locks[sheetSlot];
-  // 休憩は前後含め1時間：その時間帯だけ外す
-  ed.breaks.push(p.id+"|"+sheetSlot);
+  delete day.edits.locks[sheetSlot];day.edits.breaks.push(p.id+"|"+sheetSlot);
   saveDay();closeSheet();refresh();toast(`${p.name}さんを休憩で外しました`);
 };
-$("#sheet-unlock").onclick=()=>{const ed=edFor();delete ed.locks[sheetSlot];saveDay();closeSheet();refresh()};
+$("#sheet-unlock").onclick=()=>{delete day.edits.locks[sheetSlot];saveDay();closeSheet();refresh()};
 $("#sheet-close").onclick=closeSheet;
 $("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
 
-/* staff edits */
-$("#staff-body").addEventListener("change",e=>{
-  const t=e.target;if(!t.dataset.id)return;
-  const s=roster.staff[t.dataset.id];if(!s)return;
-  s[t.dataset.f]=t.dataset.f==="role"?t.value:+t.value;saveRoster();renderStaff();
-});
-$("#staff-body").addEventListener("click",e=>{
-  const id=e.target.dataset?.del;if(!id)return;
-  const b=e.target;
-  if(b.dataset.armed){delete roster.staff[id];saveRoster();renderStaff();return}
-  b.dataset.armed="1";b.textContent="本当に削除";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="削除"}},3000);
-});
-$("#dept-names").addEventListener("change",e=>{const k=+e.target.dataset.k;roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];saveRoster();renderStaff()});
-$("#filter").addEventListener("input",renderStaff);
-
-/* ---------- backup ---------- */
+/* バックアップ */
 $("#export").onclick=()=>{
+  if(isSample){toast("名簿を登録してから書き出してください");return}
   const d=new Date();const stamp=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
-  const blob=new Blob([JSON.stringify({app:"regiban",version:1,roster},null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`regiban-staff-${stamp}.json`;
+  const blob=new Blob([JSON.stringify({app:"position",version:2,roster},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`position-meibo-${stamp}.json`;
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   toast("書き出しました");
 };
 $("#import").onchange=e=>{
   const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{
+  const rd=new FileReader();
+  rd.onload=()=>{
     try{
-      const data=JSON.parse(r.result);const ro=data.roster||data;
-      if(!ro.staff||!Array.isArray(ro.depts))throw 0;
-      roster={depts:ro.depts.slice(0,4),staff:ro.staff};Object.values(roster.staff).forEach(normStaff);
-      sampleRoster.depts=roster.depts;saveRoster();renderStaff();refresh();
+      const data=JSON.parse(rd.result);const ro=data.roster||data;
+      if(!ro.staff||!Array.isArray(ro.order))throw 0;
+      Object.values(ro.staff).forEach(normStaff);
+      roster={depts:(ro.depts||DEFAULT_DEPTS).slice(0,4),order:ro.order,staff:ro.staff,groups:ro.groups||0};
+      isSample=false;saveRoster();renderRoster();
       toast(`${Object.keys(roster.staff).length}人分を復元しました`);
     }catch(_){toast("このファイルは読み込めません。書き出したファイルを選んでください")}
     e.target.value="";
   };
-  r.readAsText(f);
+  rd.readAsText(f);
 };
 
-/* ---------- boot ---------- */
+/* ---------- 起動 ---------- */
 (function boot(){
-  sampleRoster={depts:roster.depts,staff:{}};
-  Object.entries(SAMPLE_META).forEach(([n,[d,r,l]])=>sampleRoster.staff[idOf(n)]={name:n,dept:d,role:r,level:l});
-  try{const r=JSON.parse(lsGet(LS_ROSTER)||"null");if(r&&r.staff){roster=r;if(roster.depts.join()==="部門A,部門B,部門C,部門D")roster.depts=[...DEFAULT_DEPTS];Object.values(roster.staff).forEach(normStaff)}}catch(e){}
-  sampleRoster.depts=roster.depts;
-  try{const d=JSON.parse(lsGet(LS_DAY)||"null");if(d){selDate=d.selDate;edits=d.edits||{}}}catch(e){}
-  const saved=lsGet(LS_PASTE);
-  if(saved&&loadText(saved,false)){isSample=false;$("#paste").value=saved}
-  else{loadText(SAMPLE_TSV,false);selDate="29日";isSample=true}
+  try{const r=JSON.parse(lsGet(LS_ROSTER)||"null");if(r&&r.staff&&Array.isArray(r.order)){Object.values(r.staff).forEach(normStaff);roster=r;isSample=false}}catch(e){}
+  try{const d=JSON.parse(lsGet(LS_DAY)||"null");if(d)day={date:d.date||"",text:d.text||"",edits:d.edits||{locks:{},breaks:[]}}}catch(e){}
+  if(isSample){roster=sampleRoster();day.text=SAMPLE_DAY}
+  if(!day.date){const t=new Date();day.date=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`}
+  $("#day-date").value=day.date;
+  $("#day-paste").value=day.text;
+  if(!roster.depts)roster.depts=[...DEFAULT_DEPTS];
   refresh();
-
   if("serviceWorker" in navigator&&location.protocol!=="file:"){navigator.serviceWorker.register("sw.js").catch(()=>{})}
 })();
 </script>
-
 </body>
 </html>
