@@ -1,6 +1,6 @@
 // オフライン用：アプリ本体だけをiPadに保存する。外部への通信はしない。
 // ネットにつながる時は常に最新版を取りに行き、つながらない時だけ保存した版を使う。
-const CACHE = "position-v26";
+const CACHE = "position-v32";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
