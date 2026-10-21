@@ -192,7 +192,7 @@ td select{min-height:38px;padding:4px 8px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v35</span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v36</span></h1>
       <p class="sub">レジ番メーカー｜9:00〜21:00・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
     </div>
   </header>
@@ -435,10 +435,12 @@ function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTim
    ========================================================= */
 function toHalf(s){return String(s||"").replace(/[０-９：]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))}
 // 区切りは「-」のほか、打ち間違えやすい記号も受け付ける（〜 ～ ー － − ⁻ ₋ ‐ ‑ ‒ – — ― ﹣ ｰ ˗ ∼）
-const TIME_RE=/(\d{1,2})(?:[:.](\d{2}))?\s*[-~〜～ー－−⁻₋‐-―﹣ｰ˗∼]\s*(\d{1,2})(?:[:.](\d{2}))?/;
+// 「930」「1730」のようにコロンがなくても、下2けたを分として読む
+const TIME_RE=/(\d{1,2})(?:[:.]?(\d{2}))?\s*[-~〜～ー－−⁻₋‐-―﹣ｰ˗∼]\s*(\d{1,2})(?:[:.]?(\d{2}))?(?!\d)/;
 function parseTime(s){
   const m=toHalf(s).match(TIME_RE);
   if(!m)return null;
+  if(+m[2]>=60||+m[4]>=60)return null;
   const a=+m[1]*60+(+m[2]||0), b=+m[3]*60+(+m[4]||0);
   return b>a?{start:a,end:b}:null;
 }
