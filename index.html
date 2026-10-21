@@ -13,10 +13,13 @@
 <link rel="icon" href="icon-192.png">
 <title>POSition</title>
 <style>
-/* Layout: one working column for iPad/phone — summary strip, then the hour-by-hour register roll like a receipt */
+/* =========================================================
+   色とフォント（ライト／ダーク）
+   ========================================================= */
 :root{
   --bg:#eef1f4; --surface:#ffffff; --ink:#18222c; --muted:#5b6876; --line:#d6dde4; --accent:#1d58b8; --accent-ink:#ffffff;
   --on:#c4d5ee; --warn:#a85412; --warn-bg:#fdf0e3; --bad:#b8322a; --bad-bg:#fbe9e7; --soft:#e4ebf3;
+  /* 部門の色：d0 季節AV / d1 家電 / d2 情報 / d3 通信 */
   --d0:#0f7a6c; --d0bg:#ddf2ee; --d1:#9a6a00; --d1bg:#f8eed2; --d2:#b03a62; --d2bg:#f8e2ea; --d3:#5b4bb7; --d3bg:#e8e5f8;
   --font-body:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
   --font-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -29,90 +32,113 @@
   --bg:#12171d; --surface:#1a2129; --ink:#e6ebf0; --muted:#93a1ae; --line:#2c3642; --accent:#6f9ef0; --accent-ink:#0d1520;
   --on:#2b3d58; --warn:#f0a35e; --warn-bg:#3a2a1a; --bad:#f08a80; --bad-bg:#3b1f1d; --soft:#232d38;
   --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}
+
+/* =========================================================
+   全体
+   ========================================================= */
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 img{max-width:100%}
-html{color-scheme:light}body{margin:0;-webkit-text-size-adjust:100%;padding-top:env(safe-area-inset-top,0px);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;
+html{color-scheme:light}
+body{margin:0;-webkit-text-size-adjust:100%;padding-top:env(safe-area-inset-top,0px);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.panel{display:flex;flex-direction:column;gap:14px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.muted{color:var(--muted);font-size:.85rem}
+.ok{color:var(--d0);font-weight:700}
+h2.sec{font-size:1.05rem;margin:0}
+.stepno{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.8rem;margin-right:6px}
+.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;gap:4px;max-width:65ch}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem}
+
+/* ヘッダー */
 header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
 h1{font-size:1.8rem;margin:0;letter-spacing:.01em;text-wrap:balance;font-weight:700}
 h1 .pos{color:var(--accent);letter-spacing:.04em}
+.ver{font-size:.75rem;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;vertical-align:middle;letter-spacing:0}
 .sub{color:var(--muted);font-size:.85rem;margin:0}
-.rules{margin-top:20px;border-top:1px solid var(--line);padding-top:10px}
-.rules summary{cursor:pointer;color:var(--muted);font-size:.85rem;padding:8px 0;min-height:44px;display:flex;align-items:center}
-.rules h3{font-size:.95rem;margin:16px 0 2px}
-.rules p{margin:0 0 6px}
-.rules table{min-width:0}
-.rules td{vertical-align:top}
-.rules td{overflow-wrap:anywhere}
-.rules td.n{white-space:nowrap;overflow-wrap:normal;width:2.5em}
-.ver{font-size:.75rem;font-weight:600;color:var(--muted);border:1px solid var(--line, #ccc);border-radius:999px;padding:1px 8px;vertical-align:middle;letter-spacing:0}
+
+/* タブ */
 .tabs{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px}
 .tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;padding:10px 12px;border-radius:9px;cursor:pointer;min-height:44px}
 .tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+
+/* ボタン・入力 */
 button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.panel{display:flex;flex-direction:column;gap:14px}
-.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-label.fld{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500}
-select,input[type=text]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-height:44px}
 .btn{font:inherit;font-weight:700;border-radius:10px;padding:10px 16px;min-height:44px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn.small{padding:6px 12px;min-height:36px;font-size:.85rem}
+label.fld{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-height:44px}
+input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-height:44px}
+textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+
+/* 小さなラベル（部門・警告など） */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.ok{background:var(--d0bg);color:var(--d0)}
+.chip.lock{background:var(--accent);color:var(--accent-ink)}
+.chip.d0{background:var(--d0bg);color:var(--d0)}.chip.d1{background:var(--d1bg);color:var(--d1)}.chip.d2{background:var(--d2bg);color:var(--d2)}.chip.d3{background:var(--d3bg);color:var(--d3)}
+
+/* =========================================================
+   今日のシフト：照合結果
+   ========================================================= */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;max-height:420px;overflow:auto}
+.match{display:grid;grid-template-columns:2.4em minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 12px;border-top:1px solid var(--line);font-size:.92rem}
+.match:first-child{border-top:0}
+.match .no{font-family:var(--font-mono);color:var(--muted);font-size:.75rem;text-align:right}
+.match .t{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600}
+.match.off{color:var(--muted)}
+.match.gap{padding:2px 12px;background:var(--soft);min-height:8px}
+
+/* =========================================================
+   レジ番表
+   ========================================================= */
+/* プランの切り替え */
 .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .plans button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;text-align:left;cursor:pointer}
 .plans button small{font-weight:500;color:var(--muted);font-size:.75rem}
 .plans button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
-.slot.diff .name::after{content:"●";color:var(--accent);font-size:.6em;margin-left:6px;vertical-align:middle}
 .plan-note{font-size:.8rem;color:var(--muted);margin:-6px 0 0}
+
+/* 部門ごとの回数 */
 .tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 @media (min-width:700px){.tally{grid-template-columns:repeat(5,minmax(0,1fr))}}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
 .tile .k{font-size:.8rem;color:var(--muted)}
 .tile .v{font-family:var(--font-mono);font-size:1.4rem;font-variant-numeric:tabular-nums}
 .tile .v small{font-size:.8rem;color:var(--muted);font-family:var(--font-body)}
+
+/* 左：1時間ごとの担当 */
+.plan-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+@media (min-width:760px){.plan-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr)}.plan-grid aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px)}}
 .roll{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .slot{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border-top:1px dashed var(--line);cursor:pointer;background:var(--surface);width:100%;text-align:left;font:inherit;color:inherit;border-left:0;border-right:0;border-bottom:0}
 .slot:first-child{border-top:0}
 .slot:hover{background:var(--soft)}
+.slot.hl{background:var(--soft);box-shadow:inset 4px 0 0 var(--accent)}
+.slot.diff .name::after{content:"●";color:var(--accent);font-size:.6em;margin-left:6px;vertical-align:middle}
+@media (prefers-reduced-motion:no-preference){.slot{transition:background .15s}}
 .time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600;font-size:.95rem}
 .time span{display:block;color:var(--muted);font-weight:500;font-size:.75rem}
 .who{display:flex;flex-direction:column;gap:4px;min-width:0}
 .name{font-weight:700;font-size:1.1rem;overflow-wrap:anywhere}
 .name.none{color:var(--bad)}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
-.chip.warn{background:var(--warn-bg);color:var(--warn)}
-.chip.bad{background:var(--bad-bg);color:var(--bad)}
-.chip.ok{background:var(--d0bg);color:var(--d0)}
-.closer{display:inline-flex;gap:6px;align-items:center;white-space:nowrap;font-size:.85rem}
-.closer input{width:20px;height:20px}
-.chip.lock{background:var(--accent);color:var(--accent-ink)}
-.chip.d0{background:var(--d0bg);color:var(--d0)}.chip.d1{background:var(--d1bg);color:var(--d1)}.chip.d2{background:var(--d2bg);color:var(--d2)}.chip.d3{background:var(--d3bg);color:var(--d3)}
 .edit{color:var(--accent);font-size:.85rem;font-weight:700}
-textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
-.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;gap:4px;max-width:65ch}
-.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
-table{border-collapse:collapse;width:100%;min-width:520px}
-th,td{padding:8px 12px;border-top:1px solid var(--line);text-align:left;font-size:.9rem}
-th{font-size:.75rem;color:var(--muted);letter-spacing:.06em;border-top:0;font-weight:700}
-td select{min-height:38px;padding:4px 8px}
-.depts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.sheet{position:fixed;inset:0;background:rgb(10 15 20 / .45);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:0 max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px))}
-.sheet-box{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px;display:flex;flex-direction:column;gap:12px}
-.sheet-box h2{margin:0;font-size:1.15rem}
-.cand{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:48px}
-.cand[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.muted{color:var(--muted);font-size:.85rem}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:700;z-index:30}
-@media (max-width:480px){.tabs button{font-size:.85rem;padding:8px 4px;white-space:nowrap}.slot{grid-template-columns:70px minmax(0,1fr) auto;gap:8px}}
-@media (prefers-reduced-motion:no-preference){.slot{transition:background .15s}}
-.plan-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
-@media (min-width:760px){.plan-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr)}.plan-grid aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px)}}
+
+/* 右：その日のシフト */
 .side{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 0;max-height:calc(100vh - 40px);overflow:auto}
 .side-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 12px 6px}
+.hours{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;padding:0 12px 4px}
+.hours .hrow{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
+.dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) 70%,var(--surface));margin-top:8px}
+.dsec.d0{--dc:var(--d0);--dt:var(--d0bg)}.dsec.d1{--dc:var(--d1);--dt:var(--d1bg)}.dsec.d2{--dc:var(--d2);--dt:var(--d2bg)}.dsec.d3{--dc:var(--d3);--dt:var(--d3bg)}
+.dept-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 12px 6px;color:var(--dc);font-weight:700;font-size:.92rem}
+.dept-head span{font-weight:500;font-size:.75rem;color:var(--muted)}
 .pr{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;align-items:center;padding:5px 12px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.dsec .pr{border-top-color:color-mix(in srgb,var(--dc) 18%,transparent)}
 .pr[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
 .pr .nm{font-size:.88rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pr .nm small{display:block;font-weight:500;color:var(--muted);font-size:.68rem;white-space:normal;line-height:1.35}
@@ -122,37 +148,51 @@ td select{min-height:38px;padding:4px 8px}
 .cell{display:inline-block;height:14px;border-radius:3px;background:transparent;border:1px dashed var(--line)}
 .cell.on{background:var(--on);border-color:transparent}
 .cell.reg{background:var(--accent);border-color:transparent}
-.hours{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;padding:0 12px 4px}
-.hours .hrow{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
-.dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) 70%,var(--surface));margin-top:8px}
-.dsec.d0{--dc:var(--d0);--dt:var(--d0bg)}.dsec.d1{--dc:var(--d1);--dt:var(--d1bg)}.dsec.d2{--dc:var(--d2);--dt:var(--d2bg)}.dsec.d3{--dc:var(--d3);--dt:var(--d3bg)}
-.dsec .pr{border-top-color:color-mix(in srgb,var(--dc) 18%,transparent)}
-.dept-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 12px 6px;color:var(--dc);font-weight:700;font-size:.92rem}
-.dept-head span{font-weight:500;font-size:.75rem;color:var(--muted)}
 .legend{display:flex;flex-wrap:wrap;gap:12px;padding:8px 12px 0;font-size:.75rem;color:var(--muted)}
 .legend .cell{width:14px;vertical-align:-2px;margin-right:4px}
-.slot.hl{background:var(--soft);box-shadow:inset 4px 0 0 var(--accent)}
-.match{display:grid;grid-template-columns:2.4em minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 12px;border-top:1px solid var(--line);font-size:.92rem}
-.match:first-child{border-top:0}
-.match .no{font-family:var(--font-mono);color:var(--muted);font-size:.75rem;text-align:right}
-.match .t{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600}
-.match.off{color:var(--muted)}
-.match.gap{padding:2px 12px;background:var(--soft);min-height:8px}
-.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;max-height:420px;overflow:auto}
-.group-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--soft);border-top:1px solid var(--line)}
-.group-head:first-child{border-top:0}
-.group-head b{font-size:.9rem}
-.stepno{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.8rem;margin-right:6px}
-h2.sec{font-size:1.05rem;margin:0}
-.ok{color:var(--d0);font-weight:700}
-input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-height:44px}
+
+/* 割り当てルール（折りたたみ） */
+.rules{margin-top:20px;border-top:1px solid var(--line);padding-top:10px}
+.rules summary{cursor:pointer;color:var(--muted);font-size:.85rem;padding:8px 0;min-height:44px;display:flex;align-items:center}
+.rules h3{font-size:.95rem;margin:16px 0 2px}
+.rules p{margin:0 0 6px}
+.rules table{min-width:0}
+.rules td{vertical-align:top;overflow-wrap:anywhere}
+.rules td.n{white-space:nowrap;overflow-wrap:normal;width:2.5em}
+
+/* =========================================================
+   名簿
+   ========================================================= */
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:8px 12px;border-top:1px solid var(--line);text-align:left;font-size:.9rem}
+th{font-size:.75rem;color:var(--muted);letter-spacing:.06em;border-top:0;font-weight:700}
+td select{min-height:38px;padding:4px 8px}
+.closer{display:inline-flex;gap:6px;align-items:center;white-space:nowrap;font-size:.85rem}
+.closer input{width:20px;height:20px}
+.depts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+
+/* =========================================================
+   担当変更の画面・お知らせ
+   ========================================================= */
+.sheet{position:fixed;inset:0;background:rgb(10 15 20 / .45);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:0 max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px))}
+.sheet-box{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sheet-box h2{margin:0;font-size:1.15rem}
+.cand{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:48px}
+.cand[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:700;z-index:30}
+
+/* =========================================================
+   スマホ幅
+   ========================================================= */
+@media (max-width:480px){.tabs button{font-size:.85rem;padding:8px 4px;white-space:nowrap}.slot{grid-template-columns:70px minmax(0,1fr) auto;gap:8px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v32</span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v35</span></h1>
       <p class="sub">レジ番メーカー｜9:00〜21:00・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
     </div>
   </header>
@@ -229,17 +269,18 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
         <tr><td class="n">4</td><td>レベル4は最後</td><td>今日の回数に関係なく、ほかの全員より後</td></tr>
         <tr><td class="n">5</td><td>今日の回数が少ない人から</td><td>全員が1回入るまで2回目は回さない</td></tr>
         <tr><td class="n">6</td><td>同じ人の2時間連続を避ける</td><td>回数が同じ人がほかにいれば、連続にしない</td></tr>
-        <tr><td class="n">7</td><td>役職・レベル順</td><td>PN → 新入社員 → No2 → PNリーダー。同じ役職ならレベル1 → 2 → 3</td></tr>
-        <tr><td class="n">8</td><td>まだ入っていない人が多い部門から</td><td>後半に同じ部門が続かないように</td></tr>
-        <tr><td class="n">9</td><td>部門のレジ回数を均等に</td><td></td></tr>
-        <tr><td class="n">10</td><td>人の多い部門から出す</td><td></td></tr>
-        <tr><td class="n">11</td><td>日替わり</td><td>それでも同じ条件なら、日付で順番を変える（毎日同じ人が先にならないように）</td></tr>
+        <tr><td class="n">7</td><td>売り場のカバー</td><td>季節AV・家電・情報はお互いの売り場をカバーできるので、3部門で1つのフロアとして数える。通信は別。レジに出したあと、3部門で3人以上・通信で1人以上残るようにし、足りなくなるときは余裕のあるフロアから出す</td></tr>
+        <tr><td class="n">8</td><td>役職・レベル順</td><td>PN → 新入社員 → No2 → PNリーダー。同じ役職ならレベル1 → 2 → 3</td></tr>
+        <tr><td class="n">9</td><td>まだ入っていない人が多い部門から</td><td>後半に同じ部門が続かないように</td></tr>
+        <tr><td class="n">10</td><td>部門のレジ回数を均等に</td><td></td></tr>
+        <tr><td class="n">11</td><td>人の多い部門から出す</td><td></td></tr>
+        <tr><td class="n">12</td><td>日替わり</td><td>それでも同じ条件なら、日付で順番を変える（毎日同じ人が先にならないように）</td></tr>
       </table>
       <h3>プランの違い</h3>
       <table>
         <tr><th>プラン</th><th>内容</th></tr>
         <tr><td>標準</td><td>上の②の順番どおり</td></tr>
-        <tr><td>部門重視</td><td>人の少ない部門を売り場に残し、人の多い部門からレジに出す。今日の回数と2時間連続の回避は標準と同じ。人の少ない部門は、その日レジに入らないこともある</td></tr>
+        <tr><td>部門重視</td><td>人の少ない部門を売り場に残し、人の多い部門からレジに出す。今日の回数・2時間連続の回避・売り場のカバーは標準と同じ。人の少ない部門は、その日レジに入らないこともある</td></tr>
         <tr><td>別パターン</td><td>ルールは標準と同じ。入れる人の数が同じ時間帯を夕方から埋め、同じ条件の人の順番も変える</td></tr>
       </table>
       <p class="muted">手動で固定した担当は、どのプランでも同じです。</p>
@@ -299,304 +340,473 @@ input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:
 <div class="toast" id="toast" hidden></div>
 
 <script>
-const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];
+/* =========================================================
+   設定
+   ========================================================= */
+const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];   // レジの時間（9:00〜21:00）
+const CLOSE_SLOT=11;                                  // 20:00〜21:00 はレジ締め
 const ROLE={baito:"PN",pnleader:"PNリーダー",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
-const ROLE_RANK={baito:0,rookie:1,sub:2,pnleader:3};   // レジに入る役職の順番
+const ROLE_RANK={baito:0,rookie:1,sub:2,pnleader:3};  // レジに入る役職と、その順番
+const LEVELS=[1,2,3,0,4];                             // 名簿の選択肢の並び
 const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3",4:"レベル4"};
 const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い（自動では入れない）",4:"めったに入らない（最終手段）"};
-const LEVELS=[1,2,3,0,4];
-const rank=l=>l===0?4:l;   // 見習いは一番後回し
-// 役職が先、同じ役職の中でレベル順。見習いは役職に関係なく最後
-const prio=p=>p.level===4?200+ROLE_RANK[p.role]:p.level===0?100+ROLE_RANK[p.role]:ROLE_RANK[p.role]*10+p.level;
-const CLOSE_SLOT=11;       // 20:00〜21:00 はレジ締め
-const CLOSE_LV={1:0,2:1,3:2,4:3,0:4}; // 締めはレベル1 → 2 → 3 → 4 の順
+const CLOSE_LV={1:0,2:1,3:2,4:3,0:4};                 // 締めはレベル1 → 2 → 3 → 4 の順
 const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
+const EXTRA_DEPTS=["店長","流通便"];                  // レジにもフロア人数にも入らない所属
 const WD="日月火水木金土";
-const LS_ROSTER="position.roster", LS_DAY="position.day";
-const EXTRA_DEPTS=["店長","流通便"];          // レジにもフロア人数にも入らない所属
-const isFloor=d=>d>=0&&d<4;
+const SIDE_ORDER=[0,1,2,3,-1,4,5];                    // 右側の並び：4部門 → 部門未設定 → 店長・流通便
+const LS_ROSTER="position.roster", LS_DAY="position.day", LS_LOG="position.log";
+
+// プラン（ボタンの並び順）
+const PLANS=[["std","標準"],["dept","部門重視"],["alt","別パターン"]];
+
+// 優先順位（上ほど強い）。アプリ内のルール表②と同じ順番。値が小さい人ほど先に選ばれる
+const RULE_ORDER={
+  std:["closer","closerLevel","floor","level4","count","consec","coverage","roleLevel","deptBacklog","deptReg","deptSize","daily"],
+  // 部門重視：売り場のカバーまでは同じ。そのあと役職・レベルより先に部門を見る
+  dept:["closer","closerLevel","floor","level4","count","consec","coverage","deptSize","deptReg","deptBacklog","roleLevel","daily"],
+};
+RULE_ORDER.alt=RULE_ORDER.std;   // 別パターン：ルールは標準と同じ（埋める順番と日替わりの種だけ変える）
+
+/* =========================================================
+   人についての判定
+   ========================================================= */
+const isFloor=d=>d>=0&&d<4;                           // 4部門のどれかに所属している
+// 売り場のカバー：季節AV・家電・情報（0〜2）はお互いの売り場をカバーできる「共通フロア」。通信（3）は契約が専門で、ほかの部門はカバーできない
+const SHARED_DEPTS=[0,1,2], TSUSHIN=3;
+const eligible=p=>(p.role in ROLE_RANK)&&p.dept<4;   // レジに入れる役職・所属
 const deptName=d=>d>=4?EXTRA_DEPTS[d-4]:roster.depts[d];
 const allDepts=()=>[...roster.depts,...EXTRA_DEPTS];
-const eligible=p=>(p.role in ROLE_RANK)&&p.dept<4;
+// 役職が先、同じ役職の中でレベル順。レベル4と見習いは役職に関係なく後ろ
+function prio(p){
+  if(p.level===4)return 200+ROLE_RANK[p.role];
+  if(p.level===0)return 100+ROLE_RANK[p.role];
+  return ROLE_RANK[p.role]*10+p.level;
+}
 
-/* ---------- 例のデータ ---------- */
+/* =========================================================
+   例のデータ（名簿を登録するまで表示）
+   ========================================================= */
 const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
 const SAMPLE_CLOSER=["例）青木","例）江口","例）久保"];
 const SAMPLE_ROLE={"例）清水":["sub",3],"例）鈴木":["sub",3],"例）森":["leader",1],"例）石田":["baito",2],"例）大西":["baito",2],"例）小林":["baito",2],"例）川村":["baito",3],"例）田中":["baito",2]};
 const SAMPLE_DAY=["9-18","","8-17","9-18","","8:30-18","10-19:30","9-14","8:30-18","","17-21:30","12-21:30","8:30-13","9-18","","13-21:30","11:00-20","9-18","12-21:30","","18:30-21:30","14-21:30","9-18"].join("\n");
 
-/* ---------- state ---------- */
-let roster=null;      // {depts, order:[id|""], staff:{id:{name,dept,role,level}}}
-let isSample=true;
-let day={date:"",text:"",edits:{locks:{},breaks:[]},plan:"std"};
-let plan=[];
+/* =========================================================
+   状態
+   ========================================================= */
+let roster=null;     // {depts, order:[id|""], staff:{id:{name,dept,role,level,closer,group}}, groups}
+let isSample=true;   // 名簿を登録するまでは例のデータ
+// edits.locks：手動で固定した担当 {枠の番号: id}。breaks は以前の休憩機能の名残（古いデータとの互換のために残す）
+const emptyEdits=()=>({locks:{},breaks:[]});
+let day={date:"",text:"",edits:emptyEdits(),plan:"std"};
+let plans={};        // プランごとのレジ番表
+let plan=[];         // 表示中のレジ番表
+let focusId=null;    // 右側で選んだ人
 
+/* =========================================================
+   小さな道具
+   ========================================================= */
 const $=s=>document.querySelector(s);
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=m=>Math.floor(m/60)+":"+String(m%60).padStart(2,"0");
 function normName(s){return String(s||"").replace(/[\s　]+/g," ").trim()}
-function idOf(name){let h=2166136261;for(const c of name){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return "s"+(h>>>0).toString(16)}
+// 文字列から32ビットの数を作る（FNV-1a）。名簿のIDはこの値なので、計算方法を変えると保存した名簿と合わなくなる
+function hash32(str){
+  let h=2166136261;
+  for(const c of str){h^=c.codePointAt(0);h=Math.imul(h,16777619)}
+  return h>>>0;
+}
+function idOf(name){return "s"+hash32(name).toString(16)}
+// 同じ条件の人が並んだときの決め手。日付ごとに順番が変わるので、毎日同じ人が先にならない
+function dayHash(str){return hash32(str)}
+function todayStr(){const t=new Date();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`}
+function dateLabel(){
+  if(!day.date)return "（日付未設定）";
+  const d=new Date(day.date+"T00:00:00");
+  return `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]})`;
+}
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,2200)}
+
+/* =========================================================
+   時間の読み取り
+   ========================================================= */
 function toHalf(s){return String(s||"").replace(/[０-９：]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))}
-const TIME_RE=/(\d{1,2})(?:[:.](\d{2}))?\s*[-~〜～ー－−]\s*(\d{1,2})(?:[:.](\d{2}))?/;
+// 区切りは「-」のほか、打ち間違えやすい記号も受け付ける（〜 ～ ー － − ⁻ ₋ ‐ ‑ ‒ – — ― ﹣ ｰ ˗ ∼）
+const TIME_RE=/(\d{1,2})(?:[:.](\d{2}))?\s*[-~〜～ー－−⁻₋‐-―﹣ｰ˗∼]\s*(\d{1,2})(?:[:.](\d{2}))?/;
 function parseTime(s){
   const m=toHalf(s).match(TIME_RE);
   if(!m)return null;
   const a=+m[1]*60+(+m[2]||0), b=+m[3]*60+(+m[4]||0);
   return b>a?{start:a,end:b}:null;
 }
-const fmt=m=>Math.floor(m/60)+":"+String(m%60).padStart(2,"0");
+// 貼り付けた文字を行に分ける（表からのコピーはタブ区切りなので、最初の列だけ使う）
 function lines(text){
   const ls=String(text||"").replace(/\r/g,"").split("\n").map(l=>l.split("\t")[0]);
   while(ls.length&&!ls[ls.length-1].trim())ls.pop();
   return ls;
 }
-function normStaff(s){if(!ROLE[s.role])s.role="baito";if(![0,1,2,3,4].includes(s.level))s.level=1;s.closer=!!s.closer;if(typeof s.dept!=="number")s.dept=-1;return s}
 
-/* ---------- 名簿 ---------- */
-// C列の貼り付けから、行の並び（空白行も含む）とグループ（空白で区切られた塊）を作る
+/* =========================================================
+   名簿
+   ========================================================= */
+// 古いデータや読み込んだファイルの値をそろえる
+function normStaff(s){
+  if(!ROLE[s.role])s.role="baito";
+  if(![0,1,2,3,4].includes(s.level))s.level=1;
+  s.closer=!!s.closer;
+  if(typeof s.dept!=="number")s.dept=-1;
+  return s;
+}
+// C列の貼り付けから、行の並び（空白行も含む）とグループ（空白で区切られた塊）を作る。
+// prev があれば、同じ名前の人の設定を引き継ぐ
 function buildRoster(text,prev){
   const ls=lines(text).map(normName);
-  const order=[],staff={},groups=[];let g=-1,inGap=true,dup=[];
+  const order=[],staff={},groups=[];
+  let g=-1,inGap=true;
   ls.forEach(n=>{
     if(!n){order.push("");inGap=true;return}
     if(inGap){g++;inGap=false}
     let id=idOf(n);
-    if(staff[id]){dup.push(n);id=idOf(n+"#"+order.length)}
+    if(staff[id])id=idOf(n+"#"+order.length);   // 同じ名前が2人いるとき
     order.push(id);
     const old=prev?.staff?.[id];
     staff[id]=normStaff(old?{...old,name:n,group:g}:{name:n,dept:-1,role:"baito",level:1,group:g});
     (groups[g]||(groups[g]=[])).push(id);
   });
-  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,dup};
+  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length};
 }
 function sampleRoster(){
   const r=buildRoster(SAMPLE_NAMES.join("\n"),null);
-  Object.values(r.staff).forEach(s=>{s.dept=s.group===0?4:s.group===1?5:s.group-2;const x=SAMPLE_ROLE[s.name];if(x){s.role=x[0];s.level=x[1]}s.closer=SAMPLE_CLOSER.includes(s.name);});
+  Object.values(r.staff).forEach(s=>{
+    s.dept=s.group===0?4:s.group===1?5:s.group-2;
+    const x=SAMPLE_ROLE[s.name];
+    if(x){s.role=x[0];s.level=x[1]}
+    s.closer=SAMPLE_CLOSER.includes(s.name);
+  });
   return r;
 }
 
-/* ---------- その日の照合 ---------- */
+/* =========================================================
+   その日の照合
+   ========================================================= */
+// 名簿の行と、貼り付けた行を、同じ行どうしで照合する。
+// 「名前 9-18」のような手入力が多ければ、名前で照合する
 function matchDay(){
-  const r=roster, ls=lines(day.text), out=[];
-  // 手入力「名前 9-18」にも対応：名前の入った行が多ければ名前で照合
-  const named=ls.filter(l=>{const h=toHalf(l);const m=h.match(TIME_RE);return m&&/[ぁ-ゖァ-ヺ一-龯A-Za-z]/.test(h.slice(0,m.index))});
-  if(named.length&&named.length>=ls.filter(l=>parseTime(l)).length/2){
-    const byName={};Object.entries(r.staff).forEach(([id,s])=>byName[s.name]=id);
-    named.forEach(l=>{
-      const h=toHalf(l),m=h.match(TIME_RE),n=normName(h.slice(0,m.index).replace(/[,，、:：]+$/,""));
-      const near=Object.keys(byName).find(k=>k.includes(n)||n.includes(k));
-      const id=byName[n]||(near?byName[near]:null);
-      out.push({row:null,id:id||null,name:id?r.staff[id].name:n,raw:l,t:parseTime(l),unknown:!id});
-    });
-    return {mode:"name",rows:out,extra:0};
-  }
-  ls.forEach((l,i)=>{
-    const id=r.order[i];
-    out.push({row:i,id:id||null,name:id?r.staff[id].name:"",raw:l.trim(),t:parseTime(l),gap:!id});
+  const r=roster, ls=lines(day.text);
+  const named=ls.filter(l=>{
+    const h=toHalf(l),m=h.match(TIME_RE);
+    return m&&/[ぁ-ゖァ-ヺ一-龯A-Za-z]/.test(h.slice(0,m.index));
   });
-  const extra=Math.max(0,ls.length-r.order.length);
-  return {mode:"row",rows:out,extra};
+  if(named.length&&named.length>=ls.filter(l=>parseTime(l)).length/2)return matchByName(named);
+  const rows=ls.map((l,i)=>{
+    const id=r.order[i];
+    return {row:i,id:id||null,name:id?r.staff[id].name:"",raw:l.trim(),t:parseTime(l),gap:!id};
+  });
+  return {mode:"row",rows,extra:Math.max(0,ls.length-r.order.length)};
 }
+function matchByName(named){
+  const r=roster,byName={};
+  Object.entries(r.staff).forEach(([id,s])=>byName[s.name]=id);
+  const rows=named.map(l=>{
+    const h=toHalf(l),m=h.match(TIME_RE);
+    const n=normName(h.slice(0,m.index).replace(/[,，、:：]+$/,""));
+    const near=Object.keys(byName).find(k=>k.includes(n)||n.includes(k));
+    const id=byName[n]||(near?byName[near]:null);
+    return {row:null,id:id||null,name:id?r.staff[id].name:n,raw:l,t:parseTime(l),unknown:!id};
+  });
+  return {mode:"name",rows,extra:0};
+}
+// 出勤している人（名簿の設定＋その日の時間）
 function presentPeople(){
-  const m=matchDay();
-  return m.rows.filter(x=>x.id&&x.t).map(x=>({id:x.id,...roster.staff[x.id],start:x.t.start,end:x.t.end}));
+  return matchDay().rows.filter(x=>x.id&&x.t).map(x=>({id:x.id,...roster.staff[x.id],start:x.t.start,end:x.t.end}));
 }
 
-/* ---------- 割り当て ---------- */
-// 同じ条件の人が並んだときの決め手。日付ごとに順番が変わるので、毎日同じ人が先にならない
-function dayHash(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
-const PLANS=[["std","標準"],["dept","部門重視"],["alt","別パターン"]];
+/* =========================================================
+   割り当て
+   決める順番：① 手動で固定した枠 → ② 締めの枠 → ③ その時点で入れる人が少ない枠から
+   ========================================================= */
 function generate(v){
   v=v||"std";
+  const order=RULE_ORDER[v];
   const people=presentPeople();
-  const ed=day.edits||(day.edits={locks:{},breaks:[]});
-  const deptReg=[0,0,0,0], personReg={};
-  const out=HOURS.map(()=>null);
+  const ed=day.edits||(day.edits=emptyEdits());
+  const deptReg=[0,0,0,0], personReg={};   // 部門ごと・人ごとの今日のレジ回数
+  const out=HOURS.map(()=>null);           // 枠ごとの担当 {p, locked}
+
+  // 枠ごとの情報：その1時間ずっといる人、部門ごとのフロア人数、自動で入れられる人
   const slots=HOURS.map((h,i)=>{
-    const s=h*60,e=s+60;
-    const present=people.filter(p=>p.start<=s&&p.end>=e);
-    const deptCount=[0,0,0,0];present.forEach(p=>{if(isFloor(p.dept))deptCount[p.dept]++});
+    const present=people.filter(p=>p.start<=h*60&&p.end>=h*60+60);
+    const deptCount=[0,0,0,0];
+    present.forEach(p=>{if(isFloor(p.dept))deptCount[p.dept]++});
     const pool=present.filter(p=>eligible(p)&&p.level!==0);
     return {i,h,present,deptCount,pool};
   });
+
   const idAt=j=>out[j]?.p.id;
   // 3時間連続になるか（前後どちらに並んでも）
   const triple=(i,id)=>(idAt(i-1)===id&&idAt(i-2)===id)||(idAt(i-1)===id&&idAt(i+1)===id)||(idAt(i+1)===id&&idAt(i+2)===id);
-  const assign=(sl,p,locked)=>{out[sl.i]={p,locked};if(isFloor(p.dept))deptReg[p.dept]++;personReg[p.id]=(personReg[p.id]||0)+1};
+  const emptiesFloor=(sl,p)=>isFloor(p.dept)&&sl.deptCount[p.dept]-1<1;   // 抜けると部門のフロアが0人になる
+  // p が抜けたあと、p のいるフロアにどれだけ人が残るか（-1 が十分。0 に近いほど手薄）。
+  // 共通フロアは3部門で3人（1部門あたり1人）、通信は1人残っていれば十分とみなし、それ以上は差をつけない
+  const coverageAfter=(sl,p)=>{
+    if(!isFloor(p.dept))return 0;
+    if(p.dept===TSUSHIN)return -Math.min(1,sl.deptCount[TSUSHIN]-1);
+    const shared=SHARED_DEPTS.reduce((a,d)=>a+sl.deptCount[d],0);
+    return -Math.min(1,(shared-1)/SHARED_DEPTS.length);
+  };
+  const assign=(sl,p,locked)=>{
+    out[sl.i]={p,locked};
+    if(isFloor(p.dept))deptReg[p.dept]++;
+    personReg[p.id]=(personReg[p.id]||0)+1;
+  };
+
+  // 1つの枠に入れる人を、優先順位（RULE_ORDER）で選ぶ
   const pickFor=sl=>{
     const i=sl.i;
     const cands=sl.pool.filter(p=>!triple(i,p.id));
     if(!cands.length)return null;
     const maxReg=Math.max(...deptReg);
-    // 部門ごとの「まだ今日入っていない人」の数。多い部門から先に回すと、後で同じ部門が続きにくい
-    const backlog=[0,0,0,0];sl.pool.forEach(p=>{if(isFloor(p.dept)&&p.level!==4&&!personReg[p.id])backlog[p.dept]++});
-    const close=i===CLOSE_SLOT&&cands.some(p=>p.closer);
-    const score=p=>{
-      const floor=isFloor(p.dept)&&sl.deptCount[p.dept]-1<1?1:0;
-      const consec=(idAt(i-1)===p.id?1:0)+(idAt(i+1)===p.id?1:0);
-      const dr=isFloor(p.dept)?deptReg[p.dept]:maxReg;
-      const spare=isFloor(p.dept)?-sl.deptCount[p.dept]:0;
-      // 優先順位：締め（締めの人がいる日だけ） → 部門を空けない → レベル4は最後 → 今日の回数 → 連続しない → 役職とレベル → 部門の順番 → 部門のレジ回数 → 人の多い部門 → 日替わり
-      const head=[close&&!p.closer?1:0,close?CLOSE_LV[p.level]:0,floor,p.level===4?1:0,personReg[p.id]||0,consec];
-      const hs=dayHash((v==="alt"?"alt|":"")+day.date+"|"+p.id);
-      // 部門重視：役職・レベル順より先に、人の多い部門 → 部門のレジ回数 → まだ入っていない人が多い部門 を見る（今日の回数と連続回避はそのまま）
-      if(v==="dept")return [...head,spare,dr,isFloor(p.dept)?-backlog[p.dept]:0,prio(p),hs];
-      return [...head,prio(p),isFloor(p.dept)?-backlog[p.dept]:0,dr,spare,hs];
-    };
-    cands.sort((a,b)=>{const x=score(a),y=score(b);for(let k=0;k<x.length;k++)if(x[k]!==y[k])return x[k]-y[k];return 0});
-    return cands[0];
+    // 部門ごとの「まだ今日入っていない人」の数
+    const backlog=[0,0,0,0];
+    sl.pool.forEach(p=>{if(isFloor(p.dept)&&p.level!==4&&!personReg[p.id])backlog[p.dept]++});
+    const closeSlot=i===CLOSE_SLOT&&cands.some(p=>p.closer);   // 締めの人がいる日の締め枠
+    const seed=v==="alt"?"alt|":"";
+    const ruleValues=p=>({
+      closer:      closeSlot&&!p.closer?1:0,                     // 締めは締めの人
+      closerLevel: closeSlot?CLOSE_LV[p.level]:0,                // 締めの中ではレベル順
+      floor:       emptiesFloor(sl,p)?1:0,                       // 部門のフロアを0人にしない
+      level4:      p.level===4?1:0,                              // レベル4は最後
+      count:       personReg[p.id]||0,                           // 今日の回数が少ない人から
+      consec:      (idAt(i-1)===p.id?1:0)+(idAt(i+1)===p.id?1:0),// 2時間連続を避ける
+      coverage:    coverageAfter(sl,p),                          // 売り場のカバー（手薄なフロアから出さない）
+      roleLevel:   prio(p),                                      // 役職・レベル順
+      deptBacklog: isFloor(p.dept)?-backlog[p.dept]:0,           // まだ入っていない人が多い部門から
+      deptReg:     isFloor(p.dept)?deptReg[p.dept]:maxReg,       // 部門のレジ回数を均等に
+      deptSize:    isFloor(p.dept)?-sl.deptCount[p.dept]:0,      // 人の多い部門から
+      daily:       dayHash(seed+day.date+"|"+p.id),              // 日替わり
+    });
+    const ranked=cands.map(p=>{const r=ruleValues(p);return {p,key:order.map(k=>r[k])}});
+    ranked.sort((a,b)=>{for(let k=0;k<a.key.length;k++)if(a.key[k]!==b.key[k])return a.key[k]-b.key[k];return 0});
+    return ranked[0].p;
   };
+
   // ① 手動で固定した枠
-  slots.forEach(sl=>{const id=ed.locks[sl.i];if(!id)return;const p=sl.present.find(x=>x.id===id);if(p)assign(sl,p,true)});
+  slots.forEach(sl=>{
+    const id=ed.locks[sl.i];if(!id)return;
+    const p=sl.present.find(x=>x.id===id);
+    if(p)assign(sl,p,true);
+  });
   // ② 締めの枠
   if(!out[CLOSE_SLOT]){const p=pickFor(slots[CLOSE_SLOT]);if(p)assign(slots[CLOSE_SLOT],p,false)}
-  // ③ 残りは、その時点で入れる人が少ない時間帯から順に（同じなら朝から。別パターンは夕方から）
+  // ③ 残りは、その時点で入れる人が少ない枠から順に（同じなら朝から。別パターンは夕方から）
   const rest=slots.filter(sl=>!out[sl.i]);
   const avail=sl=>sl.pool.filter(p=>!triple(sl.i,p.id)).length;
   while(rest.length){
     rest.sort((a,b)=>avail(a)-avail(b)||(v==="alt"?b.i-a.i:a.i-b.i));
-    const sl=rest.shift();const p=pickFor(sl);if(p)assign(sl,p,false);
+    const sl=rest.shift();
+    const p=pickFor(sl);
+    if(p)assign(sl,p,false);
   }
+
   return slots.map(sl=>{
-    const i=sl.i,pick=out[i]?.p||null,flags=[];
-    if(pick){
-      if(isFloor(pick.dept)&&sl.deptCount[pick.dept]-1<1)flags.push(["bad","部門が空く"]);
-      if(idAt(i-1)===pick.id&&idAt(i-2)===pick.id)flags.push(["bad","3時間連続"]);
-      else if(idAt(i-1)===pick.id)flags.push(["warn","2時間連続"]);
-      if(pick.level===3)flags.push(["warn","レベル3が担当"]);
-      if(pick.level===0)flags.push(["warn","見習いが担当"]);
-      if(pick.level===4)flags.push(["warn","レベル4が担当"]);
-    }
-    if(i===CLOSE_SLOT){
-      const anyCloser=sl.present.some(p=>eligible(p)&&p.closer);
-      if(pick&&pick.closer)flags.push(["ok","締め"]);
-      else if(!anyCloser)flags.push(["warn","締めの人がいない"]);
-      else if(pick)flags.push(["bad","締めの人ではない"]);
-    }
-    return {i,h:sl.h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,role:pick?.role,locked:!!out[i]?.locked,flags,present:sl.present};
+    const pick=out[sl.i]?.p||null;
+    return {i:sl.i,h:sl.h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,role:pick?.role,
+      locked:!!out[sl.i]?.locked,flags:slotFlags(sl,pick,idAt,emptiesFloor),present:sl.present};
   });
 }
+// 枠に付ける警告・表示
+function slotFlags(sl,pick,idAt,emptiesFloor){
+  const i=sl.i,flags=[];
+  if(pick){
+    if(emptiesFloor(sl,pick))flags.push(["bad","部門が空く"]);
+    if(idAt(i-1)===pick.id&&idAt(i-2)===pick.id)flags.push(["bad","3時間連続"]);
+    else if(idAt(i-1)===pick.id)flags.push(["warn","2時間連続"]);
+    if(pick.level===3)flags.push(["warn","レベル3が担当"]);
+    if(pick.level===0)flags.push(["warn","見習いが担当"]);
+    if(pick.level===4)flags.push(["warn","レベル4が担当"]);
+  }
+  if(i===CLOSE_SLOT){
+    const anyCloser=sl.present.some(p=>eligible(p)&&p.closer);
+    if(pick&&pick.closer)flags.push(["ok","締め"]);
+    else if(!anyCloser)flags.push(["warn","締めの人がいない"]);
+    else if(pick)flags.push(["bad","締めの人ではない"]);
+  }
+  return flags;
+}
 
-/* ---------- 表示 ---------- */
-function deptChip(d){return isFloor(d)?`<span class="chip d${d}">${esc(roster.depts[d])}</span>`:d>=4?`<span class="chip">${EXTRA_DEPTS[d-4]}</span>`:`<span class="chip">部門未設定</span>`}
-function dateLabel(){
-  if(!day.date)return "（日付未設定）";
-  const d=new Date(day.date+"T00:00:00");
-  return `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]})`;
+/* =========================================================
+   表示：今日のシフト
+   ========================================================= */
+function deptChip(d){
+  if(isFloor(d))return `<span class="chip d${d}">${esc(roster.depts[d])}</span>`;
+  if(d>=4)return `<span class="chip">${EXTRA_DEPTS[d-4]}</span>`;
+  return `<span class="chip">部門未設定</span>`;
 }
 function renderDay(){
   $("#sample-note").hidden=!isSample;
-  const m=matchDay();
-  const list=$("#day-list");
+  const m=matchDay(),list=$("#day-list");
   const working=m.rows.filter(x=>x.id&&x.t).length;
-  if(!day.text.trim()){list.innerHTML=`<p class="muted" style="padding:12px;margin:0">貼り付けると、ここに名前と時間が並びます。</p>`;$("#day-msg").textContent="";return}
-  if(m.mode==="name"){
-    list.innerHTML=m.rows.map(x=>`<div class="match ${x.unknown?"off":""}"><span class="no"></span><span>${esc(x.name)}${x.unknown?' <span class="chip bad">名簿にいない</span>':""}</span><span class="t">${x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):""}</span></div>`).join("");
-    const unk=m.rows.filter(x=>x.unknown).length;
-    $("#day-msg").innerHTML=`手入力として名前で照合しました：<span class="ok">${working}人出勤</span>${unk?`・名簿にいない名前 ${unk}件（名簿の名前と同じ書き方にしてください）`:""}`;
+  if(!day.text.trim()){
+    list.innerHTML=`<p class="muted" style="padding:12px;margin:0">貼り付けると、ここに名前と時間が並びます。</p>`;
+    $("#day-msg").textContent="";
     return;
   }
-  list.innerHTML=m.rows.map(x=>{
-    if(x.gap&&!x.raw)return `<div class="match gap"></div>`;
-    const off=!x.t;
-    return `<div class="match ${off?"off":""}"><span class="no">${x.row+1}</span><span>${x.id?esc(x.name):`<span class="chip bad">${x.row<roster.order.length?"空白の行に文字":"名簿の範囲外"}</span>`}</span><span class="t">${x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):esc(x.raw||"休み")}</span></div>`;
-  }).join("");
+  if(m.mode==="name"){
+    list.innerHTML=m.rows.map(matchRowByName).join("");
+    const unk=m.rows.filter(x=>x.unknown).length;
+    $("#day-msg").innerHTML=`手入力として名前で照合しました：<span class="ok">${working}人出勤</span>`+
+      (unk?`・名簿にいない名前 ${unk}件（名簿の名前と同じ書き方にしてください）`:"");
+    return;
+  }
+  list.innerHTML=m.rows.map(matchRow).join("");
   const stray=m.rows.filter(x=>!x.id&&x.raw).length;
   let msg=`<span class="ok">${working}人出勤</span>（名簿 ${Object.keys(roster.staff).length}人中）`;
-  if(m.extra||stray)msg+=`・<b style="color:var(--bad)">名簿より行が多いか、部門の間の空白の行に時間や文字（「休」など）が入っています。行がずれている可能性があります。名簿と同じ行から同じ行までコピーしたか確認してください</b>`;
+  if(m.extra||stray)msg+=`・<b style="color:var(--bad)">名簿より行が多いか、部門の間の空白の行に時間や文字（「休」など）が入っています。`+
+    `行がずれている可能性があります。名簿と同じ行から同じ行までコピーしたか確認してください</b>`;
   $("#day-msg").innerHTML=msg;
 }
+const timeText=x=>x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):"";
+function matchRowByName(x){
+  const tag=x.unknown?' <span class="chip bad">名簿にいない</span>':"";
+  return `<div class="match ${x.unknown?"off":""}"><span class="no"></span><span>${esc(x.name)}${tag}</span><span class="t">${timeText(x)}</span></div>`;
+}
+function matchRow(x){
+  if(x.gap&&!x.raw)return `<div class="match gap"></div>`;
+  const who=x.id?esc(x.name):`<span class="chip bad">${x.row<roster.order.length?"空白の行に文字":"名簿の範囲外"}</span>`;
+  const time=x.t?timeText(x):esc(x.raw||"休み");
+  return `<div class="match ${!x.t?"off":""}"><span class="no">${x.row+1}</span><span>${who}</span><span class="t">${time}</span></div>`;
+}
+
+/* =========================================================
+   表示：レジ番表
+   ========================================================= */
 function renderPlans(){
   const std=plans.std||[];
   $("#plans").innerHTML=PLANS.map(([k,label])=>{
     const n=k==="std"?null:(plans[k]||[]).filter((p,i)=>p.id!==std[i]?.id).length;
     const sub=k==="std"?"いつものルール":n?`標準と${n}枠違い`:"標準と同じ";
-    return `<button type="button" data-v="${k}" aria-pressed="${day.plan===k}">${label}<small>${sub}</small></button>`}).join("")+
+    return `<button type="button" data-v="${k}" aria-pressed="${day.plan===k}">${label}<small>${sub}</small></button>`;
+  }).join("")+
     (day.plan!=="std"?`<p class="plan-note" style="grid-column:1/-1"><span style="color:var(--accent)">●</span> は標準と違う時間です</p>`:"");
 }
 function renderPlan(){
   renderPlans();
   $("#plan-date").textContent=dateLabel()+" のレジ番";
-  const reg=[0,0,0,0];plan.forEach(p=>{if(isFloor(p.dept))reg[p.dept]++});
+  const reg=[0,0,0,0];
+  plan.forEach(p=>{if(isFloor(p.dept))reg[p.dept]++});
   const filled=plan.filter(p=>p.id).length;
-  $("#tally").innerHTML=roster.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v">${reg[k]}<small> 時間</small></span></div>`).join("")+
+  $("#tally").innerHTML=
+    roster.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v">${reg[k]}<small> 時間</small></span></div>`).join("")+
     `<div class="tile"><span class="k">埋まった時間</span><span class="v">${filled}<small> / ${HOURS.length}</small></span></div>`;
-  $("#roll").innerHTML=plan.map(p=>{
-    const chips=[];
-    if(p.id){chips.push(deptChip(p.dept));if(p.role!=="baito")chips.push(`<span class="chip">${ROLE[p.role]}</span>`);if(p.locked)chips.push(`<span class="chip lock">手動</span>`)}
-    p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
-    const diff=day.plan!=="std"&&plans.std&&plans.std[p.i]?.id!==p.id;
-    return `<button class="slot${diff?" diff":""}" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
-      <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
-      <span class="edit">変更</span></button>`}).join("");
+  $("#roll").innerHTML=plan.map(slotHtml).join("");
   renderSide();
 }
-let focusId=null;
+function slotHtml(p){
+  const chips=[];
+  if(p.id){
+    chips.push(deptChip(p.dept));
+    if(p.role!=="baito")chips.push(`<span class="chip">${ROLE[p.role]}</span>`);
+    if(p.locked)chips.push(`<span class="chip lock">手動</span>`);
+  }
+  p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
+  const diff=day.plan!=="std"&&plans.std&&plans.std[p.i]?.id!==p.id;   // 標準と違う枠に ● を付ける
+  return `<button class="slot${diff?" diff":""}" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
+      <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
+      <span class="edit">変更</span></button>`;
+}
+
+/* =========================================================
+   表示：その日のシフト（レジ番表の右側）
+   ========================================================= */
 function renderSide(){
   $("#hrow").innerHTML=HOURS.map(h=>`<span>${h}</span>`).join("");
   const people=presentPeople();
-  const regBy={};plan.forEach(p=>{if(p.id)(regBy[p.id]||(regBy[p.id]=new Set())).add(p.i)});
+  const regBy={};   // 人ごとのレジの枠
+  plan.forEach(p=>{if(p.id)(regBy[p.id]||(regBy[p.id]=new Set())).add(p.i)});
   $("#side-count").textContent=`${people.length}人出勤`;
   if(focusId&&!people.some(p=>p.id===focusId))focusId=null;
-  const order=[0,1,2,3,-1,4,5];
-  const html=order.map(d=>{
-    const ps=people.filter(p=>p.dept===d);
-    if(!ps.length)return "";
-    const label=d===-1?"部門未設定":deptName(d);
-    const regN=ps.reduce((a,p)=>a+(regBy[p.id]?.size||0),0);
-    return `<section class="dsec ${isFloor(d)?"d"+d:""}"><div class="dept-head">${esc(label)}<span>${ps.length}人${isFloor(d)?`・レジ${regN}回`:""}</span></div>`+ps.map(p=>{
-      const n=regBy[p.id]?.size||0, can=eligible(p)&&p.level!==0;
-      const tag=!eligible(p)?"レジ外":p.level===0?"見習い":ROLE[p.role]+(p.level?"・Lv"+p.level:"");
-      const cells=HOURS.map((h,i)=>{
-        const on=p.start<=h*60&&p.end>=h*60+60;
-        const cls=regBy[p.id]?.has(i)?"reg":on?"on":"";
-        return `<i class="cell ${cls}"></i>`;
-      }).join("");
-      return `<button class="pr ${can?"":"off"}" data-id="${p.id}" aria-pressed="${focusId===p.id}"><span class="nm">${esc(p.name)}${p.closer?' <span class="chip ok" style="font-size:.6rem;padding:0 5px">締</span>':""}<small>${fmt(p.start)}-${fmt(p.end)}<br>${tag}</small></span><span class="bars">${cells}</span><span class="cnt">${n?n+"回":""}</span></button>`;
-    }).join("")+`</section>`;
-  }).join("");
+  const html=SIDE_ORDER.map(d=>deptSection(d,people.filter(p=>p.dept===d),regBy)).join("");
   $("#side-list").innerHTML=html||`<p class="muted" style="padding:0 12px">シフトを貼り付けると、ここに出勤者が並びます。</p>`;
   document.querySelectorAll("#roll .slot").forEach(el=>{const p=plan[+el.dataset.i];el.classList.toggle("hl",!!focusId&&p.id===focusId)});
 }
-$("#side-list").addEventListener("click",e=>{
-  const b=e.target.closest(".pr");if(!b)return;
-  focusId=focusId===b.dataset.id?null:b.dataset.id;renderSide();
-});
+function deptSection(d,ps,regBy){
+  if(!ps.length)return "";
+  const label=d===-1?"部門未設定":deptName(d);
+  const regN=ps.reduce((a,p)=>a+(regBy[p.id]?.size||0),0);
+  return `<section class="dsec ${isFloor(d)?"d"+d:""}"><div class="dept-head">${esc(label)}<span>${ps.length}人${isFloor(d)?`・レジ${regN}回`:""}</span></div>`+
+    ps.map(p=>personRow(p,regBy)).join("")+`</section>`;
+}
+function personRow(p,regBy){
+  const n=regBy[p.id]?.size||0, can=eligible(p)&&p.level!==0;
+  const tag=!eligible(p)?"レジ外":p.level===0?"見習い":ROLE[p.role]+(p.level?"・Lv"+p.level:"");
+  const cells=HOURS.map((h,i)=>{
+    const on=p.start<=h*60&&p.end>=h*60+60;
+    return `<i class="cell ${regBy[p.id]?.has(i)?"reg":on?"on":""}"></i>`;
+  }).join("");
+  const closer=p.closer?' <span class="chip ok" style="font-size:.6rem;padding:0 5px">締</span>':"";
+  return `<button class="pr ${can?"":"off"}" data-id="${p.id}" aria-pressed="${focusId===p.id}">`+
+    `<span class="nm">${esc(p.name)}${closer}<small>${fmt(p.start)}-${fmt(p.end)}<br>${tag}</small></span>`+
+    `<span class="bars">${cells}</span><span class="cnt">${n?n+"回":""}</span></button>`;
+}
+
+/* =========================================================
+   表示：名簿
+   ========================================================= */
 function renderRoster(){
   $("#dept-names").innerHTML=roster.depts.map((d,k)=>`<input type="text" id="dept-${k}" data-k="${k}" value="${esc(d)}" aria-label="部門${k+1}の名前">`).join("");
   const rows=[];let lastG=-1;
   roster.order.forEach((id,i)=>{
     if(!id)return;
     const s=roster.staff[id];
-    if(s.group!==lastG){
-      lastG=s.group;
-      const ids=roster.order.filter(x=>x&&roster.staff[x].group===s.group);
-      const ds=new Set(ids.map(x=>roster.staff[x].dept));const cur=ds.size===1?[...ds][0]:"mixed";
-      rows.push(`<tr><td colspan="6" style="background:var(--soft)"><div class="bar" style="justify-content:space-between"><b>グループ${s.group+1}（${ids.length}人）</b>
-        <label class="muted">このグループをまとめて <select data-group="${s.group}" aria-label="グループ${s.group+1}の部門">${cur==="mixed"?'<option value="">混在</option>':""}<option value="-1" ${cur===-1?"selected":""}>部門を選ぶ</option>${allDepts().map((d,k)=>`<option value="${k}" ${cur===k?"selected":""}>${esc(d)}</option>`).join("")}</select></label></div></td></tr>`);
-    }
-    rows.push(`<tr><td class="muted">${i+1}</td><td>${esc(s.name)}</td>
-      <td><select data-id="${id}" data-f="dept" aria-label="${esc(s.name)}の部門"><option value="-1">未設定</option>${allDepts().map((d,k)=>`<option value="${k}" ${s.dept===k?"selected":""}>${esc(d)}</option>`).join("")}</select></td>
-      <td>${s.dept>=4?`<span class="muted">—</span>`:`<select data-id="${id}" data-f="role" aria-label="${esc(s.name)}の役職">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${s.role===k?"selected":""}>${v}</option>`).join("")}</select>`}</td>
-      <td>${eligible(s)?`<select data-id="${id}" data-f="level" aria-label="${esc(s.name)}のレベル">${LEVELS.map(l=>`<option value="${l}" ${s.level===l?"selected":""}>${l}　${LEVEL_HINT[l]}</option>`).join("")}</select>`:`<span class="muted">レジに入らない</span>`}</td>
-      <td>${eligible(s)?`<label class="closer"><input type="checkbox" data-id="${id}" data-f="closer" ${s.closer?"checked":""} aria-label="${esc(s.name)}は締め"> 締められる</label>`:""}</td></tr>`);
+    if(s.group!==lastG){lastG=s.group;rows.push(groupRow(s.group))}
+    rows.push(staffRow(id,s,i));
   });
   $("#staff-body").innerHTML=rows.join("")||`<tr><td colspan="6" class="muted">まだ名簿がありません。</td></tr>`;
 }
-let plans={};
+const deptOptions=sel=>allDepts().map((d,k)=>`<option value="${k}" ${sel===k?"selected":""}>${esc(d)}</option>`).join("");
+// グループ（空白で区切られた塊）の見出しと、まとめて部門を選ぶ欄
+function groupRow(g){
+  const ids=roster.order.filter(x=>x&&roster.staff[x].group===g);
+  const ds=new Set(ids.map(x=>roster.staff[x].dept));
+  const cur=ds.size===1?[...ds][0]:"mixed";
+  return `<tr><td colspan="6" style="background:var(--soft)"><div class="bar" style="justify-content:space-between"><b>グループ${g+1}（${ids.length}人）</b>
+        <label class="muted">このグループをまとめて <select data-group="${g}" aria-label="グループ${g+1}の部門">`+
+    `${cur==="mixed"?'<option value="">混在</option>':""}<option value="-1" ${cur===-1?"selected":""}>部門を選ぶ</option>${deptOptions(cur)}</select></label></div></td></tr>`;
+}
+function staffRow(id,s,i){
+  const nm=esc(s.name);
+  const dept=`<select data-id="${id}" data-f="dept" aria-label="${nm}の部門"><option value="-1">未設定</option>${deptOptions(s.dept)}</select>`;
+  const role=s.dept>=4?`<span class="muted">—</span>`:
+    `<select data-id="${id}" data-f="role" aria-label="${nm}の役職">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${s.role===k?"selected":""}>${v}</option>`).join("")}</select>`;
+  const level=eligible(s)?
+    `<select data-id="${id}" data-f="level" aria-label="${nm}のレベル">${LEVELS.map(l=>`<option value="${l}" ${s.level===l?"selected":""}>${l}　${LEVEL_HINT[l]}</option>`).join("")}</select>`:
+    `<span class="muted">レジに入らない</span>`;
+  const closer=eligible(s)?`<label class="closer"><input type="checkbox" data-id="${id}" data-f="closer" ${s.closer?"checked":""} aria-label="${nm}は締め"> 締められる</label>`:"";
+  return `<tr><td class="muted">${i+1}</td><td>${nm}</td>
+      <td>${dept}</td>
+      <td>${role}</td>
+      <td>${level}</td>
+      <td>${closer}</td></tr>`;
+}
+
+/* =========================================================
+   作り直し・保存
+   ========================================================= */
 function refresh(){
   PLANS.forEach(([k])=>plans[k]=generate(k));
   if(!plans[day.plan])day.plan="std";
-  plan=plans[day.plan];renderDay();renderPlan();
+  plan=plans[day.plan];
+  renderDay();renderPlan();
 }
-
-/* ---------- 保存 ---------- */
 function saveRoster(){if(!isSample)lsSet(LS_ROSTER,JSON.stringify(roster))}
 function saveDay(){if(!isSample)lsSet(LS_DAY,JSON.stringify(day))}
 
-/* ---------- 操作 ---------- */
-function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,2200)}
+/* =========================================================
+   操作：タブ・今日のシフト
+   ========================================================= */
 function showTab(name){
   ["day","plan","roster"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
   if(name==="roster")renderRoster(); else refresh();
@@ -608,88 +818,127 @@ $("#tab-roster").onclick=()=>showTab("roster");
 let pasteTimer=null;
 $("#day-paste").addEventListener("input",e=>{
   clearTimeout(pasteTimer);
-  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits={locks:{},breaks:[]};saveDay();renderDay()},200);
+  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits=emptyEdits();saveDay();renderDay()},200);
 });
 $("#day-clear").onclick=()=>{
-  $("#day-paste").value="";day.text="";day.edits={locks:{},breaks:[]};saveDay();renderDay();$("#day-paste").focus();toast("消しました");
+  $("#day-paste").value="";day.text="";day.edits=emptyEdits();saveDay();renderDay();$("#day-paste").focus();toast("消しました");
 };
-$("#roster-clear").onclick=()=>{$("#roster-paste").value="";$("#roster-msg").textContent="";$("#roster-paste").focus()};
 $("#day-date").onchange=e=>{day.date=e.target.value;saveDay();refresh()};
 $("#to-plan").onclick=()=>{day.text=$("#day-paste").value;saveDay();showTab("plan")};
 
+/* =========================================================
+   操作：名簿
+   ========================================================= */
+$("#roster-clear").onclick=()=>{$("#roster-paste").value="";$("#roster-msg").textContent="";$("#roster-paste").focus()};
 $("#roster-load").onclick=()=>{
-  const t=$("#roster-paste").value;
   const prev=isSample?null:roster;
-  const r=buildRoster(t,prev);
+  const r=buildRoster($("#roster-paste").value,prev);
   const n=Object.keys(r.staff).length;
   if(!n){$("#roster-msg").textContent="名前が見つかりませんでした。C列の名前をコピーして貼り付けてください。";return}
   const before=prev?Object.keys(prev.staff).length:0;
   const kept=prev?Object.keys(r.staff).filter(id=>prev.staff[id]).length:0;
   // 新規登録でグループがちょうど4つなら、上から部門を割り当てる
   if(!prev&&r.groups===4)Object.values(r.staff).forEach(s=>{s.dept=s.group});
-  delete r.dup;
   roster=r;isSample=false;
-  if(!prev){day={date:day.date,text:"",edits:{locks:{},breaks:[]},plan:day.plan||"std"};$("#day-paste").value=""}
+  if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std"};$("#day-paste").value=""}
   saveRoster();saveDay();renderRoster();
   $("#roster-paste").value="";
-  $("#roster-msg").textContent=prev?`${n}人で登録し直しました（設定を引き継いだ人 ${kept}人・新しい人 ${n-kept}人・外れた人 ${Math.max(0,before-kept)}人）`:`${n}人・${r.groups}グループを登録しました${r.groups===4?"（グループを上から季節AV・家電・情報・通信にしました。違えば直してください）":""}`;
+  $("#roster-msg").textContent=prev?
+    `${n}人で登録し直しました（設定を引き継いだ人 ${kept}人・新しい人 ${n-kept}人・外れた人 ${Math.max(0,before-kept)}人）`:
+    `${n}人・${r.groups}グループを登録しました${r.groups===4?"（グループを上から季節AV・家電・情報・通信にしました。違えば直してください）":""}`;
   toast("名簿を登録しました");
 };
 $("#staff-body").addEventListener("change",e=>{
   const t=e.target;
-  if(t.dataset.group!==undefined){
+  if(t.dataset.group!==undefined){   // グループをまとめて部門変更
     if(t.value==="")return;
     const g=+t.dataset.group,v=+t.value;
     Object.values(roster.staff).forEach(s=>{if(s.group===g)s.dept=v});
     saveRoster();renderRoster();return;
   }
   const s=roster.staff[t.dataset.id];if(!s)return;
-  s[t.dataset.f]=t.dataset.f==="role"?t.value:t.dataset.f==="closer"?t.checked:+t.value;
-  if(t.dataset.f==="role"&&t.value==="pnleader")s.level=4;saveRoster();renderRoster();
+  const f=t.dataset.f;
+  s[f]=f==="role"?t.value:f==="closer"?t.checked:+t.value;
+  if(f==="role"&&t.value==="pnleader")s.level=4;   // PNリーダーは初期値レベル4
+  saveRoster();renderRoster();
 });
-$("#dept-names").addEventListener("change",e=>{const k=+e.target.dataset.k;roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];saveRoster();renderRoster()});
+$("#dept-names").addEventListener("change",e=>{
+  const k=+e.target.dataset.k;
+  roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];
+  saveRoster();renderRoster();
+});
 
-$("#plans").addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(!b)return;day.plan=b.dataset.v;saveDay();refresh()});
+/* =========================================================
+   操作：レジ番表
+   ========================================================= */
+$("#plans").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-v]");if(!b)return;
+  day.plan=b.dataset.v;saveDay();refresh();
+});
 $("#regen").onclick=()=>{refresh();toast("作り直しました")};
-$("#clear-edits").onclick=()=>{day.edits={locks:{},breaks:[]};saveDay();refresh();toast("手動変更を戻しました")};
+$("#clear-edits").onclick=()=>{day.edits=emptyEdits();saveDay();refresh();toast("手動変更を戻しました")};
 $("#copy-out").onclick=async()=>{
-  const lines2=[`${dateLabel()} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?(p.name.endsWith("さん")?p.name:p.name+"さん"):"（担当なし）"}`)];
-  const txt=lines2.join("\n");
+  const honor=n=>n.endsWith("さん")?n:n+"さん";
+  const txt=[`${dateLabel()} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?honor(p.name):"（担当なし）"}`)].join("\n");
   logChoice();
   try{await navigator.clipboard.writeText(txt);toast("コピーしました")}
-  catch(e){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("コピーしました")}catch(_){toast("コピーできませんでした")}ta.remove()}
+  catch(e){
+    const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");toast("コピーしました")}catch(_){toast("コピーできませんでした")}
+    ta.remove();
+  }
 };
+$("#side-list").addEventListener("click",e=>{
+  const b=e.target.closest(".pr");if(!b)return;
+  focusId=focusId===b.dataset.id?null:b.dataset.id;renderSide();
+});
 
-/* どのプランを使ったかの記録（このiPadの中だけ。名前は記録しない） */
-const LS_LOG="position.log";
+/* =========================================================
+   どのプランを使ったかの記録（このiPadの中だけ。名前は記録しない）
+   ========================================================= */
 function readLog(){try{const L=JSON.parse(lsGet(LS_LOG)||"[]");return Array.isArray(L)?L:[]}catch(e){return[]}}
 function logChoice(){
   if(isSample)return;
-  const L=readLog().filter(x=>x.date!==day.date);
+  const L=readLog().filter(x=>x.date!==day.date);   // 同じ日は1件にまとめる
   L.push({date:day.date,plan:day.plan||"std",edits:Object.keys(day.edits.locks||{}).length});
-  lsSet(LS_LOG,JSON.stringify(L.slice(-90)));renderLog();
+  lsSet(LS_LOG,JSON.stringify(L.slice(-90)));
+  renderLog();
 }
 function renderLog(){
   const L=readLog(),el=$("#plan-log");if(!el)return;
   if(!L.length){el.textContent="まだ記録はありません。「テキストでコピー」を押した日に、そのときのプランを記録します。";return}
-  el.textContent=`このiPadでコピーした${L.length}日分：`+PLANS.map(([k,label])=>{const x=L.filter(y=>y.plan===k);if(!x.length)return `${label} 0日`;const avg=x.reduce((a,y)=>a+y.edits,0)/x.length;return `${label} ${x.length}日（手で直した枠 平均${avg.toFixed(1)}）`}).join("／");
+  el.textContent=`このiPadでコピーした${L.length}日分：`+PLANS.map(([k,label])=>{
+    const x=L.filter(y=>y.plan===k);
+    if(!x.length)return `${label} 0日`;
+    const avg=x.reduce((a,y)=>a+y.edits,0)/x.length;
+    return `${label} ${x.length}日（手で直した枠 平均${avg.toFixed(1)}）`;
+  }).join("／");
 }
 
-/* 担当の変更 */
+/* =========================================================
+   担当の変更（時間帯をタップしたときの画面）
+   ========================================================= */
 let sheetSlot=null;
 $("#roll").addEventListener("click",e=>{const b=e.target.closest(".slot");if(b)openSheet(+b.dataset.i)});
 function openSheet(i){
   sheetSlot=i;const p=plan[i];
   $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当`;
-  const ed=day.edits;
-  const cands=p.present.filter(eligible).sort((a,b)=>(i===CLOSE_SLOT?(b.closer-a.closer)||(CLOSE_LV[a.level]-CLOSE_LV[b.level]):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
-  $("#sheet-cands").innerHTML=cands.map(c=>{
-    const at=plan.filter(q=>q.id===c.id&&q.i!==i).map(q=>q.h+"時");
-    const nb=(plan[i-1]?.id===c.id||plan[i+1]?.id===c.id);
-    return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}"><span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}・${at.length?`ほかに${at.length}回（${at.join("・")}）`:"ほかの時間は0回"}</span></span><span class="chips">${deptChip(c.dept)}<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>${c.closer?'<span class="chip ok">締め</span>':""}${nb?'<span class="chip warn">前後も担当</span>':""}</span></button>`}).join("")||
-    `<p class="muted">この時間に入れる人がいません。</p>`;
+  // 並び：締めの枠は締めの人とレベル順を先に。そのあと役職・レベル順、名前順
+  const cands=p.present.filter(eligible).sort((a,b)=>
+    (i===CLOSE_SLOT?(b.closer-a.closer)||(CLOSE_LV[a.level]-CLOSE_LV[b.level]):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
+  $("#sheet-cands").innerHTML=cands.map(c=>candHtml(c,i,p)).join("")||`<p class="muted">この時間に入れる人がいません。</p>`;
   $("#sheet-unlock").disabled=!p.locked;
   $("#sheet").hidden=false;
+}
+function candHtml(c,i,p){
+  const at=plan.filter(q=>q.id===c.id&&q.i!==i).map(q=>q.h+"時");   // ほかに入っている時間
+  const nb=plan[i-1]?.id===c.id||plan[i+1]?.id===c.id;              // 前後の時間も担当
+  const others=at.length?`ほかに${at.length}回（${at.join("・")}）`:"ほかの時間は0回";
+  const chips=deptChip(c.dept)+`<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>`+
+    (c.closer?'<span class="chip ok">締め</span>':"")+(nb?'<span class="chip warn">前後も担当</span>':"");
+  return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}">`+
+    `<span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}・${others}</span></span>`+
+    `<span class="chips">${chips}</span></button>`;
 }
 function closeSheet(){$("#sheet").hidden=true}
 $("#sheet-cands").addEventListener("click",e=>{
@@ -701,13 +950,17 @@ $("#sheet-unlock").onclick=()=>{delete day.edits.locks[sheetSlot];saveDay();clos
 $("#sheet-close").onclick=closeSheet;
 $("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
 
-/* バックアップ */
+/* =========================================================
+   バックアップ（名簿の書き出し・読み込み）
+   ========================================================= */
 $("#export").onclick=()=>{
   if(isSample){toast("名簿を登録してから書き出してください");return}
-  const d=new Date();const stamp=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+  const stamp=todayStr().replace(/-/g,"");
   const blob=new Blob([JSON.stringify({app:"position",version:2,roster},null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`position-meibo-${stamp}.json`;
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=`position-meibo-${stamp}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   toast("書き出しました");
 };
 $("#import").onchange=e=>{
@@ -727,12 +980,20 @@ $("#import").onchange=e=>{
   rd.readAsText(f);
 };
 
-/* ---------- 起動 ---------- */
+/* =========================================================
+   起動
+   ========================================================= */
 (function boot(){
-  try{const r=JSON.parse(lsGet(LS_ROSTER)||"null");if(r&&r.staff&&Array.isArray(r.order)){Object.values(r.staff).forEach(normStaff);roster=r;isSample=false}}catch(e){}
-  try{const d=JSON.parse(lsGet(LS_DAY)||"null");if(d)day={date:d.date||"",text:d.text||"",edits:d.edits||{locks:{},breaks:[]},plan:d.plan||"std"}}catch(e){}
+  try{
+    const r=JSON.parse(lsGet(LS_ROSTER)||"null");
+    if(r&&r.staff&&Array.isArray(r.order)){Object.values(r.staff).forEach(normStaff);roster=r;isSample=false}
+  }catch(e){}
+  try{
+    const d=JSON.parse(lsGet(LS_DAY)||"null");
+    if(d)day={date:d.date||"",text:d.text||"",edits:d.edits||emptyEdits(),plan:d.plan||"std"};
+  }catch(e){}
   if(isSample){roster=sampleRoster();day.text=SAMPLE_DAY}
-  if(!day.date){const t=new Date();day.date=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`}
+  if(!day.date)day.date=todayStr();
   $("#day-date").value=day.date;
   $("#day-paste").value=day.text;
   if(!roster.depts)roster.depts=[...DEFAULT_DEPTS];
