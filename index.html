@@ -51,6 +51,7 @@ h2.sec{font-size:1.05rem;margin:0}
 .stepno{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.8rem;margin-right:6px}
 .steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;gap:4px;max-width:65ch}
 .notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem}
+.linkbtn{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;font-weight:700;cursor:pointer}
 
 /* ヘッダー */
 header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
@@ -92,6 +93,12 @@ textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8re
 .match .t{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600}
 .match.off{color:var(--muted)}
 .match.gap{padding:2px 12px;background:var(--soft);min-height:8px}
+button.match{width:100%;background:none;border:0;border-top:1px solid var(--line);font:inherit;color:inherit;text-align:left;cursor:pointer}
+button.match:first-child{border-top:0}
+button.match:hover{background:var(--soft)}
+button.match.off{color:var(--muted)}
+.match .t .chip{vertical-align:2px}
+.match .was{display:block;text-align:right;font-weight:500;font-size:.72rem;color:var(--muted);text-decoration:line-through}
 
 /* =========================================================
    レジ番表
@@ -132,7 +139,7 @@ textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8re
 .side{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 0;max-height:calc(100vh - 40px);overflow:auto}
 .side-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 12px 6px}
 .hours{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;padding:0 12px 4px}
-.hours .hrow{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
+.hours .hrow{display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
 .dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) 70%,var(--surface));margin-top:8px}
 .dsec.d0{--dc:var(--d0);--dt:var(--d0bg)}.dsec.d1{--dc:var(--d1);--dt:var(--d1bg)}.dsec.d2{--dc:var(--d2);--dt:var(--d2bg)}.dsec.d3{--dc:var(--d3);--dt:var(--d3bg)}
 .dept-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 12px 6px;color:var(--dc);font-weight:700;font-size:.92rem}
@@ -144,10 +151,13 @@ textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8re
 .pr .nm small{display:block;font-weight:500;color:var(--muted);font-size:.68rem;white-space:normal;line-height:1.35}
 .pr .cnt{font-family:var(--font-mono);font-weight:700;text-align:right;font-size:.85rem}
 .pr.off .nm{color:var(--muted)}
-.bars{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px}
+.bars{display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px}
 .cell{display:inline-block;height:14px;border-radius:3px;background:transparent;border:1px dashed var(--line)}
 .cell.on{background:var(--on);border-color:transparent}
 .cell.reg{background:var(--accent);border-color:transparent}
+.cell.trn{background:repeating-linear-gradient(135deg,var(--accent) 0 3px,transparent 3px 6px);border:1px solid var(--accent)}
+.trainee{font-weight:600;font-size:.95rem;color:var(--muted)}
+.sheet-sub{margin:6px 0 0;font-size:.95rem}
 .legend{display:flex;flex-wrap:wrap;gap:12px;padding:8px 12px 0;font-size:.75rem;color:var(--muted)}
 .legend .cell{width:14px;vertical-align:-2px;margin-right:4px}
 
@@ -159,6 +169,63 @@ textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8re
 .rules table{min-width:0}
 .rules td{vertical-align:top;overflow-wrap:anywhere}
 .rules td.n{white-space:nowrap;overflow-wrap:normal;width:2.5em}
+
+/* =========================================================
+   使い方
+   ========================================================= */
+.hcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;max-width:820px}
+.hcard h3{margin:0;font-size:1rem}
+.hcard p{margin:0}
+.hcard .steps{color:var(--ink)}
+.htable{min-width:0}
+.hcard h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hcard h4{margin:10px 0 0;font-size:.95rem}
+.help{scroll-padding-top:12px}
+.hcard[id]{scroll-margin-top:12px}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.tag.on{background:var(--accent);color:var(--accent-ink)}
+.flow .tag:not(.on){background:var(--surface)}
+/* 使う流れ */
+.flow{list-style:none;margin:4px 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;counter-reset:f}
+.flow li{counter-increment:f;position:relative;background:var(--soft);border-radius:10px;padding:10px 10px 10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;font-size:.92rem}
+.flow li::before{content:counter(f);font-family:var(--font-mono);font-weight:700;color:var(--accent);font-size:1.1rem;line-height:1}
+.flow li:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem}
+@media (max-width:560px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}.flow li:nth-child(2)::after{content:none}}
+.note-ok{border-left:3px solid var(--d0);padding:6px 10px;background:var(--d0bg);border-radius:0 8px 8px 0}
+.note-bad{margin:0;border-left:3px solid var(--bad);padding:6px 10px;background:var(--bad-bg);border-radius:0 8px 8px 0;font-size:.9rem}
+/* 目次 */
+.toc{display:flex;flex-wrap:wrap;gap:8px;max-width:820px}
+.toc button{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--accent);border-radius:999px;padding:8px 14px;min-height:40px;cursor:pointer}
+.toc button:hover{background:var(--soft)}
+/* 毎日の手順 */
+.hsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+.hsteps li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:10px;row-gap:2px;align-items:start}
+.hsteps li::before{content:counter(s);grid-row:span 2;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono)}
+.hsteps li b:first-child{font-size:1rem;line-height:1.5}
+.hsteps li span{color:var(--muted);font-size:.86rem}
+.htable.fix td:first-child{font-weight:700}
+.htable.fix td:nth-child(2){color:var(--accent)}
+@media (max-width:560px){.htable.fix td{display:block;border:0;padding:2px 8px}.htable.fix tr{display:block;border-top:1px solid var(--line);padding:6px 0}.htable.fix tr:first-child{display:none}.htable.fix td:nth-child(2)::before{content:"→ "}}
+/* 対応しているシフト表の見本 */
+.demo-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.demo{min-width:440px;border-collapse:collapse;font-family:var(--font-mono);font-size:.78rem}
+.demo td{padding:4px 8px;border:1px solid var(--line);white-space:nowrap;text-align:left}
+.demo .hd td{background:var(--soft);color:var(--muted);font-weight:700}
+.demo .x{color:var(--muted)}
+.demo .gap td{height:10px;padding:0}
+.demo .more td{border-bottom:0;color:var(--muted)}
+.demo .lbl td{border:0;font-family:var(--font-body);font-weight:700;font-size:.72rem;padding:2px 8px}
+.demo .lbl .cn{color:var(--accent)}.demo .lbl .cd{color:var(--d0)}
+.demo td.cn{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.demo td.cd{background:color-mix(in srgb,var(--d0) 14%,var(--surface))}
+.demo tr:not(.lbl) td.cn{box-shadow:inset 2px 0 0 var(--accent),inset -2px 0 0 var(--accent)}
+.demo tr:not(.lbl) td.cd{box-shadow:inset 2px 0 0 var(--d0),inset -2px 0 0 var(--d0)}
+.demo .lbl td.cn,.demo .lbl td.cd{background:none;box-shadow:none}
+.nw{white-space:nowrap}
+.htable td{vertical-align:top;overflow-wrap:anywhere}
+.htable td:first-child{white-space:nowrap}
+@media (max-width:480px){.htable td:first-child{white-space:normal}}
+.htable.lv th:first-child,.htable.lv td:first-child{white-space:nowrap;width:4em}
 
 /* =========================================================
    名簿
@@ -192,9 +259,10 @@ td select{min-height:38px;padding:4px 8px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v36</span></h1>
-      <p class="sub">レジ番メーカー｜9:00〜21:00・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
+      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v47</span></h1>
+      <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
     </div>
+    <button class="btn" id="help-open">使い方</button>
   </header>
 
   <div class="tabs" role="tablist">
@@ -205,7 +273,7 @@ td select{min-height:38px;padding:4px 8px}
 
   <!-- 今日のシフト -->
   <section class="panel" id="p-day">
-    <div class="notice" id="sample-note">いま入っているのは例のデータです。「名簿」で名前を登録すると切り替わります。</div>
+    <div class="notice" id="sample-note">いま入っているのは例のデータです。「名簿」で名前を登録すると切り替わります。はじめての方は、右上の<button class="linkbtn" id="help-open2">使い方</button>をご覧ください。</div>
     <h2 class="sec"><span class="stepno">1</span>作りたい日の列を貼り付け</h2>
     <ol class="steps">
       <li>シフト表で、作りたい日の列を<b>名簿と同じ行から同じ行まで</b>選んでコピー</li>
@@ -218,7 +286,7 @@ td select{min-height:38px;padding:4px 8px}
     <div class="bar"><button class="btn" id="day-clear">貼り付けを消す</button></div>
     <p class="muted" id="day-msg" style="margin:0"></p>
     <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
-    <p class="muted" style="margin:0">名前と時間がずれていないか、ざっと確認してください。ずれていたら、コピーした行の範囲が名簿と違います。</p>
+    <p class="muted" style="margin:0">名前と時間がずれていないか、ざっと確認してください。ずれていたら、コピーした行の範囲が名簿と違います。<br>急な休みや急な出勤で、シフト表と違う人は、名前をタップすると今日の時間を変えられます。</p>
     <div class="list" id="day-list"></div>
     <button class="btn primary" id="to-plan">レジ番表を作る</button>
   </section>
@@ -242,7 +310,7 @@ td select{min-height:38px;padding:4px 8px}
           <div class="side-head"><b id="side-title">その日のシフト</b><span class="muted" id="side-count"></span></div>
           <div class="hours" aria-hidden="true"><span></span><span class="hrow" id="hrow"></span><span></span></div>
           <div id="side-list"></div>
-          <div class="legend"><span><i class="cell on"></i>出勤</span><span><i class="cell reg"></i>レジ</span></div>
+          <div class="legend"><span><i class="cell on"></i>出勤</span><span><i class="cell reg"></i>レジ</span><span><i class="cell trn"></i>見習いで一緒に</span></div>
         </div>
       </aside>
     </div>
@@ -256,16 +324,16 @@ td select{min-height:38px;padding:4px 8px}
         <tr><td>その1時間ずっといる人だけ</td><td>9:30出勤の人は9:00〜10:00に入らない</td></tr>
         <tr><td>入れる役職</td><td>PN・新入社員・No2・PNリーダーのみ。リーダー・店長は入らない</td></tr>
         <tr><td>部門が「店長」「流通便」の人は入らない</td><td>フロアの人数にも数えない</td></tr>
-        <tr><td>見習い（レベル0）は自動で入れない</td><td>手動なら入れられる</td></tr>
+        <tr><td>見習い（レベル0）は自動で入れない</td><td>手動なら入れられる。時間をタップして「見習いを一緒に入れる」で選ぶと、担当の人と2人でレジに入る（担当の人がサポート）</td></tr>
         <tr><td>3時間連続は禁止</td><td>手動で固定した時間の前後も含む。2時間連続は、どうしても人がいないときだけ</td></tr>
       </table>
       <h3>② 優先順位つきのルール</h3>
       <p class="muted">ぶつかったときは上のルールを守ります。</p>
       <table>
         <tr><th>順</th><th>ルール</th><th>内容</th></tr>
-        <tr><td class="n">1</td><td>締めは締めの人</td><td>20:00〜21:00は「締め」にチェックがある人。締めの人がいない日は、ほかの時間と同じ決め方にして警告を出す</td></tr>
+        <tr><td class="n">1</td><td>締めは締めの人</td><td>閉店前の最後の1時間は「締め」にチェックがある人。締めの人がいない日は、ほかの時間と同じ決め方にして警告を出す</td></tr>
         <tr><td class="n">2</td><td>締めの中ではレベル順</td><td>レベル1 → 2 → 3 → 4</td></tr>
-        <tr><td class="n">3</td><td>部門のフロアを0人にしない</td><td>抜けると部門が空く人は避ける。人の少ない日は、多い部門の人が2回入ることがある</td></tr>
+        <tr><td class="n">3</td><td>部門のフロアを0人にしない</td><td>抜けると部門が空く人は避ける。見習い（レベル0）は1人で売り場を任せられないので、人数に数えない（「見習いだけ残る」より「誰もいなくなる」を先に避ける）。人の少ない日は、多い部門の人が2回入ることがある</td></tr>
         <tr><td class="n">4</td><td>レベル4は最後</td><td>今日の回数に関係なく、ほかの全員より後</td></tr>
         <tr><td class="n">5</td><td>今日の回数が少ない人から</td><td>全員が1回入るまで2回目は回さない</td></tr>
         <tr><td class="n">6</td><td>同じ人の2時間連続を避ける</td><td>回数が同じ人がほかにいれば、連続にしない</td></tr>
@@ -281,12 +349,12 @@ td select{min-height:38px;padding:4px 8px}
         <tr><th>プラン</th><th>内容</th></tr>
         <tr><td>標準</td><td>上の②の順番どおり</td></tr>
         <tr><td>部門重視</td><td>人の少ない部門を売り場に残し、人の多い部門からレジに出す。今日の回数・2時間連続の回避・売り場のカバーは標準と同じ。人の少ない部門は、その日レジに入らないこともある</td></tr>
-        <tr><td>別パターン</td><td>ルールは標準と同じ。入れる人の数が同じ時間帯を夕方から埋め、同じ条件の人の順番も変える</td></tr>
+        <tr><td>別パターン</td><td>売り場の余裕を優先する。通信は2人、ほかの部門は3人残るなら、その部門から先に出す。閉店前の4時間だけ、余裕のある部門の人が2回目に入ることがある（1日1人まで）。時間帯は夕方から埋める</td></tr>
       </table>
       <p class="muted">手動で固定した担当は、どのプランでも同じです。</p>
       <p class="muted" id="plan-log"></p>
       <h3>決める順番</h3>
-      <p class="muted">① 手動で固定した時間 → ② 締め（20:00〜21:00） → ③ 入れる人が少ない時間帯から順に。人の少ない時間に、入れる人を残しておくためです。</p>
+      <p class="muted">① 手動で固定した時間 → ② 締め（閉店前の最後の1時間） → ③ 入れる人が少ない時間帯から順に。人の少ない時間に、入れる人を残しておくためです。</p>
       <h3>③ 手動変更</h3>
       <p class="muted">①②より強いルールです。タップして決めた担当はそのまま固定され、ほかの時間が組み直されます。</p>
     </details>
@@ -308,8 +376,17 @@ td select{min-height:38px;padding:4px 8px}
     </div>
     <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
 
+    <div>
+      <h2 class="sec" style="margin:8px 0 6px">店の設定（営業時間）</h2>
+      <div class="bar">
+        <label class="fld">開店<select id="open-hour" aria-label="開店の時間"></select></label>
+        <label class="fld">閉店<select id="close-hour" aria-label="閉店の時間"></select></label>
+      </div>
+      <p class="muted" style="margin:6px 0 0">レジ番はこの時間に1時間ずつ組み、最後の1時間を締めにします。変えると、その日の手動変更は戻ります。</p>
+    </div>
+
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
-    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締め</b>にチェックした人は、最後の20:00〜21:00（レジ締め）に優先して入ります。締めの人の中ではレベル <b>1</b> → <b>2</b> → <b>3</b> の順です。</p>
+    <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締め</b>にチェックした人は、閉店前の最後の1時間（レジ締め）に優先して入ります。締めの人の中ではレベル <b>1</b> → <b>2</b> → <b>3</b> の順です。</p>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締め</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -325,12 +402,159 @@ td select{min-height:38px;padding:4px 8px}
       <input type="file" id="import" accept=".json,application/json" hidden>
     </div>
   </section>
+
+  <!-- 使い方 -->
+  <section class="panel help" id="p-help" hidden>
+    <div class="bar" style="justify-content:space-between"><h2 class="sec">使い方</h2><button class="btn" id="help-close">戻る</button></div>
+
+    <div class="hcard">
+      <h3>このアプリについて</h3>
+      <p>その日のシフトを貼り付けると、開店から閉店までの<b>レジ番を1時間ごとに自動で組みます</b>。最後は時間をタップして手で直せます。</p>
+      <ol class="flow" aria-label="使う流れ">
+        <li><span class="tag">最初だけ</span><b>名簿を登録</b></li>
+        <li><span class="tag on">毎日</span><b>シフトを貼る</b></li>
+        <li><span class="tag on">毎日</span><b>案を選んで直す</b></li>
+        <li><span class="tag on">毎日</span><b>コピーして送る</b></li>
+      </ol>
+      <p class="note-ok"><b>名前やシフトは、このiPadの中だけに保存されます。</b>インターネットには送りません。ほかのiPadや、ほかの店とも共有されません。</p>
+      <p class="muted">割り当てのルールは、ある1店舗のやり方に合わせて作っています。店によって合わないところがあれば、時間をタップして手で直してください。</p>
+    </div>
+
+    <nav class="toc" aria-label="目次">
+      <button type="button" data-jump="h-daily">毎日の使い方</button>
+      <button type="button" data-jump="h-fix">手で直す</button>
+      <button type="button" data-jump="h-setup">最初の準備</button>
+      <button type="button" data-jump="h-level">レベル・役職</button>
+      <button type="button" data-jump="h-backup">バックアップ</button>
+      <button type="button" data-jump="h-faq">困ったとき</button>
+    </nav>
+
+    <div class="hcard" id="h-daily">
+      <h3><span class="tag on">毎日</span>レジ番を作る</h3>
+      <ol class="hsteps">
+        <li><b>シフト表の、その日の列をコピー</b><span>名簿と<b>同じ行から同じ行まで</b>選びます（下の「最初の準備」の見本の②）</span></li>
+        <li><b>「今日のシフト」タブに貼り付ける</b><span>名前と時間が横に並びます。ずれていないか、ざっと確認</span></li>
+        <li><b>「レジ番表を作る」を押して、案を選ぶ</b><span>「標準」「部門重視」「別パターン」から、しっくりくるものを。直したい時間は手で直せます（下の「手で直す」）</span></li>
+        <li><b>「テキストでコピー」を押して、LINEなどに貼る</b><span>「9:00-10:00 〇〇さん」の形で、営業時間の分だけ並びます</span></li>
+      </ol>
+    </div>
+
+    <div class="hcard" id="h-fix">
+      <h3>手で直す</h3>
+      <table class="htable fix">
+        <tr><th>こうしたい</th><th>ここをタップ</th><th>どうなる</th></tr>
+        <tr><td>急な休み・急な出勤・時間の変更</td><td>「今日のシフト」の照合結果で、その人の名前</td><td>「今日は休みにする」か、時間を選び直す。今日だけ有効で、シフト表は書き換えません</td></tr>
+        <tr><td>担当を変える</td><td>「レジ番表」で、その時間</td><td>選んだ人で固定され、ほかの時間は組み直されます。「固定を外す」で元に戻ります</td></tr>
+        <tr><td>見習いを一緒に入れる</td><td>「レジ番表」で、その時間 →<br>下の「見習いを一緒に入れる」</td><td>担当の人と2人で入ります。コピーすると「13:00-14:00 石田さん・〇〇さん」</td></tr>
+        <tr><td>手で直したのを全部戻す</td><td>「レジ番表」の「手動変更をリセット」</td><td>固定と見習いが外れて、自動の案に戻ります</td></tr>
+      </table>
+      <p class="muted">右側の「その日のシフト」で名前をタップすると、その人のレジの時間が強調されます。</p>
+    </div>
+
+    <div class="hcard" id="h-setup">
+      <h3><span class="tag">最初だけ</span>最初の準備</h3>
+      <h4>1. 対応しているシフト表か確かめる</h4>
+      <p>こんな形の表（Googleスプレッドシート、Excelどちらでも）なら、そのまま使えます。</p>
+      <div class="demo-wrap" role="img" aria-label="シフト表の見本。名前の列と、日付ごとの時間の列がある表">
+        <table class="demo">
+          <tr class="lbl"><td></td><td></td><td class="cn">① 最初に1回</td><td class="cd">② 毎日</td><td></td><td></td></tr>
+          <tr class="hd"><td>A</td><td>B</td><td class="cn">C（名前）</td><td class="cd">28日(火)</td><td>29日(水)</td><td>30日(木)</td></tr>
+          <tr><td class="x">…</td><td class="x">…</td><td class="cn">例）佐藤</td><td class="cd">9-18</td><td>休</td><td>12-21</td></tr>
+          <tr><td class="x">…</td><td class="x">…</td><td class="cn">例）鈴木</td><td class="cd">10:30-19:30</td><td>9-18</td><td>休</td></tr>
+          <tr><td class="x">…</td><td class="x">…</td><td class="cn">例）高橋</td><td class="cd">休</td><td>13-21</td><td>9-15</td></tr>
+          <tr class="gap"><td></td><td></td><td class="cn"></td><td class="cd"></td><td></td><td></td></tr>
+          <tr><td class="x">…</td><td class="x">…</td><td class="cn">例）田中</td><td class="cd">12-21</td><td>9-18</td><td>9-18</td></tr>
+          <tr><td class="x">…</td><td class="x">…</td><td class="cn">例）伊藤</td><td class="cd">930-17</td><td>休</td><td>17-21</td></tr>
+          <tr class="gap"><td></td><td></td><td class="cn"></td><td class="cd"></td><td></td><td></td></tr>
+          <tr><td class="x">…</td><td class="x">…</td><td class="cn">例）渡辺</td><td class="cd">9-18</td><td>12-21</td><td>休</td></tr>
+          <tr class="more"><td></td><td></td><td class="cn">︙</td><td class="cd">︙</td><td>︙</td><td>︙</td></tr>
+        </table>
+      </div>
+      <ul class="steps">
+        <li><b>名前が縦に1列に並んでいる</b>こと。部門の間に空白の行があってもOK（むしろそのままコピーします）</li>
+        <li><b>日付ごとに、1つのセルに「開始-終了」</b>が入っていること（<span class="nw">9-18</span>、<span class="nw">10:30-19:30</span>、<span class="nw">930-17</span> など）</li>
+        <li>名前の列と時間の列は、<b>同じ行どうし</b>で照合します。ほかの列（A・Bなど）に何が入っていても関係ありません</li>
+      </ul>
+      <p class="muted"><b>今は対応していない形：</b>開始と終了が別々のセルに分かれている表／PDF・紙・画像のシフト表。この場合は「名前 9-18」のように1人ずつ打ち込めば使えます。</p>
+
+      <h4>2. ホーム画面に追加する</h4>
+      <ol class="steps">
+        <li>iPadのSafariでこのページを開く</li>
+        <li>共有ボタン（□に↑のマーク）→「ホーム画面に追加」</li>
+        <li>次からはホーム画面のアイコンから開けます。一度開けば、ネットがなくても動きます</li>
+      </ol>
+
+      <h4>3. 名簿を登録する（人が増えた・辞めたときも）</h4>
+      <ol class="steps">
+        <li>シフト表で、名前の列（見本の①）を一番上の人から一番下の人までコピー。部門の間の空白の行もそのまま含めます</li>
+        <li>「名簿」タブに貼り付けて「名簿を登録」</li>
+        <li>空白で区切られたグループごとに部門を選ぶ（4グループなら上から自動で入ります）</li>
+        <li>一人ずつ、役職・レベル・「締められる」を設定する（下の「レベル・役職」）</li>
+      </ol>
+
+      <h4>4. 営業時間を合わせる（9:00〜21:00ではない店だけ）</h4>
+      <p>「名簿」タブの「店の設定（営業時間）」で、開店・閉店の時間を選びます。</p>
+    </div>
+
+    <div class="hcard" id="h-level">
+      <h3>レベル・役職</h3>
+      <table class="htable lv">
+        <tr><th>レベル</th><th>意味</th></tr>
+        <tr><td>1</td><td>優先してレジに入る</td></tr>
+        <tr><td>2</td><td>普通</td></tr>
+        <tr><td>3</td><td>人が足りない時だけ入る</td></tr>
+        <tr><td>4</td><td>めったに入らない（最終手段）。PNリーダーは最初からレベル4</td></tr>
+        <tr><td>0</td><td>見習い。自動では入れず、売り場の人数にも数えない。「手で直す」から担当と一緒に入れられる</td></tr>
+      </table>
+      <p class="muted">レジに入るのは PN・新入社員・No2・PNリーダー です。リーダー・店長はレジに入らず、売り場の人数にだけ数えます。部門で「店長」「流通便」を選んだ人は、レジにも売り場の人数にも入りません。<b>締められる</b>にチェックした人は、閉店前の最後の1時間に優先して入ります。</p>
+    </div>
+
+    <div class="hcard" id="h-backup">
+      <h3>バックアップ・別のiPadで使う</h3>
+      <ol class="steps">
+        <li>「名簿」タブの一番下の「書き出し」で、名簿の設定をファイルに保存</li>
+        <li>別のiPadには<b>AirDropで</b>送り、そのiPadで「読み込み」</li>
+      </ol>
+      <p class="note-bad">ファイルには実名が入っています。LINEやメールでは送らないでください。</p>
+    </div>
+
+    <div class="hcard" id="h-faq">
+      <h3>困ったとき</h3>
+      <table class="htable">
+        <tr><th>こんなとき</th><th>こうする</th></tr>
+        <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
+        <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
+        <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すと売り場が手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v」から始まる番号で版を確認できます</td></tr>
+        <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
+      </table>
+    </div>
+
+  </section>
 </div>
 
+<div class="sheet" id="tsheet" hidden>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="tsheet-title">
+    <h2 id="tsheet-title"></h2>
+    <p class="muted" id="tsheet-orig" style="margin:0"></p>
+    <button class="btn" id="tsheet-off">今日は休みにする</button>
+    <div class="bar" style="align-items:flex-end">
+      <label class="fld">開始<select id="ts-start"></select></label>
+      <label class="fld">終了<select id="ts-end"></select></label>
+      <button class="btn primary" id="tsheet-set">この時間にする</button>
+    </div>
+    <p class="muted" style="margin:0">変えた時間は今日だけ使います。シフト表を貼り付け直すと元に戻ります。</p>
+    <div class="bar">
+      <button class="btn" id="tsheet-reset">シフト表どおりに戻す</button>
+      <button class="btn" id="tsheet-close" style="margin-left:auto">閉じる</button>
+    </div>
+  </div>
+</div>
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
     <h2 id="sheet-title"></h2>
     <div id="sheet-cands" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="sheet-trn" style="display:flex;flex-direction:column;gap:8px"></div>
     <div class="bar">
       <button class="btn" id="sheet-unlock">固定を外す</button>
       <button class="btn" id="sheet-close" style="margin-left:auto">閉じる</button>
@@ -343,8 +567,10 @@ td select{min-height:38px;padding:4px 8px}
 /* =========================================================
    設定
    ========================================================= */
-const HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];   // レジの時間（9:00〜21:00）
-const CLOSE_SLOT=11;                                  // 20:00〜21:00 はレジ締め
+// レジの時間。店の設定（roster.hours）から決める。設定がなければ 9:00〜21:00
+const DEFAULT_HOURS={open:9,close:21};
+let HOURS=[9,10,11,12,13,14,15,16,17,18,19,20];   // 1時間ごとの枠の開始時刻
+let CLOSE_SLOT=11;                                  // 最後の1時間（レジ締め）の枠の番号
 const ROLE={baito:"PN",pnleader:"PNリーダー",rookie:"新入社員",sub:"No2",leader:"リーダー",manager:"店長"};
 const ROLE_RANK={baito:0,rookie:1,sub:2,pnleader:3};  // レジに入る役職と、その順番
 const LEVELS=[1,2,3,0,4];                             // 名簿の選択肢の並び
@@ -357,6 +583,7 @@ const WD="日月火水木金土";
 const SIDE_ORDER=[0,1,2,3,-1,4,5];                    // 右側の並び：4部門 → 部門未設定 → 店長・流通便
 const LS_ROSTER="position.roster", LS_DAY="position.day", LS_LOG="position.log";
 
+
 // プラン（ボタンの並び順）
 const PLANS=[["std","標準"],["dept","部門重視"],["alt","別パターン"]];
 
@@ -366,7 +593,23 @@ const RULE_ORDER={
   // 部門重視：売り場のカバーまでは同じ。そのあと役職・レベルより先に部門を見る
   dept:["closer","closerLevel","floor","level4","count","consec","coverage","deptSize","deptReg","deptBacklog","roleLevel","daily"],
 };
-RULE_ORDER.alt=RULE_ORDER.std;   // 別パターン：ルールは標準と同じ（埋める順番と日替わりの種だけ変える）
+// 別パターン：売り場の余裕を優先。通信は2人、ほかの部門は3人残るなら、そこから先に出す。
+// 最後の4時間だけ、余裕のある部門の人の2回目を1日1人まで許す（余裕のない部門の人の1回目より先）
+RULE_ORDER.alt=["closer","closerLevel","floor","level4","countAlt","consec","spare","count","coverage","roleLevel","deptBacklog","deptReg","deptSize","daily"];
+const ALT_LATE_HOURS=4, ALT_EXTRA_MAX=1;
+
+// 店の設定に合わせて、枠と締めの枠を決め直す
+function storeHours(){
+  const h=roster&&roster.hours;
+  return h&&h.close-h.open>=2?h:DEFAULT_HOURS;
+}
+function applyHours(){
+  const {open,close}=storeHours();
+  HOURS=[];for(let h=open;h<close;h++)HOURS.push(h);
+  CLOSE_SLOT=HOURS.length-1;
+  document.documentElement.style.setProperty("--slots",HOURS.length);
+  $("#hours-label").textContent=`${open}:00〜${close}:00`;
+}
 
 /* =========================================================
    人についての判定
@@ -375,6 +618,7 @@ const isFloor=d=>d>=0&&d<4;                           // 4部門のどれかに�
 // 売り場のカバー：季節AV・家電・情報（0〜2）はお互いの売り場をカバーできる「共通フロア」。通信（3）は契約が専門で、ほかの部門はカバーできない
 const SHARED_DEPTS=[0,1,2], TSUSHIN=3;
 const eligible=p=>(p.role in ROLE_RANK)&&p.dept<4;   // レジに入れる役職・所属
+const isTrainee=p=>eligible(p)&&p.level===0;          // 見習い：1人で売り場を任せられないので、フロアの人数に数えない
 const deptName=d=>d>=4?EXTRA_DEPTS[d-4]:roster.depts[d];
 const allDepts=()=>[...roster.depts,...EXTRA_DEPTS];
 // 役職が先、同じ役職の中でレベル順。レベル4と見習いは役職に関係なく後ろ
@@ -387,19 +631,20 @@ function prio(p){
 /* =========================================================
    例のデータ（名簿を登録するまで表示）
    ========================================================= */
-const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
+const SAMPLE_NAMES=["例）高橋","","例）原","例）西","","例）青木","例）石田","例）上野","例）清水","","例）江口","例）大西","例）川村","例）野口","例）新井","","例）木下","例）久保","例）小林","例）鈴木","","例）佐藤","例）田中","例）森"];
 const SAMPLE_CLOSER=["例）青木","例）江口","例）久保"];
-const SAMPLE_ROLE={"例）清水":["sub",3],"例）鈴木":["sub",3],"例）森":["leader",1],"例）石田":["baito",2],"例）大西":["baito",2],"例）小林":["baito",2],"例）川村":["baito",3],"例）田中":["baito",2]};
-const SAMPLE_DAY=["9-18","","8-17","9-18","","8:30-18","10-19:30","9-14","8:30-18","","17-21:30","12-21:30","8:30-13","9-18","","13-21:30","11:00-20","9-18","12-21:30","","18:30-21:30","14-21:30","9-18"].join("\n");
+const SAMPLE_ROLE={"例）清水":["sub",3],"例）鈴木":["sub",3],"例）森":["leader",1],"例）石田":["baito",2],"例）大西":["baito",2],"例）小林":["baito",2],"例）川村":["baito",3],"例）新井":["baito",0],"例）田中":["baito",2]};
+const SAMPLE_DAY=["9-18","","8-17","9-18","","8:30-18","10-19:30","9-14","8:30-18","","17-21:30","12-21:30","8:30-13","9-18","10-19","","13-21:30","11:00-20","9-18","12-21:30","","18:30-21:30","14-21:30","9-18"].join("\n");
 
 /* =========================================================
    状態
    ========================================================= */
 let roster=null;     // {depts, order:[id|""], staff:{id:{name,dept,role,level,closer,group}}, groups}
 let isSample=true;   // 名簿を登録するまでは例のデータ
-// edits.locks：手動で固定した担当 {枠の番号: id}。breaks は以前の休憩機能の名残（古いデータとの互換のために残す）
-const emptyEdits=()=>({locks:{},breaks:[]});
-let day={date:"",text:"",edits:emptyEdits(),plan:"std"};
+// edits.locks：手動で固定した担当 {枠の番号: id}。edits.trainees：担当と一緒に入る見習い {枠の番号: id}。breaks は以前の休憩機能の名残（古いデータとの互換のために残す）
+const emptyEdits=()=>({locks:{},breaks:[],trainees:{}});
+// times：その日だけ手で変えた出勤時間 {id: {start,end} または "off"（休み）}。シフト表の文字は書き換えない
+let day={date:"",text:"",edits:emptyEdits(),plan:"std",times:{}};
 let plans={};        // プランごとのレジ番表
 let plan=[];         // 表示中のレジ番表
 let focusId=null;    // 右側で選んだ人
@@ -478,7 +723,7 @@ function buildRoster(text,prev){
     staff[id]=normStaff(old?{...old,name:n,group:g}:{name:n,dept:-1,role:"baito",level:1,group:g});
     (groups[g]||(groups[g]=[])).push(id);
   });
-  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length};
+  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,...(prev?.hours?{hours:prev.hours}:{})};
 }
 function sampleRoster(){
   const r=buildRoster(SAMPLE_NAMES.join("\n"),null);
@@ -522,8 +767,15 @@ function matchByName(named){
   return {mode:"name",rows,extra:0};
 }
 // 出勤している人（名簿の設定＋その日の時間）
+// その人のその日の時間（手で変えていればそちらを使う。休みなら null）
+function effTime(x){
+  const o=x.id&&day.times?day.times[x.id]:undefined;
+  if(o===undefined)return x.t;
+  return o==="off"?null:o;
+}
+const isChanged=x=>!!(x.id&&day.times&&day.times[x.id]!==undefined);
 function presentPeople(){
-  return matchDay().rows.filter(x=>x.id&&x.t).map(x=>({id:x.id,...roster.staff[x.id],start:x.t.start,end:x.t.end}));
+  return matchDay().rows.filter(x=>x.id&&effTime(x)).map(x=>{const t=effTime(x);return {id:x.id,...roster.staff[x.id],start:t.start,end:t.end}});
 }
 
 /* =========================================================
@@ -536,21 +788,27 @@ function generate(v){
   const people=presentPeople();
   const ed=day.edits||(day.edits=emptyEdits());
   const deptReg=[0,0,0,0], personReg={};   // 部門ごと・人ごとの今日のレジ回数
+  let extraUsed=0;                          // 別パターン：2回目を許した数
   const out=HOURS.map(()=>null);           // 枠ごとの担当 {p, locked}
 
   // 枠ごとの情報：その1時間ずっといる人、部門ごとのフロア人数、自動で入れられる人
   const slots=HOURS.map((h,i)=>{
     const present=people.filter(p=>p.start<=h*60&&p.end>=h*60+60);
-    const deptCount=[0,0,0,0];
-    present.forEach(p=>{if(isFloor(p.dept))deptCount[p.dept]++});
+    const deptCount=[0,0,0,0], trnCount=[0,0,0,0];   // 部門ごとのフロア人数（見習いは数えず、別に数える）
+    present.forEach(p=>{if(isFloor(p.dept))(isTrainee(p)?trnCount:deptCount)[p.dept]++});
     const pool=present.filter(p=>eligible(p)&&p.level!==0);
-    return {i,h,present,deptCount,pool};
+    return {i,h,present,deptCount,trnCount,pool};
   });
 
   const idAt=j=>out[j]?.p.id;
   // 3時間連続になるか（前後どちらに並んでも）
   const triple=(i,id)=>(idAt(i-1)===id&&idAt(i-2)===id)||(idAt(i-1)===id&&idAt(i+1)===id)||(idAt(i+1)===id&&idAt(i+2)===id);
-  const emptiesFloor=(sl,p)=>isFloor(p.dept)&&sl.deptCount[p.dept]-1<1;   // 抜けると部門のフロアが0人になる
+  // 抜けると部門のフロアに1人前の人がいなくなるか。2＝誰もいなくなる、1＝見習いだけ残る、0＝大丈夫
+  // away：一緒にレジに入る見習い（その人も売り場にいないので数えない）
+  const emptiesFloor=(sl,p,away)=>{
+    if(!isFloor(p.dept)||isTrainee(p)||sl.deptCount[p.dept]-1>=1)return 0;
+    return sl.trnCount[p.dept]-(away&&away.dept===p.dept?1:0)>0?1:2;
+  };
   // p が抜けたあと、p のいるフロアにどれだけ人が残るか（-1 が十分。0 に近いほど手薄）。
   // 共通フロアは3部門で3人（1部門あたり1人）、通信は1人残っていれば十分とみなし、それ以上は差をつけない
   const coverageAfter=(sl,p)=>{
@@ -559,6 +817,15 @@ function generate(v){
     const shared=SHARED_DEPTS.reduce((a,d)=>a+sl.deptCount[d],0);
     return -Math.min(1,(shared-1)/SHARED_DEPTS.length);
   };
+  // 別パターン用：出したあとの部門の余裕（0＝十分、1＝きつい、2＝誰もいなくなる）。通信は2人、ほかの部門は3人残れば十分
+  const spareAfter=(sl,p)=>{
+    if(!isFloor(p.dept))return 0;
+    const after=sl.deptCount[p.dept]-1, enough=p.dept===TSUSHIN?2:3;
+    return after>=enough?0:after>=1?1:2;
+  };
+  // 別パターン：最後の時間帯に、余裕のある部門の人の2回目を、1回目と同じ扱いにしてよいか
+  const extraOk=(sl,p)=>v==="alt"&&extraUsed<ALT_EXTRA_MAX&&sl.i>=HOURS.length-ALT_LATE_HOURS&&personReg[p.id]===1&&
+    spareAfter(sl,p)===0&&idAt(sl.i-1)!==p.id&&idAt(sl.i+1)!==p.id;
   const assign=(sl,p,locked)=>{
     out[sl.i]={p,locked};
     if(isFloor(p.dept))deptReg[p.dept]++;
@@ -579,9 +846,11 @@ function generate(v){
     const ruleValues=p=>({
       closer:      closeSlot&&!p.closer?1:0,                     // 締めは締めの人
       closerLevel: closeSlot?CLOSE_LV[p.level]:0,                // 締めの中ではレベル順
-      floor:       emptiesFloor(sl,p)?1:0,                       // 部門のフロアを0人にしない
+      floor:       emptiesFloor(sl,p),                           // 部門のフロアを0人にしない（見習いだけ残るより、誰もいなくなる方を避ける）
       level4:      p.level===4?1:0,                              // レベル4は最後
       count:       personReg[p.id]||0,                           // 今日の回数が少ない人から
+      countAlt:    extraOk(sl,p)?0:(personReg[p.id]||0),         // 別パターン：上の2回目を許した回数
+      spare:       spareAfter(sl,p),                             // 別パターン：余裕のある部門から出す
       consec:      (idAt(i-1)===p.id?1:0)+(idAt(i+1)===p.id?1:0),// 2時間連続を避ける
       coverage:    coverageAfter(sl,p),                          // 売り場のカバー（手薄なフロアから出さない）
       roleLevel:   prio(p),                                      // 役職・レベル順
@@ -592,7 +861,9 @@ function generate(v){
     });
     const ranked=cands.map(p=>{const r=ruleValues(p);return {p,key:order.map(k=>r[k])}});
     ranked.sort((a,b)=>{for(let k=0;k<a.key.length;k++)if(a.key[k]!==b.key[k])return a.key[k]-b.key[k];return 0});
-    return ranked[0].p;
+    const best=ranked[0].p;
+    if(extraOk(sl,best))extraUsed++;   // 2回目を許して選んだとき
+    return best;
   };
 
   // ① 手動で固定した枠
@@ -613,17 +884,23 @@ function generate(v){
     if(p)assign(sl,p,false);
   }
 
+  // 見習い：シフトを作る人が選んだ時だけ、担当と一緒に入る（割り当てには影響しない）
+  const trainees=ed.trainees||{};
   return slots.map(sl=>{
     const pick=out[sl.i]?.p||null;
+    const t=sl.present.find(x=>x.id===trainees[sl.i]&&isTrainee(x)&&x.id!==pick?.id)||null;
     return {i:sl.i,h:sl.h,id:pick?.id||null,name:pick?.name||null,dept:pick?.dept??-1,role:pick?.role,
-      locked:!!out[sl.i]?.locked,flags:slotFlags(sl,pick,idAt,emptiesFloor),present:sl.present};
+      locked:!!out[sl.i]?.locked,flags:slotFlags(sl,pick,idAt,(s,p)=>emptiesFloor(s,p,t)),present:sl.present,
+      tid:t?.id||null,tname:t?.name||null};
   });
 }
 // 枠に付ける警告・表示
 function slotFlags(sl,pick,idAt,emptiesFloor){
   const i=sl.i,flags=[];
   if(pick){
-    if(emptiesFloor(sl,pick))flags.push(["bad","部門が空く"]);
+    const em=emptiesFloor(sl,pick);
+    if(em===2)flags.push(["bad","部門が空く"]);
+    else if(em===1)flags.push(["warn","見習いだけ残る"]);
     if(idAt(i-1)===pick.id&&idAt(i-2)===pick.id)flags.push(["bad","3時間連続"]);
     else if(idAt(i-1)===pick.id)flags.push(["warn","2時間連続"]);
     if(pick.level===3)flags.push(["warn","レベル3が担当"]);
@@ -650,7 +927,7 @@ function deptChip(d){
 function renderDay(){
   $("#sample-note").hidden=!isSample;
   const m=matchDay(),list=$("#day-list");
-  const working=m.rows.filter(x=>x.id&&x.t).length;
+  const working=m.rows.filter(x=>x.id&&effTime(x)).length;
   if(!day.text.trim()){
     list.innerHTML=`<p class="muted" style="padding:12px;margin:0">貼り付けると、ここに名前と時間が並びます。</p>`;
     $("#day-msg").textContent="";
@@ -659,27 +936,39 @@ function renderDay(){
   if(m.mode==="name"){
     list.innerHTML=m.rows.map(matchRowByName).join("");
     const unk=m.rows.filter(x=>x.unknown).length;
-    $("#day-msg").innerHTML=`手入力として名前で照合しました：<span class="ok">${working}人出勤</span>`+
+    const changed=m.rows.filter(isChanged).length;
+    $("#day-msg").innerHTML=`手入力として名前で照合しました：<span class="ok">${working}人出勤</span>`+(changed?`・手で変えた人 ${changed}人`:"")+
       (unk?`・名簿にいない名前 ${unk}件（名簿の名前と同じ書き方にしてください）`:"");
     return;
   }
   list.innerHTML=m.rows.map(matchRow).join("");
   const stray=m.rows.filter(x=>!x.id&&x.raw).length;
-  let msg=`<span class="ok">${working}人出勤</span>（名簿 ${Object.keys(roster.staff).length}人中）`;
+  const changed=m.rows.filter(isChanged).length;
+  let msg=`<span class="ok">${working}人出勤</span>（名簿 ${Object.keys(roster.staff).length}人中）`+(changed?`・手で変えた人 ${changed}人`:"");
   if(m.extra||stray)msg+=`・<b style="color:var(--bad)">名簿より行が多いか、部門の間の空白の行に時間や文字（「休」など）が入っています。`+
     `行がずれている可能性があります。名簿と同じ行から同じ行までコピーしたか確認してください</b>`;
   $("#day-msg").innerHTML=msg;
 }
 const timeText=x=>x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):"";
+const spanText=t=>fmt(t.start)+"〜"+fmt(t.end);
+// 名簿にいる人の行はタップして、その日の時間を変えられる
+function matchOpen(x,off){return x.id?`<button type="button" class="match tap ${off?"off":""}" data-id="${x.id}">`:`<div class="match ${off?"off":""}">`}
+const matchClose=x=>x.id?`</button>`:`</div>`;
+// 手で変えた人は、新しい時間と「変更」、元の時間を並べる
+function changedTime(x){
+  const t=effTime(x);
+  return `<span class="chip warn">変更</span> ${t?spanText(t):"休み"}<small class="was">${x.t?timeText(x):esc(x.raw||"休み")}</small>`;
+}
 function matchRowByName(x){
   const tag=x.unknown?' <span class="chip bad">名簿にいない</span>':"";
-  return `<div class="match ${x.unknown?"off":""}"><span class="no"></span><span>${esc(x.name)}${tag}</span><span class="t">${timeText(x)}</span></div>`;
+  const time=isChanged(x)?changedTime(x):timeText(x);
+  return matchOpen(x,x.unknown||(isChanged(x)&&!effTime(x)))+`<span class="no"></span><span>${esc(x.name)}${tag}</span><span class="t">${time}</span>`+matchClose(x);
 }
 function matchRow(x){
   if(x.gap&&!x.raw)return `<div class="match gap"></div>`;
   const who=x.id?esc(x.name):`<span class="chip bad">${x.row<roster.order.length?"空白の行に文字":"名簿の範囲外"}</span>`;
-  const time=x.t?timeText(x):esc(x.raw||"休み");
-  return `<div class="match ${!x.t?"off":""}"><span class="no">${x.row+1}</span><span>${who}</span><span class="t">${time}</span></div>`;
+  const time=isChanged(x)?changedTime(x):x.t?timeText(x):esc(x.raw||"休み");
+  return matchOpen(x,!effTime(x))+`<span class="no">${x.row+1}</span><span>${who}</span><span class="t">${time}</span>`+matchClose(x);
 }
 
 /* =========================================================
@@ -713,10 +1002,11 @@ function slotHtml(p){
     if(p.role!=="baito")chips.push(`<span class="chip">${ROLE[p.role]}</span>`);
     if(p.locked)chips.push(`<span class="chip lock">手動</span>`);
   }
+  if(p.tid)chips.push(`<span class="chip">見習いと2人</span>`);
   p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
   const diff=day.plan!=="std"&&plans.std&&plans.std[p.i]?.id!==p.id;   // 標準と違う枠に ● を付ける
   return `<button class="slot${diff?" diff":""}" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
-      <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}</span><span class="chips">${chips.join("")}</span></span>
+      <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}${p.tid?`<span class="trainee">・${esc(p.tname)}</span>`:""}</span><span class="chips">${chips.join("")}</span></span>
       <span class="edit">変更</span></button>`;
 }
 
@@ -728,36 +1018,45 @@ function renderSide(){
   const people=presentPeople();
   const regBy={};   // 人ごとのレジの枠
   plan.forEach(p=>{if(p.id)(regBy[p.id]||(regBy[p.id]=new Set())).add(p.i)});
+  const trnBy={};   // 見習いとして一緒に入る枠
+  plan.forEach(p=>{if(p.tid)(trnBy[p.tid]||(trnBy[p.tid]=new Set())).add(p.i)});
   $("#side-count").textContent=`${people.length}人出勤`;
   if(focusId&&!people.some(p=>p.id===focusId))focusId=null;
-  const html=SIDE_ORDER.map(d=>deptSection(d,people.filter(p=>p.dept===d),regBy)).join("");
+  const html=SIDE_ORDER.map(d=>deptSection(d,people.filter(p=>p.dept===d),regBy,trnBy)).join("");
   $("#side-list").innerHTML=html||`<p class="muted" style="padding:0 12px">シフトを貼り付けると、ここに出勤者が並びます。</p>`;
-  document.querySelectorAll("#roll .slot").forEach(el=>{const p=plan[+el.dataset.i];el.classList.toggle("hl",!!focusId&&p.id===focusId)});
+  document.querySelectorAll("#roll .slot").forEach(el=>{const p=plan[+el.dataset.i];el.classList.toggle("hl",!!focusId&&(p.id===focusId||p.tid===focusId))});
 }
-function deptSection(d,ps,regBy){
+function deptSection(d,ps,regBy,trnBy){
   if(!ps.length)return "";
   const label=d===-1?"部門未設定":deptName(d);
   const regN=ps.reduce((a,p)=>a+(regBy[p.id]?.size||0),0);
   return `<section class="dsec ${isFloor(d)?"d"+d:""}"><div class="dept-head">${esc(label)}<span>${ps.length}人${isFloor(d)?`・レジ${regN}回`:""}</span></div>`+
-    ps.map(p=>personRow(p,regBy)).join("")+`</section>`;
+    ps.map(p=>personRow(p,regBy,trnBy)).join("")+`</section>`;
 }
-function personRow(p,regBy){
-  const n=regBy[p.id]?.size||0, can=eligible(p)&&p.level!==0;
+function personRow(p,regBy,trnBy){
+  const n=regBy[p.id]?.size||0, tn=trnBy[p.id]?.size||0, can=eligible(p)&&p.level!==0;
   const tag=!eligible(p)?"レジ外":p.level===0?"見習い":ROLE[p.role]+(p.level?"・Lv"+p.level:"");
   const cells=HOURS.map((h,i)=>{
     const on=p.start<=h*60&&p.end>=h*60+60;
-    return `<i class="cell ${regBy[p.id]?.has(i)?"reg":on?"on":""}"></i>`;
+    return `<i class="cell ${regBy[p.id]?.has(i)?"reg":trnBy[p.id]?.has(i)?"trn":on?"on":""}"></i>`;
   }).join("");
   const closer=p.closer?' <span class="chip ok" style="font-size:.6rem;padding:0 5px">締</span>':"";
   return `<button class="pr ${can?"":"off"}" data-id="${p.id}" aria-pressed="${focusId===p.id}">`+
     `<span class="nm">${esc(p.name)}${closer}<small>${fmt(p.start)}-${fmt(p.end)}<br>${tag}</small></span>`+
-    `<span class="bars">${cells}</span><span class="cnt">${n?n+"回":""}</span></button>`;
+    `<span class="bars">${cells}</span><span class="cnt">${n?n+"回":tn?tn+"回":""}</span></button>`;
 }
 
 /* =========================================================
    表示：名簿
    ========================================================= */
+function renderHoursSetting(){
+  const {open,close}=storeHours();
+  const opt=(from,to,sel)=>{let o="";for(let h=from;h<=to;h++)o+=`<option value="${h}" ${h===sel?"selected":""}>${h}:00</option>`;return o};
+  $("#open-hour").innerHTML=opt(9,13,open);    // 一番早い開店は9時
+  $("#close-hour").innerHTML=opt(16,21,close);  // 一番遅い閉店は21時
+}
 function renderRoster(){
+  renderHoursSetting();
   $("#dept-names").innerHTML=roster.depts.map((d,k)=>`<input type="text" id="dept-${k}" data-k="${k}" value="${esc(d)}" aria-label="部門${k+1}の名前">`).join("");
   const rows=[];let lastG=-1;
   roster.order.forEach((id,i)=>{
@@ -809,10 +1108,18 @@ function saveDay(){if(!isSample)lsSet(LS_DAY,JSON.stringify(day))}
 /* =========================================================
    操作：タブ・今日のシフト
    ========================================================= */
+let lastTab="day";   // 使い方を閉じたときに戻るタブ
 function showTab(name){
   ["day","plan","roster"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
+  $("#p-help").hidden=name!=="help";
+  if(name==="help"){window.scrollTo(0,0);return}
+  lastTab=name;
   if(name==="roster")renderRoster(); else refresh();
 }
+$("#help-open").onclick=()=>showTab("help");
+$("#help-open2").onclick=()=>showTab("help");
+$(".toc").addEventListener("click",e=>{const b=e.target.closest("button[data-jump]");if(b)document.getElementById(b.dataset.jump)?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})});
+$("#help-close").onclick=()=>showTab(lastTab);
 $("#tab-day").onclick=()=>showTab("day");
 $("#tab-plan").onclick=()=>showTab("plan");
 $("#tab-roster").onclick=()=>showTab("roster");
@@ -820,10 +1127,10 @@ $("#tab-roster").onclick=()=>showTab("roster");
 let pasteTimer=null;
 $("#day-paste").addEventListener("input",e=>{
   clearTimeout(pasteTimer);
-  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits=emptyEdits();saveDay();renderDay()},200);
+  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits=emptyEdits();day.times={};saveDay();renderDay()},200);
 });
 $("#day-clear").onclick=()=>{
-  $("#day-paste").value="";day.text="";day.edits=emptyEdits();saveDay();renderDay();$("#day-paste").focus();toast("消しました");
+  $("#day-paste").value="";day.text="";day.edits=emptyEdits();day.times={};saveDay();renderDay();$("#day-paste").focus();toast("消しました");
 };
 $("#day-date").onchange=e=>{day.date=e.target.value;saveDay();refresh()};
 $("#to-plan").onclick=()=>{day.text=$("#day-paste").value;saveDay();showTab("plan")};
@@ -841,8 +1148,9 @@ $("#roster-load").onclick=()=>{
   const kept=prev?Object.keys(r.staff).filter(id=>prev.staff[id]).length:0;
   // 新規登録でグループがちょうど4つなら、上から部門を割り当てる
   if(!prev&&r.groups===4)Object.values(r.staff).forEach(s=>{s.dept=s.group});
-  roster=r;isSample=false;
-  if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std"};$("#day-paste").value=""}
+  if(!prev&&roster?.hours)r.hours=roster.hours;   // 例のデータで試した営業時間は引き継ぐ
+  roster=r;isSample=false;applyHours();
+  if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std",times:{}};$("#day-paste").value=""}
   saveRoster();saveDay();renderRoster();
   $("#roster-paste").value="";
   $("#roster-msg").textContent=prev?
@@ -864,6 +1172,17 @@ $("#staff-body").addEventListener("change",e=>{
   if(f==="role"&&t.value==="pnleader")s.level=4;   // PNリーダーは初期値レベル4
   saveRoster();renderRoster();
 });
+// 店の設定（営業時間）を変えたとき
+function changeHours(){
+  const open=+$("#open-hour").value, close=+$("#close-hour").value;
+  if(close-open<2){toast("閉店は開店より2時間以上あとにしてください");renderHoursSetting();return}
+  roster.hours={open,close};
+  day.edits=emptyEdits();   // 枠の数が変わるので、手動変更は戻す
+  applyHours();saveRoster();saveDay();
+  toast(`営業時間を ${open}:00〜${close}:00 にしました`+(isSample?"（例のデータなので保存されません）":""));
+}
+$("#open-hour").onchange=changeHours;
+$("#close-hour").onchange=changeHours;
 $("#dept-names").addEventListener("change",e=>{
   const k=+e.target.dataset.k;
   roster.depts[k]=normName(e.target.value)||DEFAULT_DEPTS[k];
@@ -881,7 +1200,7 @@ $("#regen").onclick=()=>{refresh();toast("作り直しました")};
 $("#clear-edits").onclick=()=>{day.edits=emptyEdits();saveDay();refresh();toast("手動変更を戻しました")};
 $("#copy-out").onclick=async()=>{
   const honor=n=>n.endsWith("さん")?n:n+"さん";
-  const txt=[`${dateLabel()} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?honor(p.name):"（担当なし）"}`)].join("\n");
+  const txt=[`${dateLabel()} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?honor(p.name):"（担当なし）"}${p.tid?"・"+honor(p.tname):""}`)].join("\n");
   logChoice();
   try{await navigator.clipboard.writeText(txt);toast("コピーしました")}
   catch(e){
@@ -902,7 +1221,8 @@ function readLog(){try{const L=JSON.parse(lsGet(LS_LOG)||"[]");return Array.isAr
 function logChoice(){
   if(isSample)return;
   const L=readLog().filter(x=>x.date!==day.date);   // 同じ日は1件にまとめる
-  L.push({date:day.date,plan:day.plan||"std",edits:Object.keys(day.edits.locks||{}).length});
+  // 手で直した枠＝実際に効いている固定の数（休みになった人の固定などは数えない）
+  L.push({date:day.date,plan:day.plan||"std",edits:plan.filter(p=>p.locked).length});
   lsSet(LS_LOG,JSON.stringify(L.slice(-90)));
   renderLog();
 }
@@ -930,6 +1250,7 @@ function openSheet(i){
     (i===CLOSE_SLOT?(b.closer-a.closer)||(CLOSE_LV[a.level]-CLOSE_LV[b.level]):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
   $("#sheet-cands").innerHTML=cands.map(c=>candHtml(c,i,p)).join("")||`<p class="muted">この時間に入れる人がいません。</p>`;
   $("#sheet-unlock").disabled=!p.locked;
+  renderTraineePick(i,p);
   $("#sheet").hidden=false;
 }
 function candHtml(c,i,p){
@@ -942,15 +1263,75 @@ function candHtml(c,i,p){
     `<span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}・${others}</span></span>`+
     `<span class="chips">${chips}</span></button>`;
 }
+// 見習いを一緒に入れる：その1時間ずっといる見習い（レベル0）だけを並べる
+function renderTraineePick(i,p){
+  const ts=p.present.filter(c=>isTrainee(c)&&c.id!==p.id).sort((a,b)=>a.name.localeCompare(b.name,"ja"));
+  const el=$("#sheet-trn");
+  if(!ts.length&&!p.tid){el.innerHTML="";return}
+  el.innerHTML=`<h3 class="sheet-sub">見習いを一緒に入れる <span class="muted" style="font-weight:400;font-size:.85rem">担当の人がサポートして2人で入ります</span></h3>`+
+    ts.map(c=>{
+      const at=plan.filter(q=>q.tid===c.id&&q.i!==i).map(q=>q.h+"時");
+      return `<button class="cand trn" data-id="${c.id}" aria-current="${c.id===p.tid}">`+
+        `<span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}・${at.length?`ほかに${at.length}回（${at.join("・")}）`:"ほかの時間は0回"}</span></span>`+
+        `<span class="chips">${deptChip(c.dept)}<span class="chip">見習い</span></span></button>`;
+    }).join("")+
+    (p.tid?`<button class="btn" id="sheet-trn-off">見習いを外す</button>`:"");
+}
+function setTrainee(id){
+  const t=day.edits.trainees||(day.edits.trainees={});
+  if(id)t[sheetSlot]=id; else delete t[sheetSlot];
+  saveDay();closeSheet();refresh();
+}
+$("#sheet-trn").addEventListener("click",e=>{
+  if(e.target.closest("#sheet-trn-off"))return setTrainee(null);
+  const b=e.target.closest(".cand.trn");if(b)setTrainee(b.dataset.id);
+});
 function closeSheet(){$("#sheet").hidden=true}
 $("#sheet-cands").addEventListener("click",e=>{
   const b=e.target.closest(".cand");if(!b)return;
+  if(day.edits.trainees?.[sheetSlot]===b.dataset.id)delete day.edits.trainees[sheetSlot];   // 見習い本人を担当にしたら、見習いの欄は外す
   day.edits.locks[sheetSlot]=b.dataset.id;
   saveDay();closeSheet();refresh();
 });
 $("#sheet-unlock").onclick=()=>{delete day.edits.locks[sheetSlot];saveDay();closeSheet();refresh()};
 $("#sheet-close").onclick=closeSheet;
 $("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+
+/* =========================================================
+   その日の時間を変える（急な休み・急な出勤・時間の変更）
+   ========================================================= */
+let tsheetId=null;
+$("#day-list").addEventListener("click",e=>{const b=e.target.closest(".match.tap");if(b)openTimeSheet(b.dataset.id)});
+function openTimeSheet(id){
+  const x=matchDay().rows.find(r=>r.id===id);if(!x)return;
+  tsheetId=id;
+  $("#tsheet-title").textContent=`${roster.staff[id].name}さんの今日の時間`;
+  $("#tsheet-orig").textContent=`シフト表：${x.t?timeText(x):(x.raw||"休み")}`+(isChanged(x)?`　→　いま：${effTime(x)?spanText(effTime(x)):"休み"}`:"");
+  const cur=effTime(x)||x.t||{start:storeHours().open*60,end:storeHours().close*60};
+  // 選択肢は30分刻み。9:15のような時間の人は、その時間も選択肢に足して、今の時間が選ばれた状態で開く
+  const opts=sel=>{
+    const ms=[];for(let m=7*60;m<=23*60;m+=30)ms.push(m);
+    if(!ms.includes(sel))ms.push(sel);
+    return ms.sort((a,b)=>a-b).map(m=>`<option value="${m}" ${m===sel?"selected":""}>${fmt(m)}</option>`).join("");
+  };
+  $("#ts-start").innerHTML=opts(cur.start);
+  $("#ts-end").innerHTML=opts(cur.end);
+  $("#tsheet-reset").disabled=!isChanged(x);
+  $("#tsheet").hidden=false;
+}
+function setTime(v,msg){
+  if(v===undefined)delete day.times[tsheetId]; else day.times[tsheetId]=v;
+  saveDay();$("#tsheet").hidden=true;renderDay();toast(msg);
+}
+$("#tsheet-off").onclick=()=>setTime("off",`${roster.staff[tsheetId].name}さんを今日は休みにしました`);
+$("#tsheet-set").onclick=()=>{
+  const start=+$("#ts-start").value,end=+$("#ts-end").value;
+  if(end<=start){toast("終了は開始より後にしてください");return}
+  setTime({start,end},`${roster.staff[tsheetId].name}さんを ${fmt(start)}〜${fmt(end)} にしました`);
+};
+$("#tsheet-reset").onclick=()=>setTime(undefined,"シフト表どおりに戻しました");
+$("#tsheet-close").onclick=()=>{$("#tsheet").hidden=true};
+$("#tsheet").addEventListener("click",e=>{if(e.target.id==="tsheet")$("#tsheet").hidden=true});
 
 /* =========================================================
    バックアップ（名簿の書き出し・読み込み）
@@ -973,7 +1354,8 @@ $("#import").onchange=e=>{
       const data=JSON.parse(rd.result);const ro=data.roster||data;
       if(!ro.staff||!Array.isArray(ro.order))throw 0;
       Object.values(ro.staff).forEach(normStaff);
-      roster={depts:(ro.depts||DEFAULT_DEPTS).slice(0,4),order:ro.order,staff:ro.staff,groups:ro.groups||0};
+      roster={depts:(ro.depts||DEFAULT_DEPTS).slice(0,4),order:ro.order,staff:ro.staff,groups:ro.groups||0,...(ro.hours?{hours:ro.hours}:{})};
+      applyHours();
       isSample=false;saveRoster();renderRoster();
       toast(`${Object.keys(roster.staff).length}人分を復元しました`);
     }catch(_){toast("このファイルは読み込めません。書き出したファイルを選んでください")}
@@ -992,13 +1374,14 @@ $("#import").onchange=e=>{
   }catch(e){}
   try{
     const d=JSON.parse(lsGet(LS_DAY)||"null");
-    if(d)day={date:d.date||"",text:d.text||"",edits:d.edits||emptyEdits(),plan:d.plan||"std"};
+    if(d)day={date:d.date||"",text:d.text||"",edits:{...emptyEdits(),...(d.edits||{})},plan:d.plan||"std",times:d.times||{}};
   }catch(e){}
   if(isSample){roster=sampleRoster();day.text=SAMPLE_DAY}
   if(!day.date)day.date=todayStr();
   $("#day-date").value=day.date;
   $("#day-paste").value=day.text;
   if(!roster.depts)roster.depts=[...DEFAULT_DEPTS];
+  applyHours();
   refresh();renderLog();
   if("serviceWorker" in navigator&&location.protocol!=="file:"){navigator.serviceWorker.register("sw.js").catch(()=>{})}
 })();
