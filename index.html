@@ -107,6 +107,7 @@ button.match.off{color:var(--muted)}
 .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .plans button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;text-align:left;cursor:pointer}
 .plans button small{font-weight:500;color:var(--muted);font-size:.75rem}
+@media (max-width:480px){.plans button{padding:8px 6px;letter-spacing:-.02em}}   /* スマホでも「フロア優先」を1行に */
 .plans button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
 .plan-note{font-size:.8rem;color:var(--muted);margin:-6px 0 0}
 
@@ -259,7 +260,7 @@ td select{min-height:38px;padding:4px 8px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" id="app-ver">v47</span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v50</span> · <span id="app-date">11/2</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
     </div>
     <button class="btn" id="help-open">使い方</button>
@@ -333,11 +334,11 @@ td select{min-height:38px;padding:4px 8px}
         <tr><th>順</th><th>ルール</th><th>内容</th></tr>
         <tr><td class="n">1</td><td>締めは締めの人</td><td>閉店前の最後の1時間は「締め」にチェックがある人。締めの人がいない日は、ほかの時間と同じ決め方にして警告を出す</td></tr>
         <tr><td class="n">2</td><td>締めの中ではレベル順</td><td>レベル1 → 2 → 3 → 4</td></tr>
-        <tr><td class="n">3</td><td>部門のフロアを0人にしない</td><td>抜けると部門が空く人は避ける。見習い（レベル0）は1人で売り場を任せられないので、人数に数えない（「見習いだけ残る」より「誰もいなくなる」を先に避ける）。人の少ない日は、多い部門の人が2回入ることがある</td></tr>
+        <tr><td class="n">3</td><td>部門のフロアを0人にしない</td><td>抜けると部門が空く人は避ける。見習い（レベル0）は1人でフロアを任せられないので、人数に数えない（「見習いだけ残る」より「誰もいなくなる」を先に避ける）。人の少ない日は、多い部門の人が2回入ることがある</td></tr>
         <tr><td class="n">4</td><td>レベル4は最後</td><td>今日の回数に関係なく、ほかの全員より後</td></tr>
         <tr><td class="n">5</td><td>今日の回数が少ない人から</td><td>全員が1回入るまで2回目は回さない</td></tr>
         <tr><td class="n">6</td><td>同じ人の2時間連続を避ける</td><td>回数が同じ人がほかにいれば、連続にしない</td></tr>
-        <tr><td class="n">7</td><td>売り場のカバー</td><td>季節AV・家電・情報はお互いの売り場をカバーできるので、3部門で1つのフロアとして数える。通信は別。レジに出したあと、3部門で3人以上・通信で1人以上残るようにし、足りなくなるときは余裕のあるフロアから出す</td></tr>
+        <tr><td class="n">7</td><td>フロアのカバー</td><td>季節AV・家電・情報はお互いのフロアをカバーできるので、3部門で1つのフロアとして数える。通信は別。レジに出したあと、3部門で3人以上・通信で1人以上残るようにし、足りなくなるときは余裕のあるフロアから出す</td></tr>
         <tr><td class="n">8</td><td>役職・レベル順</td><td>PN → 新入社員 → No2 → PNリーダー。同じ役職ならレベル1 → 2 → 3</td></tr>
         <tr><td class="n">9</td><td>まだ入っていない人が多い部門から</td><td>後半に同じ部門が続かないように</td></tr>
         <tr><td class="n">10</td><td>部門のレジ回数を均等に</td><td></td></tr>
@@ -348,8 +349,8 @@ td select{min-height:38px;padding:4px 8px}
       <table>
         <tr><th>プラン</th><th>内容</th></tr>
         <tr><td>標準</td><td>上の②の順番どおり</td></tr>
-        <tr><td>部門重視</td><td>人の少ない部門を売り場に残し、人の多い部門からレジに出す。今日の回数・2時間連続の回避・売り場のカバーは標準と同じ。人の少ない部門は、その日レジに入らないこともある</td></tr>
-        <tr><td>別パターン</td><td>売り場の余裕を優先する。通信は2人、ほかの部門は3人残るなら、その部門から先に出す。閉店前の4時間だけ、余裕のある部門の人が2回目に入ることがある（1日1人まで）。時間帯は夕方から埋める</td></tr>
+        <tr><td>バランス</td><td>人の少ない部門をフロアに残し、人の多い部門からレジに出す。今日の回数・2時間連続の回避・フロアのカバーは標準と同じ。人の少ない部門は、その日レジに入らないこともある</td></tr>
+        <tr><td>フロア優先</td><td>フロアの余裕を優先する。通信は2人、ほかの部門は3人残るなら、その部門から先に出す。閉店前の4時間だけ、余裕のある部門の人が2回目に入ることがある（1日1人まで）。時間帯は夕方から埋める</td></tr>
       </table>
       <p class="muted">手動で固定した担当は、どのプランでも同じです。</p>
       <p class="muted" id="plan-log"></p>
@@ -422,6 +423,7 @@ td select{min-height:38px;padding:4px 8px}
 
     <nav class="toc" aria-label="目次">
       <button type="button" data-jump="h-daily">毎日の使い方</button>
+      <button type="button" data-jump="h-plans">3つの案</button>
       <button type="button" data-jump="h-fix">手で直す</button>
       <button type="button" data-jump="h-setup">最初の準備</button>
       <button type="button" data-jump="h-level">レベル・役職</button>
@@ -434,9 +436,20 @@ td select{min-height:38px;padding:4px 8px}
       <ol class="hsteps">
         <li><b>シフト表の、その日の列をコピー</b><span>名簿と<b>同じ行から同じ行まで</b>選びます（下の「最初の準備」の見本の②）</span></li>
         <li><b>「今日のシフト」タブに貼り付ける</b><span>名前と時間が横に並びます。ずれていないか、ざっと確認</span></li>
-        <li><b>「レジ番表を作る」を押して、案を選ぶ</b><span>「標準」「部門重視」「別パターン」から、しっくりくるものを。直したい時間は手で直せます（下の「手で直す」）</span></li>
+        <li><b>「レジ番表を作る」を押して、案を選ぶ</b><span>迷ったら「標準」。部門の人数差が大きい日は「バランス」、フロアが手薄になる時間がある日は「フロア優先」（下の「3つの案の選び方」）。直したい時間は手で直せます（下の「手で直す」）</span></li>
         <li><b>「テキストでコピー」を押して、LINEなどに貼る</b><span>「9:00-10:00 〇〇さん」の形で、営業時間の分だけ並びます</span></li>
       </ol>
+    </div>
+
+    <div class="hcard" id="h-plans">
+      <h3>3つの案の選び方</h3>
+      <table class="htable fix">
+        <tr><th>案</th><th>向いている日</th><th>どう組むか</th></tr>
+        <tr><td>標準</td><td>普段の日。どの部門にもそこそこ人がいる日</td><td>1人1回ずつ、レベル1から順に。2回入る人が一番少ない</td></tr>
+        <tr><td>バランス</td><td>部門ごとの人数差が大きい日（例：通信7人、家電2人）</td><td>人の多い部門から出して、少ない部門をフロアに残す。少ない部門はその日レジ0回になることがある</td></tr>
+        <tr><td>フロア優先</td><td>レジに出せる人はいるのに、出すとフロアが手薄になる時間がある日（例：夕方、通信3人、季節AV・家電2人ずつ）</td><td>通信は2人、ほかの部門は3人残るなら、そこから先に出す。閉店前の4時間は、余裕のある部門の人の2回目を1日1人まで使う</td></tr>
+      </table>
+      <p class="muted">締めの時間は、どの案でも締めの人が入ります。全体的に人が少ない日は、どの案でもほぼ同じ結果になるので、警告を見て手で直してください。手で固定した時間と見習いは、案を切り替えても残ります。</p>
     </div>
 
     <div class="hcard" id="h-fix">
@@ -504,9 +517,9 @@ td select{min-height:38px;padding:4px 8px}
         <tr><td>2</td><td>普通</td></tr>
         <tr><td>3</td><td>人が足りない時だけ入る</td></tr>
         <tr><td>4</td><td>めったに入らない（最終手段）。PNリーダーは最初からレベル4</td></tr>
-        <tr><td>0</td><td>見習い。自動では入れず、売り場の人数にも数えない。「手で直す」から担当と一緒に入れられる</td></tr>
+        <tr><td>0</td><td>見習い。自動では入れず、フロアの人数にも数えない。「手で直す」から担当と一緒に入れられる</td></tr>
       </table>
-      <p class="muted">レジに入るのは PN・新入社員・No2・PNリーダー です。リーダー・店長はレジに入らず、売り場の人数にだけ数えます。部門で「店長」「流通便」を選んだ人は、レジにも売り場の人数にも入りません。<b>締められる</b>にチェックした人は、閉店前の最後の1時間に優先して入ります。</p>
+      <p class="muted">レジに入るのは PN・新入社員・No2・PNリーダー です。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。部門で「店長」「流通便」を選んだ人は、レジにもフロアの人数にも入りません。<b>締められる</b>にチェックした人は、閉店前の最後の1時間に優先して入ります。</p>
     </div>
 
     <div class="hcard" id="h-backup">
@@ -522,14 +535,15 @@ td select{min-height:38px;padding:4px 8px}
       <h3>困ったとき</h3>
       <table class="htable">
         <tr><th>こんなとき</th><th>こうする</th></tr>
-        <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
+        <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
-        <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すと売り場が手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v」から始まる番号で版を確認できます</td></tr>
+        <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v50 · 11/2」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v50（2026年11月2日 更新）</p>
   </section>
 </div>
 
@@ -585,15 +599,16 @@ const LS_ROSTER="position.roster", LS_DAY="position.day", LS_LOG="position.log";
 
 
 // プラン（ボタンの並び順）
-const PLANS=[["std","標準"],["dept","部門重視"],["alt","別パターン"]];
+// プラン：[キー, ボタンの名前, 名前の下の説明]（スマホでも1行に収まる長さ）
+const PLANS=[["std","標準","普段はこちら"],["dept","バランス","多い部門から"],["alt","フロア優先","フロアを守る"]];
 
 // 優先順位（上ほど強い）。アプリ内のルール表②と同じ順番。値が小さい人ほど先に選ばれる
 const RULE_ORDER={
   std:["closer","closerLevel","floor","level4","count","consec","coverage","roleLevel","deptBacklog","deptReg","deptSize","daily"],
-  // 部門重視：売り場のカバーまでは同じ。そのあと役職・レベルより先に部門を見る
+  // バランス（dept）：フロアのカバーまでは同じ。そのあと役職・レベルより先に部門を見る
   dept:["closer","closerLevel","floor","level4","count","consec","coverage","deptSize","deptReg","deptBacklog","roleLevel","daily"],
 };
-// 別パターン：売り場の余裕を優先。通信は2人、ほかの部門は3人残るなら、そこから先に出す。
+// フロア優先（alt）：フロアの余裕を優先。通信は2人、ほかの部門は3人残るなら、そこから先に出す。
 // 最後の4時間だけ、余裕のある部門の人の2回目を1日1人まで許す（余裕のない部門の人の1回目より先）
 RULE_ORDER.alt=["closer","closerLevel","floor","level4","countAlt","consec","spare","count","coverage","roleLevel","deptBacklog","deptReg","deptSize","daily"];
 const ALT_LATE_HOURS=4, ALT_EXTRA_MAX=1;
@@ -615,10 +630,10 @@ function applyHours(){
    人についての判定
    ========================================================= */
 const isFloor=d=>d>=0&&d<4;                           // 4部門のどれかに所属している
-// 売り場のカバー：季節AV・家電・情報（0〜2）はお互いの売り場をカバーできる「共通フロア」。通信（3）は契約が専門で、ほかの部門はカバーできない
+// フロアのカバー：季節AV・家電・情報（0〜2）はお互いのフロアをカバーできる「共通フロア」。通信（3）は契約が専門で、ほかの部門はカバーできない
 const SHARED_DEPTS=[0,1,2], TSUSHIN=3;
 const eligible=p=>(p.role in ROLE_RANK)&&p.dept<4;   // レジに入れる役職・所属
-const isTrainee=p=>eligible(p)&&p.level===0;          // 見習い：1人で売り場を任せられないので、フロアの人数に数えない
+const isTrainee=p=>eligible(p)&&p.level===0;          // 見習い：1人でフロアを任せられないので、フロアの人数に数えない
 const deptName=d=>d>=4?EXTRA_DEPTS[d-4]:roster.depts[d];
 const allDepts=()=>[...roster.depts,...EXTRA_DEPTS];
 // 役職が先、同じ役職の中でレベル順。レベル4と見習いは役職に関係なく後ろ
@@ -682,8 +697,11 @@ function toHalf(s){return String(s||"").replace(/[０-９：]/g,c=>String.fromCh
 // 区切りは「-」のほか、打ち間違えやすい記号も受け付ける（〜 ～ ー － − ⁻ ₋ ‐ ‑ ‒ – — ― ﹣ ｰ ˗ ∼）
 // 「930」「1730」のようにコロンがなくても、下2けたを分として読む
 const TIME_RE=/(\d{1,2})(?:[:.]?(\d{2}))?\s*[-~〜～ー－−⁻₋‐-―﹣ｰ˗∼]\s*(\d{1,2})(?:[:.]?(\d{2}))?(?!\d)/;
+// 「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろ（いまの予定）だけを読む
+const ARROW_RE=/\s*(?:->|=>|[→⇒➡⇨➜➔⟶])\s*/;
+const afterArrow=s=>{const p=String(s).split(ARROW_RE);return p[p.length-1]};
 function parseTime(s){
-  const m=toHalf(s).match(TIME_RE);
+  const m=toHalf(afterArrow(s)).match(TIME_RE);
   if(!m)return null;
   if(+m[2]>=60||+m[4]>=60)return null;
   const a=+m[1]*60+(+m[2]||0), b=+m[3]*60+(+m[4]||0);
@@ -759,7 +777,7 @@ function matchByName(named){
   Object.entries(r.staff).forEach(([id,s])=>byName[s.name]=id);
   const rows=named.map(l=>{
     const h=toHalf(l),m=h.match(TIME_RE);
-    const n=normName(h.slice(0,m.index).replace(/[,，、:：]+$/,""));
+    const n=normName(h.slice(0,m.index).split(ARROW_RE)[0].replace(/\s*(?:\d{1,2}(?:[:.]?\d{2})?\s*[-~〜～ー－−⁻₋‐-―﹣ｰ˗∼]\s*\d{1,2}(?:[:.]?\d{2})?|休み?|公休|有給)\s*$/,"").replace(/[,，、:：]+$/,""));
     const near=Object.keys(byName).find(k=>k.includes(n)||n.includes(k));
     const id=byName[n]||(near?byName[near]:null);
     return {row:null,id:id||null,name:id?r.staff[id].name:n,raw:l,t:parseTime(l),unknown:!id};
@@ -788,7 +806,7 @@ function generate(v){
   const people=presentPeople();
   const ed=day.edits||(day.edits=emptyEdits());
   const deptReg=[0,0,0,0], personReg={};   // 部門ごと・人ごとの今日のレジ回数
-  let extraUsed=0;                          // 別パターン：2回目を許した数
+  let extraUsed=0;                          // フロア優先（alt）：2回目を許した数
   const out=HOURS.map(()=>null);           // 枠ごとの担当 {p, locked}
 
   // 枠ごとの情報：その1時間ずっといる人、部門ごとのフロア人数、自動で入れられる人
@@ -804,7 +822,7 @@ function generate(v){
   // 3時間連続になるか（前後どちらに並んでも）
   const triple=(i,id)=>(idAt(i-1)===id&&idAt(i-2)===id)||(idAt(i-1)===id&&idAt(i+1)===id)||(idAt(i+1)===id&&idAt(i+2)===id);
   // 抜けると部門のフロアに1人前の人がいなくなるか。2＝誰もいなくなる、1＝見習いだけ残る、0＝大丈夫
-  // away：一緒にレジに入る見習い（その人も売り場にいないので数えない）
+  // away：一緒にレジに入る見習い（その人もフロアにいないので数えない）
   const emptiesFloor=(sl,p,away)=>{
     if(!isFloor(p.dept)||isTrainee(p)||sl.deptCount[p.dept]-1>=1)return 0;
     return sl.trnCount[p.dept]-(away&&away.dept===p.dept?1:0)>0?1:2;
@@ -817,13 +835,13 @@ function generate(v){
     const shared=SHARED_DEPTS.reduce((a,d)=>a+sl.deptCount[d],0);
     return -Math.min(1,(shared-1)/SHARED_DEPTS.length);
   };
-  // 別パターン用：出したあとの部門の余裕（0＝十分、1＝きつい、2＝誰もいなくなる）。通信は2人、ほかの部門は3人残れば十分
+  // フロア優先用：出したあとの部門の余裕（0＝十分、1＝きつい、2＝誰もいなくなる）。通信は2人、ほかの部門は3人残れば十分
   const spareAfter=(sl,p)=>{
     if(!isFloor(p.dept))return 0;
     const after=sl.deptCount[p.dept]-1, enough=p.dept===TSUSHIN?2:3;
     return after>=enough?0:after>=1?1:2;
   };
-  // 別パターン：最後の時間帯に、余裕のある部門の人の2回目を、1回目と同じ扱いにしてよいか
+  // フロア優先（alt）：最後の時間帯に、余裕のある部門の人の2回目を、1回目と同じ扱いにしてよいか
   const extraOk=(sl,p)=>v==="alt"&&extraUsed<ALT_EXTRA_MAX&&sl.i>=HOURS.length-ALT_LATE_HOURS&&personReg[p.id]===1&&
     spareAfter(sl,p)===0&&idAt(sl.i-1)!==p.id&&idAt(sl.i+1)!==p.id;
   const assign=(sl,p,locked)=>{
@@ -849,10 +867,10 @@ function generate(v){
       floor:       emptiesFloor(sl,p),                           // 部門のフロアを0人にしない（見習いだけ残るより、誰もいなくなる方を避ける）
       level4:      p.level===4?1:0,                              // レベル4は最後
       count:       personReg[p.id]||0,                           // 今日の回数が少ない人から
-      countAlt:    extraOk(sl,p)?0:(personReg[p.id]||0),         // 別パターン：上の2回目を許した回数
-      spare:       spareAfter(sl,p),                             // 別パターン：余裕のある部門から出す
+      countAlt:    extraOk(sl,p)?0:(personReg[p.id]||0),         // フロア優先（alt）：上の2回目を許した回数
+      spare:       spareAfter(sl,p),                             // フロア優先（alt）：余裕のある部門から出す
       consec:      (idAt(i-1)===p.id?1:0)+(idAt(i+1)===p.id?1:0),// 2時間連続を避ける
-      coverage:    coverageAfter(sl,p),                          // 売り場のカバー（手薄なフロアから出さない）
+      coverage:    coverageAfter(sl,p),                          // フロアのカバー（手薄なフロアから出さない）
       roleLevel:   prio(p),                                      // 役職・レベル順
       deptBacklog: isFloor(p.dept)?-backlog[p.dept]:0,           // まだ入っていない人が多い部門から
       deptReg:     isFloor(p.dept)?deptReg[p.dept]:maxReg,       // 部門のレジ回数を均等に
@@ -874,7 +892,7 @@ function generate(v){
   });
   // ② 締めの枠
   if(!out[CLOSE_SLOT]){const p=pickFor(slots[CLOSE_SLOT]);if(p)assign(slots[CLOSE_SLOT],p,false)}
-  // ③ 残りは、その時点で入れる人が少ない枠から順に（同じなら朝から。別パターンは夕方から）
+  // ③ 残りは、その時点で入れる人が少ない枠から順に（同じなら朝から。フロア優先は夕方から）
   const rest=slots.filter(sl=>!out[sl.i]);
   const avail=sl=>sl.pool.filter(p=>!triple(sl.i,p.id)).length;
   while(rest.length){
@@ -961,8 +979,8 @@ function changedTime(x){
 }
 function matchRowByName(x){
   const tag=x.unknown?' <span class="chip bad">名簿にいない</span>':"";
-  const time=isChanged(x)?changedTime(x):timeText(x);
-  return matchOpen(x,x.unknown||(isChanged(x)&&!effTime(x)))+`<span class="no"></span><span>${esc(x.name)}${tag}</span><span class="t">${time}</span>`+matchClose(x);
+  const time=isChanged(x)?changedTime(x):x.t?timeText(x):`<span title="${esc(x.raw)}">休み</span>`;
+  return matchOpen(x,x.unknown||!effTime(x))+`<span class="no"></span><span>${esc(x.name)}${tag}</span><span class="t">${time}</span>`+matchClose(x);
 }
 function matchRow(x){
   if(x.gap&&!x.raw)return `<div class="match gap"></div>`;
@@ -976,12 +994,13 @@ function matchRow(x){
    ========================================================= */
 function renderPlans(){
   const std=plans.std||[];
-  $("#plans").innerHTML=PLANS.map(([k,label])=>{
-    const n=k==="std"?null:(plans[k]||[]).filter((p,i)=>p.id!==std[i]?.id).length;
-    const sub=k==="std"?"いつものルール":n?`標準と${n}枠違い`:"標準と同じ";
-    return `<button type="button" data-v="${k}" aria-pressed="${day.plan===k}">${label}<small>${sub}</small></button>`;
-  }).join("")+
-    (day.plan!=="std"?`<p class="plan-note" style="grid-column:1/-1"><span style="color:var(--accent)">●</span> は標準と違う時間です</p>`:"");
+  $("#plans").innerHTML=PLANS.map(([k,label,sub])=>
+    `<button type="button" data-v="${k}" aria-pressed="${day.plan===k}">${label}<small>${sub}</small></button>`).join("")+
+    (day.plan!=="std"?planNote((plans[day.plan]||[]).filter((p,i)=>p.id!==std[i]?.id).length):"");
+}
+// 標準以外を選んだとき：標準と何枠違うか
+function planNote(n){
+  return `<p class="plan-note" style="grid-column:1/-1">`+(n?`<span style="color:var(--accent)">●</span> は標準と違う時間です（${n}枠）`:`この日は標準と同じ結果です`)+`</p>`;
 }
 function renderPlan(){
   renderPlans();
