@@ -67,6 +67,7 @@ h1 .pos{color:var(--accent);letter-spacing:.04em}
 
 /* ボタン・入力 */
 button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:default}
 .btn{font:inherit;font-weight:700;border-radius:10px;padding:10px 16px;min-height:44px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 label.fld{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500}
@@ -77,7 +78,8 @@ textarea{width:100%;min-height:180px;font-family:var(--font-mono);font-size:.8re
 /* 小さなラベル（部門・警告など） */
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
-.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.warn{background:var(--warn-bg);color:var(--warn);box-shadow:inset 0 0 0 1px currentColor}
+.chip.warn::before,.chip.bad::before{content:"!";font-weight:800;margin-right:3px}
 .chip.bad{background:var(--bad-bg);color:var(--bad)}
 .chip.ok{background:var(--d0bg);color:var(--d0)}
 .chip.lock{background:var(--accent);color:var(--accent-ink)}
@@ -137,7 +139,8 @@ button.match.off{color:var(--muted)}
 .edit{color:var(--accent);font-size:.85rem;font-weight:700}
 
 /* 右：その日のシフト */
-.side{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 0;max-height:calc(100vh - 40px);overflow:auto}
+.side{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 0}
+@media (min-width:760px){.side{max-height:calc(100vh - 40px);overflow:auto}}   /* 2列（右が画面に付いてくる）ときだけ、中でスクロール */
 .side-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 12px 6px}
 .hours{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;padding:0 12px 4px}
 .hours .hrow{display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
@@ -267,11 +270,86 @@ td select{min-height:38px;padding:4px 8px}
 #msheet.full #ms-info{color:#444}
 #msheet.full #ms-close{background:#fff;color:#111;border-color:#ccc}
 .qr-url{margin:0;text-align:center;font-family:var(--font-mono);font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+details.howto{border:1px solid var(--line);border-radius:10px;padding:6px 12px;background:var(--surface)}
+details.howto>summary{cursor:pointer;color:var(--accent);font-size:.9rem;font-weight:600;padding:4px 0}
+details.howto[open]>summary{margin-bottom:4px}
+.btn.wide{width:100%;justify-content:center;min-height:52px;font-size:1.05rem}
+@media (max-width:560px){#copy-out{flex:1 1 100%;min-height:50px}}   /* スマホでは毎日押すコピーを幅いっぱいに */
+#staff-body td:nth-child(2){min-width:6.5em;word-break:keep-all}
 .sheet{position:fixed;inset:0;background:rgb(10 15 20 / .45);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:0 max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px))}
-.sheet-box{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sheet-box{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);box-shadow:0 -8px 30px rgb(0 0 0 / .35)}
 .sheet-box h2{margin:0;font-size:1.15rem}
 .cand{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:48px}
 .cand[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+/* 担当の変更（行の下に開く）
+   見やすさ：時間の行（白）と候補（一段沈んだ灰色の上のカード）を、色ではっきり分ける。青は「選んでいる時間」と「今の担当」だけに使う */
+.pick{background:var(--bg);border:1px solid var(--line);border-radius:12px;margin:6px 8px 10px;overflow:hidden}
+.roll .pick{margin:0;border-radius:0;border-width:0 0 2px;box-shadow:inset 0 6px 8px -6px rgb(0 0 0 / .25),inset 0 -6px 8px -6px rgb(0 0 0 / .2),inset 6px 0 0 var(--accent)}
+.pick-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 2px 20px}
+.pick-head h2{margin:0;font-size:.92rem;color:var(--muted);font-weight:700}
+.pick-x{font:inherit;font-weight:700;font-size:.88rem;color:var(--accent);background:none;border:0;min-height:44px;padding:0 10px;cursor:pointer}
+.pick-list{max-height:calc(52px * 12.5);overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:6px;padding:2px 12px 8px 20px}
+.pick .cand{width:100%;border:1px solid var(--line);border-radius:10px;min-height:46px;padding:6px 12px;flex-wrap:wrap;row-gap:4px;background:var(--surface)}
+.pick .cand[aria-current="true"]{border:2px solid var(--accent);padding:5px 11px}
+.pick .cand .nm{min-width:0}
+.pick .cand .nm b{margin-right:8px;font-size:1rem}
+.pick .cand .sub{color:var(--muted);font-size:.8rem}
+.pick .cand .chips{justify-content:flex-end}
+.pick .cand .chip.now{background:var(--soft);color:var(--accent);border:1px solid var(--accent)}
+.pick-trn:empty{display:none}
+.pick-trn{display:flex;flex-direction:column;gap:6px;padding:4px 12px 8px 20px;border-top:1px dashed var(--line)}
+.pick-trn h3{margin:6px 0 0;font-size:.85rem;color:var(--muted)}
+.pick-trn .btn{align-self:flex-start}
+.pick-foot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:6px 12px 10px 20px;font-size:.78rem;color:var(--muted)}
+.pick-foot .btn{min-height:40px;padding:6px 12px;font-size:.88rem}
+.slot.sel{background:color-mix(in srgb,var(--accent) 14%,var(--surface));box-shadow:inset 6px 0 0 var(--accent)}
+.slot.sel .edit{color:var(--accent)}
+.pickbar{margin:0 12px 6px;padding:6px 10px;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-size:.8rem;font-weight:700;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px}
+.pickbar span{font-weight:500;opacity:.85}
+.hrow span.col{background:var(--accent);color:var(--accent-ink);border-radius:4px;font-weight:700}
+/* 右：選んでいる時間の列以外を薄くして、列を浮かび上がらせる（枠線は付けない） */
+.side.picking .bars .cell:not(.col){opacity:.3}
+.side.picking .bars .cell.reg:not(.col){opacity:.6}   /* ほかの時間のレジは、何時に入っているか分かる濃さで残す */
+.side.picking .cell.col{border:1px solid var(--accent)}
+.side.picking .cell.col.on,.side.picking .cell.col.reg,.side.picking .cell.col.trn{box-shadow:0 0 0 1.5px var(--accent)}
+.side.picking .pr.na{opacity:.3}
+.side.picking .pr.now{box-shadow:inset 0 0 0 2px var(--accent)}
+@media (prefers-reduced-motion:no-preference){
+  @keyframes pq-chg{from{background:color-mix(in srgb,var(--accent) 28%,var(--surface))}}
+  .slot.chg{animation:pq-chg .9s ease-out}
+}
+/* 変化が分かる動き（v64）。どれも操作を止めない。「視差効果を減らす」の人には動かさない */
+.plans button{transition:background .2s,border-color .2s,color .2s,box-shadow .2s}
+@media (prefers-reduced-motion:no-preference){
+  @keyframes pq-name{from{opacity:0;transform:translateY(8px)}}
+  @keyframes pq-pop{0%{transform:scale(.4);opacity:.2}60%{transform:scale(1.25)}100%{transform:none}}
+  @keyframes pq-bump{0%{transform:none}40%{transform:scale(1.18);color:var(--accent)}100%{transform:none}}
+  @keyframes pq-just{from{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 45%,transparent)}}
+  @keyframes pq-drop{from{opacity:0;transform:translateY(-10px)}}
+  .slot.chg .who,.slot.chg-self .who{animation:pq-name .28s ease-out}
+  .cell.pop{animation:pq-pop .35s ease-out}
+  .tile .v.bump{display:inline-block;animation:pq-bump .35s ease-out}
+  .pick .cand.just{animation:pq-just .5s ease-out}
+  .pick.opening{animation:pq-drop .2s ease-out}
+}
+/* 操作の手応え：どれも0.2秒以内。「視差効果を減らす」の人には動きを付けない */
+.cam-frame{transition:border-color .12s}
+.cam-frame.ok{border-color:#34c759}
+@media (prefers-reduced-motion:no-preference){
+  @keyframes pq-fade{from{opacity:0}}
+  @keyframes pq-up{from{opacity:0;transform:translateY(36px)}}
+  @keyframes pq-toast{from{opacity:0;transform:translate(-50%,12px)}}
+  .sheet{animation:pq-fade .15s ease-out}
+  .sheet-box{animation:pq-up .18s ease-out}
+  #rsheet.full .sheet-box,#msheet.full .sheet-box{animation:none}
+  .toast{animation:pq-toast .16s ease-out}
+  .btn,.cand,.slot,button.match{transition:transform .08s ease-out,background .15s}
+  .btn:active,.cand:active{transform:scale(.97)}
+  .slot:active,button.match:active{transform:scale(.985)}
+  .btn:disabled:active{transform:none}
+  .cam-frame{transition:border-color .12s,transform .18s ease-out}
+  .cam-frame.ok{transform:translate(-50%,-50%) scale(1.04)}
+}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:700;z-index:30}
 
 /* =========================================================
@@ -284,8 +362,8 @@ td select{min-height:38px;padding:4px 8px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v57</span> · <span id="app-date">11/9</span></span></h1>
-      <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>・1時間交代・レジ1人・データはこのiPadの中だけに保存</p>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v64</span> · <span id="app-date">11/10</span></span></h1>
+      <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
   </header>
@@ -300,10 +378,14 @@ td select{min-height:38px;padding:4px 8px}
   <section class="panel" id="p-day">
     <div class="notice" id="sample-note">いま入っているのは例のデータです。「名簿」で名前を登録すると切り替わります。はじめての方は、右上の<button class="linkbtn" id="help-open2">使い方</button>をご覧ください。</div>
     <h2 class="sec"><span class="stepno">1</span>作りたい日の列を貼り付け</h2>
-    <ol class="steps">
-      <li>シフト表で、作りたい日の列を<b>名簿と同じ行から同じ行まで</b>選んでコピー</li>
-      <li>下に貼り付けると、照合結果の一覧で名前と時間が横並びで照合されます</li>
-    </ol>
+    <details class="howto" id="day-howto">
+      <summary>やり方</summary>
+      <ol class="steps">
+        <li>シフト表で、作りたい日の列を<b>名簿と同じ行から同じ行まで</b>選んでコピー</li>
+        <li>下に貼り付けると、照合結果の一覧で名前と時間が横並びで照合されます</li>
+        <li>名前と時間がずれていたら、コピーした行の範囲が名簿と違います</li>
+      </ol>
+    </details>
     <div class="bar">
       <label class="fld">日付<input type="date" id="day-date"></label>
     </div>
@@ -311,17 +393,16 @@ td select{min-height:38px;padding:4px 8px}
     <div class="bar"><button class="btn" id="day-clear">貼り付けを消す</button></div>
     <p class="muted" id="day-msg" style="margin:0"></p>
     <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
-    <p class="muted" style="margin:0">名前と時間がずれていないか、ざっと確認してください。ずれていたら、コピーした行の範囲が名簿と違います。<br>急な休みや急な出勤で、シフト表と違う人は、名前をタップすると今日の時間を変えられます。</p>
+    <p class="muted" style="margin:0">急な休み・急な出勤は、名前をタップすると今日の時間を変えられます。</p>
     <div class="list" id="day-list"></div>
-    <button class="btn primary" id="to-plan">レジ番表を作る</button>
+    <button class="btn primary wide" id="to-plan">レジ番表を作る →</button>
   </section>
 
   <!-- レジ番表 -->
   <section class="panel" id="p-plan" hidden>
     <div class="bar">
       <b id="plan-date"></b>
-      <button class="btn" id="regen">作り直す</button>
-      <button class="btn" id="clear-edits">手動変更をリセット</button>
+      <button class="btn" id="clear-edits" style="margin-left:auto">手動変更をリセット</button>
       <button class="btn primary" id="copy-out">テキストでコピー</button>
     </div>
     <div class="plans" id="plans" role="group" aria-label="プランの切り替え"></div>
@@ -329,17 +410,25 @@ td select{min-height:38px;padding:4px 8px}
     <div class="plan-grid">
       <div class="plan-col">
         <div class="roll" id="roll"></div>
+        <!-- 担当の変更：押した時間の行のすぐ下に開く -->
+        <div class="pick" id="sheet" role="region" aria-labelledby="sheet-title" hidden>
+          <div class="pick-head"><h2 id="sheet-title"></h2><button class="pick-x" id="sheet-close">閉じる ✕</button></div>
+          <div class="pick-list" id="sheet-cands"></div>
+          <div class="pick-trn" id="sheet-trn"></div>
+          <div class="pick-foot"><button class="btn" id="sheet-unlock">固定を外す</button><span class="muted">選ぶと、ほかの時間がその場で組み直されます</span></div>
+        </div>
       </div>
       <aside class="plan-col" aria-labelledby="side-title">
         <div class="side">
           <div class="side-head"><b id="side-title">その日のシフト</b><span class="muted" id="side-count"></span></div>
+          <div class="pickbar" id="pickbar" hidden></div>
           <div class="hours" aria-hidden="true"><span></span><span class="hrow" id="hrow"></span><span></span></div>
           <div id="side-list"></div>
           <div class="legend"><span><i class="cell on"></i>出勤</span><span><i class="cell reg"></i>レジ</span><span><i class="cell trn"></i>見習いで一緒に</span></div>
         </div>
       </aside>
     </div>
-    <p class="muted">時間帯をタップすると担当を変更できます。変更した時間は固定され、ほかの時間が組み直されます。</p>
+    <p class="muted">時間帯をタップすると、その下に候補が開きます。選んだ時間は固定され、ほかの時間がその場で組み直されます（組み直された時間は一瞬光ります）。</p>
     <details class="rules">
       <summary>割り当てルールを見る</summary>
       <h3>① 絶対のルール</h3>
@@ -412,7 +501,10 @@ td select{min-height:38px;padding:4px 8px}
     </div>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
+    <details class="howto">
+      <summary>役職・レベル・締めの意味</summary>
     <p class="muted" style="margin:0">レジに入るのは<b>PN</b>・<b>新入社員</b>・<b>No2</b>・<b>PNリーダー</b>で、この順番で回します。リーダー・店長はレジに入らず、フロアの人数にだけ数えます。<br>部門で<b>店長</b>・<b>流通便</b>を選んだ人は、レジにもフロアの人数にも入りません。<br>同じ役職の中では、レベル <b>1</b> → <b>2</b> → <b>3</b> の順。<b>4 めったに入らない</b>は他の全員が入った後の最終手段です。<b>0 見習い</b>は自動では入れません（レジ番表で時間をタップすれば手動で入れられます）。<br>PNリーダーを選ぶと自動でレベル4になります。<br><b>締め</b>にチェックした人は、閉店前の最後の1時間（レジ締め）に優先して入ります。締めの人の中ではレベル <b>1</b> → <b>2</b> → <b>3</b> の順です。</p>
+    </details>
     <div class="table-wrap"><table>
       <thead><tr><th>行</th><th>名前</th><th>部門</th><th>役職</th><th>レベル</th><th>締め</th></tr></thead>
       <tbody id="staff-body"></tbody>
@@ -567,12 +659,12 @@ td select{min-height:38px;padding:4px 8px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v57 · 11/9」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v64 · 11/10」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v57（2026年11月9日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v64（2026年11月10日 更新）</p>
   </section>
 </div>
 
@@ -648,17 +740,6 @@ td select{min-height:38px;padding:4px 8px}
     </div>
   </div>
 </div>
-<div class="sheet" id="sheet" hidden>
-  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-    <h2 id="sheet-title"></h2>
-    <div id="sheet-cands" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div id="sheet-trn" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div class="bar">
-      <button class="btn" id="sheet-unlock">固定を外す</button>
-      <button class="btn" id="sheet-close" style="margin-left:auto">閉じる</button>
-    </div>
-  </div>
-</div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -688,7 +769,7 @@ const ROLE={baito:"PN",pnleader:"PNリーダー",rookie:"新入社員",sub:"No2"
 const ROLE_RANK={baito:0,rookie:1,sub:2,pnleader:3};  // レジに入る役職と、その順番
 const LEVELS=[1,2,3,0,4];                             // 名簿の選択肢の並び
 const LEVEL_LABEL={0:"見習い",1:"レベル1",2:"レベル2",3:"レベル3",4:"レベル4"};
-const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い（自動では入れない）",4:"めったに入らない（最終手段）"};
+const LEVEL_HINT={1:"優先して入る",2:"普通",3:"足りない時だけ",0:"見習い",4:"最終手段"};   // 選択肢は短く（意味は「役職・レベル・締めの意味」に書いてある）
 const CLOSE_LV={1:0,2:1,3:2,4:3,0:4};                 // 締めはレベル1 → 2 → 3 → 4 の順
 const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
 const EXTRA_DEPTS=["店長","流通便"];                  // レジにもフロア人数にも入らない所属
@@ -761,6 +842,8 @@ const emptyEdits=()=>({locks:{},breaks:[],trainees:{}});
 let day={date:"",text:"",edits:emptyEdits(),plan:"std",times:{}};
 let plans={};        // プランごとのレジ番表
 let plan=[];         // 表示中のレジ番表
+let sheetSlot=null, chgSlots=new Set();   // 担当を選んでいる時間／担当が変わった時間（一瞬光らせる）
+let newReg=new Set(), shownSlots=null, shownReg=null, shownTally=null;   // 前に画面に出していた担当・レジのマス・集計（変わったところだけ動かすため）
 let focusId=null;    // 右側で選んだ人
 
 /* =========================================================
@@ -1093,6 +1176,11 @@ function matchRow(x){
    ========================================================= */
 function renderPlans(){
   const std=plans.std||[];
+  // 手で直したところがないときは、リセットを押せなくする
+  // 件数は、今の表で実際に効いているものだけ数える（いない人の固定などは数えない）
+  const nEdit=(plans[day.plan]||[]).filter(p=>p.locked).length+(plans[day.plan]||[]).filter(p=>p.tid).length;
+  $("#clear-edits").disabled=!nEdit;
+  $("#clear-edits").textContent=nEdit?`手動変更をリセット（${nEdit}件）`:"手動変更をリセット";
   $("#plans").innerHTML=PLANS.map(([k,label,sub])=>
     `<button type="button" data-v="${k}" aria-pressed="${day.plan===k}">${label}<small>${sub}</small></button>`).join("")+
     (day.plan!=="std"?planNote((plans[day.plan]||[]).filter((p,i)=>p.id!==std[i]?.id).length):"");
@@ -1102,16 +1190,31 @@ function planNote(n){
   return `<p class="plan-note" style="grid-column:1/-1">`+(n?`<span style="color:var(--accent)">●</span> は標準と違う時間です（${n}枠）`:`この日は標準と同じ結果です`)+`</p>`;
 }
 function renderPlan(){
+  const onScreen=!$("#p-plan").hidden;   // 見えていないときに描いた分は動かさない
+  const cur=plan.map(q=>q.id+"/"+(q.tid||""));
+  chgSlots=onScreen&&shownSlots&&shownSlots.length===cur.length?new Set(cur.map((x,i)=>x!==shownSlots[i]?i:-1).filter(i=>i>=0)):new Set();
+  shownSlots=cur;
+  // 右のシフト：新しくレジ（見習いで一緒も）になったマス
+  const regNow=new Set();plan.forEach(q=>{if(q.id)regNow.add(q.id+":"+q.i);if(q.tid)regNow.add(q.tid+":"+q.i+"t")});
+  newReg=onScreen&&shownReg?new Set([...regNow].filter(x=>!shownReg.has(x))):new Set();
+  shownReg=regNow;
   renderPlans();
   $("#plan-date").textContent=dateLabel()+" のレジ番";
   const reg=[0,0,0,0];
   plan.forEach(p=>{if(isFloor(p.dept))reg[p.dept]++});
   const filled=plan.filter(p=>p.id).length;
+  const tv=[...reg,filled], bump=k=>onScreen&&shownTally&&shownTally[k]!==tv[k]?" bump":"";
+  shownTally=tv;
   $("#tally").innerHTML=
-    roster.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v">${reg[k]}<small> 時間</small></span></div>`).join("")+
-    `<div class="tile"><span class="k">埋まった時間</span><span class="v">${filled}<small> / ${HOURS.length}</small></span></div>`;
+    roster.depts.map((d,k)=>`<div class="tile"><span class="k"><span class="chip d${k}">${esc(d)}</span></span><span class="v${bump(k)}">${reg[k]}<small> 時間</small></span></div>`).join("")+
+    `<div class="tile"><span class="k">埋まった時間</span><span class="v${bump(4)}">${filled}<small> / ${HOURS.length}</small></span></div>`;
+  const pk=$("#sheet"), st=$("#sheet-cands").scrollTop;
+  $("#roll").after(pk);   // 描き直しで消えないように、いったん外に出す
   $("#roll").innerHTML=plan.map(slotHtml).join("");
+  if(sheetSlot!=null&&!plan[sheetSlot])closeSheet(true);   // 営業時間が変わってその時間がなくなった
+  if(sheetSlot!=null){fillSheet(sheetSlot);$("#sheet-cands").scrollTop=st}   // 選んだあとも、候補の欄のスクロール位置はそのまま
   renderSide();
+  chgSlots=new Set();newReg=new Set();   // 動かすのはこの1回だけ（右の人をタップしただけの描き直しでは動かさない）
 }
 function slotHtml(p){
   const chips=[];
@@ -1123,9 +1226,10 @@ function slotHtml(p){
   if(p.tid)chips.push(`<span class="chip">見習いと2人</span>`);
   p.flags.forEach(([k,t])=>chips.push(`<span class="chip ${k}">${t}</span>`));
   const diff=day.plan!=="std"&&plans.std&&plans.std[p.i]?.id!==p.id;   // 標準と違う枠に ● を付ける
-  return `<button class="slot${diff?" diff":""}" data-i="${p.i}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
+  const sel=p.i===sheetSlot, chg=chgSlots.has(p.i);
+  return `<button class="slot${diff?" diff":""}${sel?" sel":""}${chg?(sel?" chg-self":" chg"):""}" data-i="${p.i}" aria-expanded="${sel}"><span class="time">${p.h}:00<span>〜${p.h+1}:00</span></span>
       <span class="who"><span class="name ${p.id?"":"none"}">${p.id?esc(p.name):"担当なし"}${p.tid?`<span class="trainee">・${esc(p.tname)}</span>`:""}</span><span class="chips">${chips.join("")}</span></span>
-      <span class="edit">変更</span></button>`;
+      <span class="edit">${sel?"閉じる":"変更"}</span></button>`;
 }
 
 /* =========================================================
@@ -1141,6 +1245,11 @@ function renderSide(){
   $("#side-count").textContent=`${people.length}人出勤`;
   if(focusId&&!people.some(p=>p.id===focusId))focusId=null;
   const html=SIDE_ORDER.map(d=>deptSection(d,people.filter(p=>p.dept===d),regBy,trnBy)).join("");
+  const k=sheetSlot, sl=k!=null?plan[k]:null;
+  $(".side").classList.toggle("picking",!!sl);
+  $("#pickbar").hidden=!sl;
+  if(sl)$("#pickbar").innerHTML=`${sl.h}時の担当を選んでいます<span>薄い人はこの時間に入れません</span>`;
+  if(sl)$("#hrow").children[k]?.classList.add("col");
   $("#side-list").innerHTML=html||`<p class="muted" style="padding:0 12px">シフトを貼り付けると、ここに出勤者が並びます。</p>`;
   document.querySelectorAll("#roll .slot").forEach(el=>{const p=plan[+el.dataset.i];el.classList.toggle("hl",!!focusId&&(p.id===focusId||p.tid===focusId))});
 }
@@ -1156,10 +1265,13 @@ function personRow(p,regBy,trnBy){
   const tag=!eligible(p)?"レジ外":p.level===0?"見習い":ROLE[p.role]+(p.level?"・Lv"+p.level:"");
   const cells=HOURS.map((h,i)=>{
     const on=p.start<=h*60&&p.end>=h*60+60;
-    return `<i class="cell ${regBy[p.id]?.has(i)?"reg":trnBy[p.id]?.has(i)?"trn":on?"on":""}"></i>`;
+    const isNew=newReg.has(p.id+":"+i)||newReg.has(p.id+":"+i+"t");
+    return `<i class="cell ${regBy[p.id]?.has(i)?"reg":trnBy[p.id]?.has(i)?"trn":on?"on":""}${i===sheetSlot?" col":""}${isNew?" pop":""}"></i>`;
   }).join("");
   const closer=p.closer?' <span class="chip ok" style="font-size:.6rem;padding:0 5px">締</span>':"";
-  return `<button class="pr ${can?"":"off"}" data-id="${p.id}" aria-pressed="${focusId===p.id}">`+
+  const k=sheetSlot, sl=k!=null?plan[k]:null;
+  const na=sl&&!sl.present.some(c=>c.id===p.id&&eligible(c)), now=sl&&(sl.id===p.id||sl.tid===p.id);
+  return `<button class="pr ${can?"":"off"}${na?" na":""}${now?" now":""}" data-id="${p.id}" aria-pressed="${focusId===p.id}">`+
     `<span class="nm">${esc(p.name)}${closer}<small>${fmt(p.start)}-${fmt(p.end)}<br>${tag}</small></span>`+
     `<span class="bars">${cells}</span><span class="cnt">${n?n+"回":tn?tn+"回":""}</span></button>`;
 }
@@ -1232,6 +1344,7 @@ function showTab(name){
   $("#p-help").hidden=name!=="help";
   if(name==="help"){window.scrollTo(0,0);return}
   lastTab=name;
+  if(sheetSlot!=null)closeSheet(true);
   if(name==="roster")renderRoster(); else refresh();
 }
 $("#help-open").onclick=()=>showTab("help");
@@ -1320,6 +1433,7 @@ function changeHours(){
   const open=+$("#open-hour").value, close=+$("#close-hour").value;
   if(close-open<2){toast("閉店は開店より2時間以上あとにしてください");renderHoursSetting();return}
   roster.hours={open,close};
+  closeSheet(true);
   day.edits=emptyEdits();   // 枠の数が変わるので、手動変更は戻す
   applyHours();saveRoster();saveDay();
   toast(`営業時間を ${open}:00〜${close}:00 にしました`+(isSample?"（例のデータなので保存されません）":""));
@@ -1337,10 +1451,9 @@ $("#dept-names").addEventListener("change",e=>{
    ========================================================= */
 $("#plans").addEventListener("click",e=>{
   const b=e.target.closest("button[data-v]");if(!b)return;
-  day.plan=b.dataset.v;saveDay();refresh();
+  closeSheet(true);day.plan=b.dataset.v;saveDay();refresh();
 });
-$("#regen").onclick=()=>{refresh();toast("作り直しました")};
-$("#clear-edits").onclick=()=>{day.edits=emptyEdits();saveDay();refresh();toast("手動変更を戻しました")};
+$("#clear-edits").onclick=()=>{closeSheet(true);day.edits=emptyEdits();saveDay();refresh();toast("手で直したところを元に戻しました")};
 $("#copy-out").onclick=async()=>{
   const honor=n=>n.endsWith("さん")?n:n+"さん";
   const txt=[`${dateLabel()} レジ番`,...plan.map(p=>`${p.h}:00-${p.h+1}:00 ${p.name?honor(p.name):"（担当なし）"}${p.tid?"・"+honor(p.tname):""}`)].join("\n");
@@ -1383,27 +1496,46 @@ function renderLog(){
 /* =========================================================
    担当の変更（時間帯をタップしたときの画面）
    ========================================================= */
-let sheetSlot=null;
-$("#roll").addEventListener("click",e=>{const b=e.target.closest(".slot");if(b)openSheet(+b.dataset.i)});
+$("#roll").addEventListener("click",e=>{
+  if(e.target.closest("#sheet"))return;
+  const b=e.target.closest(".slot");if(!b)return;
+  const i=+b.dataset.i;
+  if(sheetSlot===i)return closeSheet();   // 同じ時間をもう一度押したら閉じる
+  openSheet(i);
+});
 function openSheet(i){
-  sheetSlot=i;const p=plan[i];
-  $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当`;
+  const moved=sheetSlot!==i;
+  sheetSlot=i;chgSlots=new Set();
+  if(moved)$("#sheet-cands").scrollTop=0;
+  renderPlan();
+  const el=$("#sheet");
+  el.classList.remove("opening");void el.offsetWidth;el.classList.add("opening");
+  el.addEventListener("animationend",()=>el.classList.remove("opening"),{once:true});
+  el.scrollIntoView({block:"nearest",behavior:"auto"});
+  // 押した行も見えるように（欄が画面の下にはみ出すときだけ動かす）
+  const r=$(`#roll .slot[data-i="${i}"]`)?.getBoundingClientRect();if(r&&r.top<0)window.scrollBy(0,r.top-8);
+}
+// 欄の中身を作り、押した時間の行のすぐ下に置く
+function fillSheet(i){
+  const p=plan[i], el=$("#sheet");
+  $("#sheet-title").textContent=`${p.h}:00〜${p.h+1}:00 の担当を選ぶ`;
   // 並び：締めの枠は締めの人とレベル順を先に。そのあと役職・レベル順、名前順
   const cands=p.present.filter(eligible).sort((a,b)=>
     (i===CLOSE_SLOT?(b.closer-a.closer)||(CLOSE_LV[a.level]-CLOSE_LV[b.level]):0)||prio(a)-prio(b)||a.name.localeCompare(b.name,"ja"));
-  $("#sheet-cands").innerHTML=cands.map(c=>candHtml(c,i,p)).join("")||`<p class="muted">この時間に入れる人がいません。</p>`;
+  $("#sheet-cands").innerHTML=cands.map(c=>candHtml(c,i,p)).join("")||`<p class="muted" style="padding:0 14px">この時間に入れる人がいません。</p>`;
   $("#sheet-unlock").disabled=!p.locked;
   renderTraineePick(i,p);
-  $("#sheet").hidden=false;
+  $(`#roll .slot[data-i="${i}"]`)?.after(el);
+  el.hidden=false;
 }
 function candHtml(c,i,p){
   const at=plan.filter(q=>q.id===c.id&&q.i!==i).map(q=>q.h+"時");   // ほかに入っている時間
   const nb=plan[i-1]?.id===c.id||plan[i+1]?.id===c.id;              // 前後の時間も担当
-  const others=at.length?`ほかに${at.length}回（${at.join("・")}）`:"ほかの時間は0回";
-  const chips=deptChip(c.dept)+`<span class="chip">${ROLE[c.role]}・${LEVEL_LABEL[c.level]}</span>`+
+  const others=at.length?`ほかに${at.join("・")}`:"ほかは0回";
+  const chips=(c.id===p.id?'<span class="chip now">✓ 担当中</span>':"")+deptChip(c.dept)+`<span class="chip">${c.level?ROLE[c.role]+"・Lv"+c.level:"見習い"}</span>`+
     (c.closer?'<span class="chip ok">締め</span>':"")+(nb?'<span class="chip warn">前後も担当</span>':"");
-  return `<button class="cand" data-id="${c.id}" aria-current="${c.id===p.id}">`+
-    `<span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}・${others}</span></span>`+
+  return `<button class="cand${c.id===p.id&&chgSlots.has(i)?" just":""}" data-id="${c.id}" aria-current="${c.id===p.id}">`+
+    `<span class="nm"><b>${esc(c.name)}</b><span class="sub">${others}</span></span>`+
     `<span class="chips">${chips}</span></button>`;
 }
 // 見習いを一緒に入れる：その1時間ずっといる見習い（レベル0）だけを並べる
@@ -1411,11 +1543,11 @@ function renderTraineePick(i,p){
   const ts=p.present.filter(c=>isTrainee(c)&&c.id!==p.id).sort((a,b)=>a.name.localeCompare(b.name,"ja"));
   const el=$("#sheet-trn");
   if(!ts.length&&!p.tid){el.innerHTML="";return}
-  el.innerHTML=`<h3 class="sheet-sub">見習いを一緒に入れる <span class="muted" style="font-weight:400;font-size:.85rem">担当の人がサポートして2人で入ります</span></h3>`+
+  el.innerHTML=`<h3>見習いを一緒に入れる <span class="muted" style="font-weight:400;font-size:.85rem">担当の人がサポートして2人で入ります</span></h3>`+
     ts.map(c=>{
       const at=plan.filter(q=>q.tid===c.id&&q.i!==i).map(q=>q.h+"時");
       return `<button class="cand trn" data-id="${c.id}" aria-current="${c.id===p.tid}">`+
-        `<span><b>${esc(c.name)}</b><br><span class="muted">${fmt(c.start)}〜${fmt(c.end)}・${at.length?`ほかに${at.length}回（${at.join("・")}）`:"ほかの時間は0回"}</span></span>`+
+        `<span class="nm"><b>${esc(c.name)}</b><span class="sub">${at.length?`ほかに${at.join("・")}`:"ほかは0回"}</span></span>`+
         `<span class="chips">${deptChip(c.dept)}<span class="chip">見習い</span></span></button>`;
     }).join("")+
     (p.tid?`<button class="btn" id="sheet-trn-off">見習いを外す</button>`:"");
@@ -1423,22 +1555,33 @@ function renderTraineePick(i,p){
 function setTrainee(id){
   const t=day.edits.trainees||(day.edits.trainees={});
   if(id)t[sheetSlot]=id; else delete t[sheetSlot];
-  saveDay();closeSheet();refresh();
+  editAndRefresh();
 }
 $("#sheet-trn").addEventListener("click",e=>{
   if(e.target.closest("#sheet-trn-off"))return setTrainee(null);
   const b=e.target.closest(".cand.trn");if(b)setTrainee(b.dataset.id);
 });
-function closeSheet(){$("#sheet").hidden=true}
+// 手で直して組み直す。開いたまま、組み直された時間を一瞬光らせる
+function editAndRefresh(){
+  saveDay();
+  PLANS.forEach(([k])=>plans[k]=generate(k));   // refresh() と同じ計算。描くのは1回だけにする
+  if(!plans[day.plan])day.plan="std";
+  plan=plans[day.plan];
+  renderDay();renderPlan();   // 変わった時間は renderPlan が前と比べて光らせる
+}
+function closeSheet(quiet){
+  sheetSlot=null;chgSlots=new Set();$("#sheet").hidden=true;
+  if(quiet!==true)renderPlan();
+}
 $("#sheet-cands").addEventListener("click",e=>{
   const b=e.target.closest(".cand");if(!b)return;
   if(day.edits.trainees?.[sheetSlot]===b.dataset.id)delete day.edits.trainees[sheetSlot];   // 見習い本人を担当にしたら、見習いの欄は外す
   day.edits.locks[sheetSlot]=b.dataset.id;
-  saveDay();closeSheet();refresh();
+  editAndRefresh();
 });
-$("#sheet-unlock").onclick=()=>{delete day.edits.locks[sheetSlot];saveDay();closeSheet();refresh()};
-$("#sheet-close").onclick=closeSheet;
-$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+$("#sheet-unlock").onclick=()=>{delete day.edits.locks[sheetSlot];editAndRefresh()};
+$("#sheet-close").onclick=()=>closeSheet();
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheetSlot!=null)closeSheet()});
 
 /* =========================================================
    その日の時間を変える（急な休み・急な出勤・時間の変更）
@@ -1491,6 +1634,7 @@ $("#export").onclick=()=>{
 };
 // 読み込んだ名簿に切り替える（ファイルとQRで共通）
 function useRoster(ro){
+  closeSheet(true);
   Object.values(ro.staff).forEach(normStaff);
   roster={depts:(ro.depts||DEFAULT_DEPTS).slice(0,4),order:ro.order,staff:ro.staff,groups:ro.groups||0,...(ro.hours?{hours:ro.hours}:{})};
   applyHours();
@@ -1593,7 +1737,7 @@ $("#msheet").addEventListener("click",e=>{if(e.target.id==="msheet")closeMs()});
 let rsStream=null,rsLoop=0,rsFound=null,rsParts=null;
 const rsCanvas=document.createElement("canvas"),rsCtx=rsCanvas.getContext("2d",{willReadFrequently:true});
 function stopCam(){cancelAnimationFrame(rsLoop);rsLoop=0;if(rsStream){rsStream.getTracks().forEach(t=>t.stop());rsStream=null}$("#rs-video").srcObject=null}
-function closeRs(){stopCam();rsFound=null;rsParts=null;$("#rsheet").hidden=true;$("#rsheet").classList.remove("full")}
+function closeRs(){stopCam();$(".cam-frame").classList.remove("ok");rsFound=null;rsParts=null;$("#rsheet").hidden=true;$("#rsheet").classList.remove("full")}
 // 画像（カメラの1コマ・写真）からQRを探す
 function scanImage(src,w,h,inv="attemptBoth",max=960){
   const k=Math.min(1,max/Math.max(w,h));const cw=Math.round(w*k),ch=Math.round(h*k);
@@ -1626,7 +1770,7 @@ function gotText(t){
     if(!z)throw 0;
     r=rosterFromText(new TextDecoder().decode(fflate.inflateSync(z)));
   }catch(_){rsParts=null;$("#rs-status").textContent="POSitionの名簿のQRではないようです。「QRで渡す」で出したQRを読み取ってください";return false}
-  stopCam();rsFound=r;
+  cancelAnimationFrame(rsLoop);rsLoop=0;rsFound=r;   // 読み取りは止める（カメラは、枠が光ってから止める）
   const ids=Object.keys(r.staff),cnt={};
   ids.forEach(id=>{const d=r.staff[id].dept;const k=d>=0?(r.depts[d]||DEFAULT_DEPTS[d]||"その他"):"部門なし";cnt[k]=(cnt[k]||0)+1});
   const hrs=r.hours?`${r.hours.open}:00〜${r.hours.close}:00`:"9:00〜21:00";
@@ -1634,7 +1778,13 @@ function gotText(t){
   const now=isSample?0:Object.keys(roster.staff).length;
   $("#rs-warn").textContent=now?`このiPadの今の名簿（${now}人）は、この名簿に置き換わります。`:"このiPadに、この名簿を登録します。";
   $("#rs-warn").className=now?"note-bad":"note-ok";
-  $("#rs-scan").hidden=true;$("#rs-ok").hidden=false;$("#rsheet").classList.remove("full");
+  const done=()=>{
+    if(rsFound!==r)return;   // 閉じられた・やり直した
+    stopCam();$(".cam-frame").classList.remove("ok");
+    $("#rs-scan").hidden=true;$("#rs-ok").hidden=false;$("#rsheet").classList.remove("full");
+  };
+  if(rsStream&&!$("#rs-scan").hidden){$(".cam-frame").classList.add("ok");setTimeout(done,200)}   // カメラのときだけ：枠が一瞬、緑に光る
+  else done();
   return true;
 }
 // カメラの1コマ：真ん中の正方形（短い辺の82%）を、縮めずに（最大900px）切り出して読む。
@@ -1654,7 +1804,7 @@ function scanFrame(){
   rsLoop=requestAnimationFrame(scanFrame);
 }
 $("#mq-recv").onclick=async()=>{
-  rsFound=null;rsParts=null;rsFrameNo=0;$("#rsheet").classList.add("full");$(".cam").hidden=false;$("#rs-scan").hidden=false;$("#rs-ok").hidden=true;$("#rsheet").hidden=false;
+  rsFound=null;rsParts=null;rsFrameNo=0;$(".cam-frame").classList.remove("ok");$("#rsheet").classList.add("full");$(".cam").hidden=false;$("#rs-scan").hidden=false;$("#rs-ok").hidden=true;$("#rsheet").hidden=false;
   $("#rs-status").textContent="カメラを起動しています（「許可」が出たら押してください）…";
   try{
     rsStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:1920},height:{ideal:1440}},audio:false});
@@ -1681,6 +1831,7 @@ $("#rs-apply").onclick=()=>{
   closeRs();showTab("roster");toast(`${n}人分の名簿を登録しました`);
 };
 $("#rs-cancel").onclick=closeRs;
+document.addEventListener("touchstart",()=>{},{passive:true});   // iOSで :active（押し込み）を効かせる
 // アプリを離れたら（スリープ・ホーム画面に戻る）、名簿のQRを消し、カメラを止める
 document.addEventListener("visibilitychange",()=>{if(document.hidden){if(!$("#msheet").hidden)closeMs();if(!$("#rsheet").hidden&&!rsFound)closeRs()}});$("#rs-no").onclick=closeRs;
 $("#rsheet").addEventListener("click",e=>{if(e.target.id==="rsheet")closeRs()});
@@ -1701,6 +1852,7 @@ $("#rsheet").addEventListener("click",e=>{if(e.target.id==="rsheet")closeRs()});
   if(!day.date)day.date=todayStr();
   $("#day-date").value=day.date;
   $("#day-paste").value=day.text;
+  $("#day-howto").open=isSample;   // はじめて（例のデータ）のときだけ、やり方を開いておく
   if(!roster.depts)roster.depts=[...DEFAULT_DEPTS];
   applyHours();
   refresh();renderLog();
