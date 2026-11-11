@@ -285,17 +285,35 @@ details.howto[open]>summary{margin-bottom:4px}
    見やすさ：時間の行（白）と候補（一段沈んだ灰色の上のカード）を、色ではっきり分ける。青は「選んでいる時間」と「今の担当」だけに使う */
 .pick{background:var(--bg);border:1px solid var(--line);border-radius:12px;margin:6px 8px 10px;overflow:hidden}
 .roll .pick{margin:0;border-radius:0;border-width:0 0 2px;box-shadow:inset 0 6px 8px -6px rgb(0 0 0 / .25),inset 0 -6px 8px -6px rgb(0 0 0 / .2),inset 6px 0 0 var(--accent)}
-.pick-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 2px 20px}
+.pick-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px 20px}
 .pick-head h2{margin:0;font-size:.92rem;color:var(--muted);font-weight:700}
 .pick-x{font:inherit;font-weight:700;font-size:.88rem;color:var(--accent);background:none;border:0;min-height:44px;padding:0 10px;cursor:pointer}
 .pick-list{max-height:calc(52px * 12.5);overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:6px;padding:2px 12px 8px 20px}
-.pick .cand{width:100%;border:1px solid var(--line);border-radius:10px;min-height:46px;padding:6px 12px;flex-wrap:wrap;row-gap:4px;background:var(--surface)}
+.pick .cand{width:100%;border:1px solid var(--line);border-radius:10px;min-height:46px;padding:6px 12px;flex-wrap:nowrap;flex:none;background:var(--surface)}   /* flex:none：候補が多いとき縦につぶれない */
 .pick .cand[aria-current="true"]{border:2px solid var(--accent);padding:5px 11px}
-.pick .cand .nm{min-width:0}
-.pick .cand .nm b{margin-right:8px;font-size:1rem}
+.pick .cand .nm{min-width:0;display:flex;align-items:baseline;gap:8px;overflow:hidden;white-space:nowrap}
+.pick .cand .nm b{flex:none}
+.pick .cand .sub{overflow:hidden;text-overflow:ellipsis}
+.pick .cand .now{color:var(--accent);margin-right:4px}
+.pick .cand .line2{display:none}
+.pick .cand .nm b{font-size:1rem}
 .pick .cand .sub{color:var(--muted);font-size:.8rem}
-.pick .cand .chips{justify-content:flex-end}
-.pick .cand .chip.now{background:var(--soft);color:var(--accent);border:1px solid var(--accent)}
+.pick .cand .chips{justify-content:flex-end;flex-wrap:nowrap;gap:4px;flex:none}
+.pick .cand .chip{white-space:nowrap}
+@media (max-width:759px){   /* スマホ：名前と札を1行目、その人の1日の横棒を2行目に。高さをそろえる */
+  .pick .cand{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nm chips" "l2 l2";align-items:center;row-gap:6px;padding:8px 12px}
+  .pick .cand[aria-current="true"]{padding:7px 11px}
+  .pick .cand .nm{grid-area:nm}.pick .cand .chips{grid-area:chips}
+  .pick .cand .chip{font-size:.72rem;padding:1px 7px}
+  .pick .cand .nm .sub{display:none}   /* ほかの時間は2行目の横棒の右へ */
+  .pick .cand .rl.pn{display:none}     /* PN は多いので省く（No2 などは出す） */
+  .pick .cand .line2{grid-area:l2;display:flex;align-items:center;gap:10px}
+  .pick .cand .line2 .sub{flex:none;width:7.6em;font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}   /* 幅を固定して、横棒の位置を全員でそろえる */
+  .pick .cand .mini{flex:1;min-width:0;display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px}
+  .pick .cand .mini .cell{height:10px}
+  .pick .cand .mini .cell.col{outline:2px solid var(--accent);outline-offset:1px}
+  .pick-list,.pick-trn{padding-left:16px;padding-right:8px;max-height:none;overflow:visible}   /* スマホは欄の中でスクロールさせない（ページと二重になるため） */
+}
 .pick-trn:empty{display:none}
 .pick-trn{display:flex;flex-direction:column;gap:6px;padding:4px 12px 8px 20px;border-top:1px dashed var(--line)}
 .pick-trn h3{margin:6px 0 0;font-size:.85rem;color:var(--muted)}
@@ -362,7 +380,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v64</span> · <span id="app-date">11/10</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v66</span> · <span id="app-date">11/11</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -412,10 +430,10 @@ details.howto[open]>summary{margin-bottom:4px}
         <div class="roll" id="roll"></div>
         <!-- 担当の変更：押した時間の行のすぐ下に開く -->
         <div class="pick" id="sheet" role="region" aria-labelledby="sheet-title" hidden>
-          <div class="pick-head"><h2 id="sheet-title"></h2><button class="pick-x" id="sheet-close">閉じる ✕</button></div>
+          <div class="pick-head"><h2 id="sheet-title"></h2></div>
           <div class="pick-list" id="sheet-cands"></div>
           <div class="pick-trn" id="sheet-trn"></div>
-          <div class="pick-foot"><button class="btn" id="sheet-unlock">固定を外す</button><span class="muted">選ぶと、ほかの時間がその場で組み直されます</span></div>
+          <div class="pick-foot"><button class="btn" id="sheet-close">閉じる</button><button class="btn" id="sheet-unlock">固定を外す</button><span class="muted">選ぶと、ほかの時間がその場で組み直されます</span></div>
         </div>
       </div>
       <aside class="plan-col" aria-labelledby="side-title">
@@ -659,12 +677,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v64 · 11/10」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v66 · 11/11」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v64（2026年11月10日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v66（2026年11月11日 更新）</p>
   </section>
 </div>
 
@@ -1532,11 +1550,19 @@ function candHtml(c,i,p){
   const at=plan.filter(q=>q.id===c.id&&q.i!==i).map(q=>q.h+"時");   // ほかに入っている時間
   const nb=plan[i-1]?.id===c.id||plan[i+1]?.id===c.id;              // 前後の時間も担当
   const others=at.length?`ほかに${at.join("・")}`:"ほかは0回";
-  const chips=(c.id===p.id?'<span class="chip now">✓ 担当中</span>':"")+deptChip(c.dept)+`<span class="chip">${c.level?ROLE[c.role]+"・Lv"+c.level:"見習い"}</span>`+
-    (c.closer?'<span class="chip ok">締め</span>':"")+(nb?'<span class="chip warn">前後も担当</span>':"");
-  return `<button class="cand${c.id===p.id&&chgSlots.has(i)?" just":""}" data-id="${c.id}" aria-current="${c.id===p.id}">`+
-    `<span class="nm"><b>${esc(c.name)}</b><span class="sub">${others}</span></span>`+
-    `<span class="chips">${chips}</span></button>`;
+  const cur=c.id===p.id;
+  const chips=deptChip(c.dept)+`<span class="chip">${c.level?`<span class="rl${c.role==="baito"?" pn":""}">${ROLE[c.role]}・</span>Lv${c.level}`:"見習い"}</span>`+
+    (c.closer?'<span class="chip ok" title="締め">締</span>':"")+(nb?'<span class="chip warn" title="前後の時間も担当（3時間続く）">連続</span>':"");
+  return `<button class="cand${cur&&chgSlots.has(i)?" just":""}" data-id="${c.id}" aria-current="${cur}">`+
+    `<span class="nm"><b>${cur?'<span class="now">✓</span>':""}${esc(c.name)}</b><span class="sub">${others}</span></span>`+
+    `<span class="chips">${chips}</span><span class="line2">${miniBar(c,i)}<span class="sub" title="${others}">${others}</span></span></button>`;
+}
+// スマホ用：その人の1日（出勤・ほかのレジ・いま選んでいる時間）を小さい横棒で。右のシフトが下に隠れるため
+function miniBar(c,i){
+  return `<span class="mini" aria-hidden="true">`+plan.map((q,k)=>{
+    const on=q.present.some(x=>x.id===c.id);
+    return `<i class="cell ${q.id===c.id?"reg":q.tid===c.id?"trn":on?"on":""}${k===i?" col":""}"></i>`;   // 右のシフト（personRow）と同じ塗り分け
+  }).join("")+`</span>`;
 }
 // 見習いを一緒に入れる：その1時間ずっといる見習い（レベル0）だけを並べる
 function renderTraineePick(i,p){
@@ -1546,9 +1572,11 @@ function renderTraineePick(i,p){
   el.innerHTML=`<h3>見習いを一緒に入れる <span class="muted" style="font-weight:400;font-size:.85rem">担当の人がサポートして2人で入ります</span></h3>`+
     ts.map(c=>{
       const at=plan.filter(q=>q.tid===c.id&&q.i!==i).map(q=>q.h+"時");
-      return `<button class="cand trn" data-id="${c.id}" aria-current="${c.id===p.tid}">`+
-        `<span class="nm"><b>${esc(c.name)}</b><span class="sub">${at.length?`ほかに${at.join("・")}`:"ほかは0回"}</span></span>`+
-        `<span class="chips">${deptChip(c.dept)}<span class="chip">見習い</span></span></button>`;
+      const others=at.length?`ほかに${at.join("・")}`:"ほかは0回", cur=c.id===p.tid;
+      return `<button class="cand trn" data-id="${c.id}" aria-current="${cur}">`+
+        `<span class="nm"><b>${cur?'<span class="now">✓</span>':""}${esc(c.name)}</b><span class="sub">${others}</span></span>`+
+        `<span class="chips">${deptChip(c.dept)}<span class="chip">見習い</span></span>`+
+        `<span class="line2">${miniBar(c,i)}<span class="sub" title="${others}">${others}</span></span></button>`;
     }).join("")+
     (p.tid?`<button class="btn" id="sheet-trn-off">見習いを外す</button>`:"");
 }
