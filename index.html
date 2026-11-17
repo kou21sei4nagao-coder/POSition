@@ -250,6 +250,13 @@ td select{min-height:38px;padding:4px 8px}
 .qr{background:#fff;border-radius:12px;padding:12px;width:min(240px,70vw);margin:4px auto 0;line-height:0}
 .qr svg{width:100%;height:auto;display:block}
 .qr.big{width:min(440px,84vw)}
+.beta{font-size:.62em;font-weight:700;margin-left:3px;letter-spacing:.02em;color:var(--warn);vertical-align:1px}
+.share-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 8px;cursor:pointer;min-height:44px}
+.share-opt b{font-size:1rem}
+.share-opt span{font-size:.82rem;color:var(--muted)}
+.share-opt:first-child{border:2px solid var(--accent)}
+.step-note{margin:0;padding:8px 12px;border-left:3px solid var(--accent);background:var(--soft);border-radius:0 8px 8px 0;font-size:.9rem}
+.todo-editing #todo-qr-in,.todo-editing #todo-rules,.todo-editing #todo-edit-box{display:none}
 .qr-in{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:.9rem;color:var(--muted)}
 .cam[hidden]{display:none}
 .cam{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:4/3;width:100%}
@@ -368,6 +375,108 @@ details.howto[open]>summary{margin-bottom:4px}
   .cam-frame{transition:border-color .12s,transform .18s ease-out}
   .cam-frame.ok{transform:translate(-50%,-50%) scale(1.04)}
 }
+/* TODO表：紙の作業表と同じ並び（黄色＝リーダーの仕事、赤字＝注意） */
+:root{--todo-head:#1d58b8;--todo-head-ink:#fff;--todo-red:#c0261b;--todo-mix:45%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--todo-head:#2c5aa6;--todo-red:#ff8a80;--todo-mix:18%}}
+:root[data-theme="dark"]{--todo-head:#2c5aa6;--todo-red:#ff8a80;--todo-mix:18%}
+.todo-sheet{display:flex;flex-direction:column;gap:12px}
+.todo-title{display:none}
+.tsec{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tsec-head{background:var(--todo-head);color:var(--todo-head-ink);font-weight:700;padding:8px 14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px}
+.tsec-head span{font-weight:500;font-size:.8rem;opacity:.9}
+.ttable{min-width:0;table-layout:fixed}
+.ttable th{padding:6px 10px}
+.ttable td{padding:6px 10px;vertical-align:middle}
+.ttable col.c-who{width:11em}.ttable col.c-chk{width:5em}
+.ttable tr.bgc td{background:color-mix(in srgb,var(--rowc) var(--todo-mix),var(--surface))}
+/* 編集：画面の上で直接 */
+.tedit-top{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;background:var(--surface);border:1px dashed var(--accent);border-radius:12px;padding:10px 14px}
+.tedit-top select{min-height:40px;margin:0 6px;font:inherit;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:4px 6px}
+.tedit-early{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px}
+.tsec-head.ed{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px}
+.tsec-head.ed input,.tsec-head.ed select{font:inherit;border-radius:8px;border:1px solid rgb(255 255 255 / .5);background:rgb(255 255 255 / .95);color:#14243a;min-height:40px;padding:4px 8px}
+.tsec-head.ed .ts-name{flex:1 1 240px;font-weight:700;min-width:0}
+.ts-cond{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ts-lbl{font-size:.75rem;font-weight:700;opacity:.9}
+.ts-ops{display:flex;gap:4px;margin-left:auto}
+.ts-ops button{font:inherit;font-weight:700;min-width:40px;min-height:40px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.ts-ops button:disabled{opacity:.35;cursor:default}
+.ts-ops .del{color:var(--bad);padding:0 10px}
+.ts-ops .del.armed{background:var(--bad);color:#fff;border-color:var(--bad)}
+.ti{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}
+.ti.bgc{background:color-mix(in srgb,var(--rowc) var(--todo-mix),var(--surface))}
+.ti-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px}
+.ti-main input,.ti-main textarea{font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);padding:6px 8px;min-height:40px;width:100%;box-sizing:border-box;resize:none}
+.ti-name{font-weight:700}
+.ti.red .ti-name,.ti.rednote .ti-note{color:var(--todo-red)}
+.ti-note{font-size:.85rem;overflow:hidden}
+.ti-opts{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.ti-who{display:flex;align-items:center;gap:6px}
+.ti-who select{min-height:40px;font:inherit;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:4px 6px}
+.tg-l{font-size:.72rem;color:var(--muted);font-weight:700;margin-right:2px}
+.sws{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.sw{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--sw);cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);position:relative}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.sw-none{background:var(--surface)}
+.sw-pick{background:conic-gradient(#f55,#fd5,#5d5,#5df,#55f,#f5f,#f55);color:#fff;font-weight:800;font-size:.9rem;text-shadow:0 0 2px #000}
+.sw-pick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.tg{display:inline-flex;align-items:center;gap:0}
+.tg button{font:inherit;font-weight:700;font-size:.85rem;min-height:36px;min-width:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tg button+button{border-left:0}
+.tg .tg-l+button{border-radius:8px 0 0 8px}.tg button:last-child{border-radius:0 8px 8px 0}
+.tg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tg button.tg-red[aria-pressed="true"]{background:var(--todo-red);color:#fff;border-color:var(--todo-red)}
+.tsec-ed>.btn.add{margin:8px 12px 12px;align-self:flex-start}
+.tsec-ed{display:flex;flex-direction:column}
+.todo-sheet>.btn.add{align-self:flex-start}
+@media (max-width:640px){
+  .ti-main{grid-template-columns:1fr}
+  .ts-ops{margin-left:0}
+  .tsec-head.ed .ts-name{flex-basis:100%}
+}
+.ttable .tn{font-weight:700}
+.ttable tr.red .tn,.ttable tr.rednote .tnote,.ttable tr.rednote .nt-in{color:var(--todo-red)}
+.ttable .tnote{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.ttable .nt-in{display:none;font-size:.75rem;font-weight:400;color:var(--muted)}
+.ttable select{width:100%;min-height:40px;font:inherit;font-weight:700;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:4px 6px}
+.ttable select.man{border:2px solid var(--accent)}
+.ttable select.none{color:var(--bad);border-color:var(--bad)}
+.ttable .pv{display:none}
+.ttable .tw-warn{display:block;color:var(--warn);font-size:.72rem;font-weight:700;margin-top:2px}
+.ttable .man-tag{display:block;color:var(--accent);font-size:.72rem;font-weight:700;margin-top:2px}
+.todo-fmt{min-width:0;font-size:.8rem}
+.todo-fmt code{font-family:var(--font-mono);font-size:.78rem;background:var(--soft);border-radius:4px;padding:0 4px;white-space:nowrap}
+.todo-fmt td{font-size:.8rem}
+@media (max-width:640px){   /* スマホ：確認者の欄は省き、チェック項目は項目名の下に */
+  .ttable col.c-chk,.ttable .tc,.ttable col.c-note,.ttable .tnote{display:none}
+  .ttable .nt-in{display:block}
+  .ttable col.c-who{width:8.5em}
+}
+/* 印刷：TODO表だけを、紙と同じ色で */
+@media print{   /* TODOタブを開いているときだけ、TODO表だけを印刷する（ほかのタブは今までどおり） */
+  @page{size:A4 portrait;margin:10mm}
+  body:has(#p-todo:not([hidden])){background:#fff!important;color:#000!important;padding:0}
+  body:has(#p-todo:not([hidden])) *{visibility:hidden}
+  body:has(#p-todo:not([hidden])) #todo-sheet,body:has(#p-todo:not([hidden])) #todo-sheet *{visibility:visible}
+  body:has(#p-todo:not([hidden])) #todo-sheet{position:absolute;left:0;top:0;width:100%;gap:4px}
+  body:has(#p-todo:not([hidden])) .todo-title{display:block;text-align:right;font-weight:700;font-size:11pt;margin:0}
+  body:has(#p-todo:not([hidden])) .tsec{border:1px solid #000;border-radius:0;background:#fff;break-inside:avoid}
+  body:has(#p-todo:not([hidden])) .tsec-head{background:#1d58b8!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:1px 8px;font-size:10pt}
+  body:has(#p-todo:not([hidden])) .ttable th,body:has(#p-todo:not([hidden])) .ttable td{color:#000;border-top:1px solid #000;padding:1px 5px;font-size:8.5pt;line-height:1.3}
+  body:has(#p-todo:not([hidden])) .ttable col.c-who{width:15%}
+  body:has(#p-todo:not([hidden])) .ttable col.c-chk{width:9%}
+  body:has(#p-todo:not([hidden])) .ttable col.c-note{width:42%}
+  body:has(#p-todo:not([hidden])) .ttable th{font-size:7pt}
+  body:has(#p-todo:not([hidden])) .ttable td+td,body:has(#p-todo:not([hidden])) .ttable th+th{border-left:1px solid #000}
+  body:has(#p-todo:not([hidden])) .ttable tr.bgc td{background:var(--rowc)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body:has(#p-todo:not([hidden])) .ttable tr.red .tn,body:has(#p-todo:not([hidden])) .ttable tr.rednote .tnote{color:#d00000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body:has(#p-todo:not([hidden])) .ttable col.c-chk,body:has(#p-todo:not([hidden])) .ttable .tc,body:has(#p-todo:not([hidden])) .ttable col.c-note,body:has(#p-todo:not([hidden])) .ttable .tnote{display:table-cell}
+  body:has(#p-todo:not([hidden])) .ttable col.c-chk,body:has(#p-todo:not([hidden])) .ttable col.c-note{display:table-column}
+  body:has(#p-todo:not([hidden])) .ttable .nt-in,body:has(#p-todo:not([hidden])) .ttable select,body:has(#p-todo:not([hidden])) .ttable .tw-warn,body:has(#p-todo:not([hidden])) .ttable .man-tag{display:none!important}
+  body:has(#p-todo:not([hidden])) .ttable .pv{display:inline;font-weight:700}
+  body:has(#p-todo:not([hidden])) .ttable .tnote{color:#000;font-size:7.5pt;line-height:1.25}
+}
+
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:700;z-index:30}
 
 /* =========================================================
@@ -380,7 +489,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v66</span> · <span id="app-date">11/11</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v73</span> · <span id="app-date">11/17</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -389,6 +498,7 @@ details.howto[open]>summary{margin-bottom:4px}
   <div class="tabs" role="tablist">
     <button role="tab" id="tab-day" aria-selected="true">今日のシフト</button>
     <button role="tab" id="tab-plan" aria-selected="false">レジ番表</button>
+    <button role="tab" id="tab-todo" aria-selected="false">TODO<span class="beta">(BETA)</span></button>
     <button role="tab" id="tab-roster" aria-selected="false">名簿</button>
   </div>
 
@@ -489,6 +599,51 @@ details.howto[open]>summary{margin-bottom:4px}
       <p class="muted">① 手動で固定した時間 → ② 締め（閉店前の最後の1時間） → ③ 入れる人が少ない時間帯から順に。人の少ない時間に、入れる人を残しておくためです。</p>
       <h3>③ 手動変更</h3>
       <p class="muted">①②より強いルールです。タップして決めた担当はそのまま固定され、ほかの時間が組み直されます。</p>
+    </details>
+  </section>
+
+  <!-- TODO表 -->
+  <section class="panel" id="p-todo" hidden>
+    <div class="bar">
+      <b id="todo-date"></b>
+      <button class="btn" id="todo-edit" style="margin-left:auto">項目を編集</button>
+      <button class="btn" id="todo-undo" hidden>編集前に戻す</button>
+      <button class="btn" id="todo-reset">手動変更をリセット</button>
+      <button class="btn" id="todo-print">印刷</button>
+      <button class="btn primary" id="todo-copy">テキストでコピー</button>
+    </div>
+    <div class="notice" id="todo-warn" hidden></div>
+    <div id="todo-sheet" class="todo-sheet"></div>
+    <p class="muted" style="margin:0">実施者は、レジ番と同じ出勤者から自動で決まります。名前をタップすると選び直せます（選んだ人は「手動」になり、ほかの項目が組み直されます）。区分の名前・対象の時刻・項目・色は「項目を編集」で直せます。</p>
+    <div class="qr-in" id="todo-qr-in"><span>別のiPad・ほかの店とTODOの項目をやり取りするときは、QRコードが簡単です（名前は入りません）</span><span class="bar" style="margin:0"><button class="btn primary" id="tq-send">QRで渡す</button><button class="btn" id="tq-recv">QRで受け取る</button></span></div>
+    <details class="rules" id="todo-rules">
+      <summary>決め方を見る</summary>
+      <table>
+        <tr><th>項目</th><th>決め方</th></tr>
+        <tr><td>担当が「リーダー」の項目</td><td>区分で決めた早番L・遅番Lが担当。早番Lの区分で早番Lがいない日は、遅番Lが担当</td></tr>
+        <tr><td>早番L</td><td>名簿で役職が「リーダー」の人のうち、<span class="todo-early"></span>より前に出勤した人（いちばん早い人）。時刻は「項目を編集」で変えられます</td></tr>
+        <tr><td>遅番L</td><td>役職が「リーダー」の人のうち、<span class="todo-late"></span>までいる人（いちばん遅くまでいる人）。時刻は「項目を編集」で変えられます。決めていなければ閉店時刻</td></tr>
+        <tr><td>そのほかの項目</td><td>区分の対象（出勤・退勤の時刻）に合う人から。リーダーは入れない。担当が部門の項目は、その部門の人から</td></tr>
+        <tr><td>偏らないように</td><td>① TODO の数が少ない人 → ② その日のレジの回数が少ない人 → ③ 日替わり の順</td></tr>
+        <tr><td>入らない人</td><td>店長（役職）、部門が「店長」「流通便」の人。見習い（レベル0）は自動では入れません（名前をタップすれば選べます）</td></tr>
+      </table>
+    </details>
+    <details class="rules" id="todo-edit-box">
+      <summary>テキストでまとめて書き換え（ほかの店と項目をやり取りするとき）</summary>
+      <p class="muted" style="margin:0 0 6px">ふだんは「項目を編集」で画面の上から直せます。ここは、項目をまとめて貼り付けたり、テキストで渡したりするときに使います。</p>
+      <table class="todo-fmt">
+        <tr><th>行</th><th>書き方</th><th>例</th></tr>
+        <tr><td>区分</td><td><code>#</code> 区分の名前 <code>|</code> 対象 <code>|</code> リーダーの項目を担当する人</td><td><code># 早番からの行動 | 12:00前に出勤 | 早番L</code></td></tr>
+        <tr><td>対象</td><td><code>12:00前に出勤</code>／<code>12:00以降に出勤</code>／<code>21:30までいる</code>／<code>遅番Lだけ</code>／<code>出勤者全員</code></td><td></td></tr>
+        <tr><td>項目</td><td>項目の名前 <code>|</code> 印 <code>|</code> チェック項目（空欄でも可）</td><td><code>ごみ捨て | | 事務所、各POS</code></td></tr>
+        <tr><td>印</td><td><code>リーダー</code>／部門名（<code>家電</code> など）／<code>色=#fff200</code>（背景）／<code>赤</code>（項目を赤字）／<code>赤メモ</code>（チェック項目を赤字）。<code>黄</code> は「リーダー＋黄色」</td><td><code>リーダー 色=#fff200 赤</code></td></tr>
+      </table>
+      <textarea id="todo-src" spellcheck="false" style="min-height:220px;font-family:var(--font-mono);font-size:.82rem"></textarea>
+      <div class="bar">
+        <button class="btn primary" id="todo-save">この内容で置き換える</button>
+        <button class="btn" id="todo-sample">見本に戻す</button>
+        <span class="muted" id="todo-msg"></span>
+      </div>
     </details>
   </section>
 
@@ -599,6 +754,18 @@ details.howto[open]>summary{margin-bottom:4px}
       <p class="muted">右側の「その日のシフト」で名前をタップすると、その人のレジの時間が強調されます。</p>
     </div>
 
+    <div class="hcard" id="h-todo">
+      <h3>TODO表（その日の作業の担当）<span class="beta">(BETA)</span></h3>
+      <p>「TODO」タブで、その日の作業ごとの実施者を、レジ番と同じ出勤者から自動で決めます。印刷すると紙の作業表と同じ形になります（確認者の欄は手書き用）。</p>
+      <table class="htable">
+        <tr><th>こうしたい</th><th>こうする</th></tr>
+        <tr><td>店の項目にする（最初だけ）</td><td>「TODO」タブの「項目を編集」。区分の名前・対象の時刻、項目の追加・削除・並べ替え・担当・背景の色・文字の色（黒・赤）を画面の上で直せます。このiPadの中だけに残ります</td></tr>
+        <tr><td>リーダーの項目</td><td>名簿の役職を「リーダー」にした人が担当。決めた時刻（はじめは12:00）より前に来たリーダーが早番L、決めた時刻（はじめは閉店時刻）までいるリーダーが遅番L</td></tr>
+        <tr><td>実施者を変える</td><td>名前をタップして選び直す。ほかの項目は組み直されます</td></tr>
+        <tr><td>別のiPad・ほかの店に項目を移す</td><td>「TODO」タブの「QRで渡す」→ 相手が「QRで受け取る」。名前は入りません。ファイル（名簿の書き出し）や「テキストでまとめて書き換え」の文でも渡せます</td></tr>
+      </table>
+    </div>
+
     <div class="hcard" id="h-setup">
       <h3><span class="tag">最初だけ</span>最初の準備</h3>
       <h4>1. 対応しているシフト表か確かめる</h4>
@@ -661,6 +828,7 @@ details.howto[open]>summary{margin-bottom:4px}
 
     <div class="hcard" id="h-backup">
       <h3>バックアップ・別のiPadで使う</h3>
+      <p style="margin:0"><b>右上の「共有」→「まとめて共有」</b>で、アプリ・名簿・TODOの項目をまとめて渡せます（① アプリのQR → ② 名簿とTODOのQR。相手は「QRで受け取る」で読み取り）。名簿だけ・TODOだけなら、それぞれのタブの「QRで渡す」。</p>
       <p style="margin:0">別のiPadに名簿を移すときは、<b>「QRで渡す」→ 相手が「QRで受け取る」</b>が簡単です。QRには名前とレベルが入っているので、読み取る人以外には見せないでください（1分で消えます）。</p>
       <p class="muted" style="margin:0">ファイルで残しておきたいときは：</p>
       <ol class="steps">
@@ -677,27 +845,35 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v66 · 11/11」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v73 · 11/17」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v66（2026年11月11日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v73（2026年11月17日 更新）</p>
   </section>
 </div>
 
 <div class="sheet" id="qsheet" hidden>
   <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="qsheet-title">
-    <h2 id="qsheet-title">このアプリを共有</h2>
-    <p class="muted" style="margin:0">ほかの人のiPadやスマホのカメラで読み取ると、このアプリが開きます。</p>
+    <h2 id="qsheet-title">共有</h2>
+    <div id="qs-menu">
+      <button class="share-opt" id="qs-all"><b>まとめて共有</b><span>アプリ・名簿・TODOの項目を、別のiPadにまとめて渡します。① アプリのQR → ② 名簿とTODOのQR の順に見せます</span></button>
+      <button class="share-opt" id="qs-app"><b>アプリを共有</b><span>アプリのURLのQRだけ。名前は入りません。人に教えるときはこちら</span></button>
+      <div class="bar"><button class="btn" id="qs-close0">閉じる</button></div>
+    </div>
+    <div id="qs-appview" hidden>
+    <p class="step-note" id="qs-step" hidden><b>① アプリを開いてもらう</b><br>受け取るiPadにまだアプリがなければ、このQRをカメラで読み取って開き、ホーム画面に追加してもらいます。もう入っていれば「次へ」。</p>
+    <p class="muted" style="margin:0" id="qs-lead">ほかの人のiPadやスマホのカメラで読み取ると、このアプリが開きます。</p>
     <div class="qr" id="qr-box" aria-label="アプリのURLのQRコード"></div>
     <p class="qr-url" id="qr-url"></p>
     <div class="bar">
       <button class="btn primary" id="qr-copy">リンクをコピー</button>
       <button class="btn" id="qr-share" hidden>ほかの方法で送る</button>
     </div>
-    <p class="muted" style="margin:0;font-size:.82rem">QRコードに入っているのはアプリのURLだけです。名簿やシフトは入っていません。名簿は相手のiPadで登録してもらってください。</p>
-    <div class="bar"><button class="btn" id="qsheet-close">閉じる</button></div>
+    <p class="muted" style="margin:0;font-size:.82rem">このQRコードに入っているのはアプリのURLだけです。名簿やシフトは入っていません。</p>
+    <div class="bar"><button class="btn primary" id="qs-next" hidden>次へ：② 名簿とTODOのQR</button><button class="btn" id="qs-back">戻る</button><button class="btn" id="qsheet-close">閉じる</button></div>
+    </div>
   </div>
 </div>
 
@@ -705,15 +881,15 @@ details.howto[open]>summary{margin-bottom:4px}
   <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="msheet-title">
     <h2 id="msheet-title">名簿をQRで渡す</h2>
     <div id="ms-ask">
-      <p style="margin:0 0 8px"><b>名前・部門・役職・レベル・締め・営業時間</b>が入ったQRコードを表示します。</p>
+      <p style="margin:0 0 8px" id="ms-what"></p>
       <ul class="steps" style="margin:0">
-        <li>受け取る人のiPadで「名簿」→「QRで受け取る」を開いてもらう</li>
+        <li>受け取る人のiPadで「名簿」か「TODO」の「QRで受け取る」を開いてもらう（どちらでも読めます）</li>
         <li>読み取る人以外には見せないでください。QRは<b>1分で自動的に消えます</b></li>
       </ul>
       <div class="bar"><button class="btn primary" id="ms-show">QRを表示する</button><button class="btn" id="ms-cancel">やめる</button></div>
     </div>
     <div id="ms-qr" hidden>
-      <div class="qr big" id="ms-box" aria-label="名簿のQRコード"></div>
+      <div class="qr big" id="ms-box" aria-label="共有のQRコード"></div>
       <p class="muted" id="ms-info" style="margin:0;text-align:center"></p>
       <div class="bar" style="justify-content:center"><button class="btn" id="ms-split">読み取りにくいときは分けて表示</button><button class="btn" id="ms-close">閉じる</button></div>
     </div>
@@ -722,9 +898,9 @@ details.howto[open]>summary{margin-bottom:4px}
 
 <div class="sheet" id="rsheet" hidden>
   <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="rsheet-title">
-    <h2 id="rsheet-title">名簿をQRで受け取る</h2>
+    <h2 id="rsheet-title">QRで受け取る（名簿・TODO）</h2>
     <div id="rs-scan">
-      <p class="muted" style="margin:0">渡す人のiPadで「名簿」→「QRで渡す」を開いてもらい、カメラを向けてください。</p>
+      <p class="muted" style="margin:0">渡す人のiPadで「QRで渡す」か「共有」→「まとめて共有」を開いてもらい、カメラを向けてください。</p>
       <div class="cam"><video id="rs-video" playsinline muted></video><span class="cam-frame" aria-hidden="true"></span></div>
       <p class="muted" id="rs-status" style="margin:0" aria-live="polite"></p>
       <div class="bar">
@@ -736,7 +912,7 @@ details.howto[open]>summary{margin-bottom:4px}
     <div id="rs-ok" hidden>
       <p style="margin:0" id="rs-summary"></p>
       <p class="note-bad" id="rs-warn"></p>
-      <div class="bar"><button class="btn primary" id="rs-apply">この名簿にする</button><button class="btn" id="rs-no">やめる</button></div>
+      <div class="bar"><button class="btn primary" id="rs-apply">取り込む</button><button class="btn" id="rs-no">やめる</button></div>
     </div>
   </div>
 </div>
@@ -793,7 +969,7 @@ const DEFAULT_DEPTS=["季節AV","家電","情報","通信"];
 const EXTRA_DEPTS=["店長","流通便"];                  // レジにもフロア人数にも入らない所属
 const WD="日月火水木金土";
 const SIDE_ORDER=[0,1,2,3,-1,4,5];                    // 右側の並び：4部門 → 部門未設定 → 店長・流通便
-const LS_ROSTER="position.roster", LS_DAY="position.day", LS_LOG="position.log";
+const LS_ROSTER="position.roster", LS_DAY="position.day", LS_LOG="position.log", LS_TODO="position.todo";
 
 
 // プラン（ボタンの並び順）
@@ -857,7 +1033,7 @@ let isSample=true;   // 名簿を登録するまでは例のデータ
 // edits.locks：手動で固定した担当 {枠の番号: id}。edits.trainees：担当と一緒に入る見習い {枠の番号: id}。breaks は以前の休憩機能の名残（古いデータとの互換のために残す）
 const emptyEdits=()=>({locks:{},breaks:[],trainees:{}});
 // times：その日だけ手で変えた出勤時間 {id: {start,end} または "off"（休み）}。シフト表の文字は書き換えない
-let day={date:"",text:"",edits:emptyEdits(),plan:"std",times:{}};
+let day={date:"",text:"",edits:emptyEdits(),plan:"std",times:{},todo:{}};   // todo：TODOの実施者を手で選んだもの {項目のキー: id か "-"（なし）}
 let plans={};        // プランごとのレジ番表
 let plan=[];         // 表示中のレジ番表
 let sheetSlot=null, chgSlots=new Set();   // 担当を選んでいる時間／担当が変わった時間（一瞬光らせる）
@@ -1349,6 +1525,7 @@ function refresh(){
   if(!plans[day.plan])day.plan="std";
   plan=plans[day.plan];
   renderDay();renderPlan();
+  try{renderTodo()}catch(e){console.error(e);const w=$("#todo-warn");if(w){w.hidden=false;w.textContent="TODO表を作れませんでした。「項目を編集」で項目を見直してください"}}   // TODOで何かあっても、レジ番は止めない
 }
 function saveRoster(){if(!isSample)lsSet(LS_ROSTER,JSON.stringify(roster))}
 function saveDay(){if(!isSample)lsSet(LS_DAY,JSON.stringify(day))}
@@ -1358,11 +1535,12 @@ function saveDay(){if(!isSample)lsSet(LS_DAY,JSON.stringify(day))}
    ========================================================= */
 let lastTab="day";   // 使い方を閉じたときに戻るタブ
 function showTab(name){
-  ["day","plan","roster"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
+  ["day","plan","todo","roster"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
   $("#p-help").hidden=name!=="help";
   if(name==="help"){window.scrollTo(0,0);return}
   lastTab=name;
   if(sheetSlot!=null)closeSheet(true);
+  if(name!=="todo"&&todoEditing){todoEditing=false;todoUndo=null}   // 編集したままほかのタブへ行ったら、編集を終える（変えた所は保存済み）
   if(name==="roster")renderRoster(); else refresh();
 }
 $("#help-open").onclick=()=>showTab("help");
@@ -1378,12 +1556,29 @@ function qrSvg(text,ec="M",binary=false){
   for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m},${r+m}h1v1h-1z`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges" role="img" aria-label="QRコード"><rect width="${size}" height="${size}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
 }
-$("#share-open").onclick=()=>{
+// 右上の「共有」：まとめて共有 か アプリを共有 かを選ぶ
+let qsAll=false;
+function showAppQr(all){
+  qsAll=all;
   const u=appUrl();
   $("#qr-box").innerHTML=qrSvg(u); $("#qr-url").textContent=u;
   $("#qr-share").hidden=!navigator.share;
+  $("#qs-menu").hidden=true;$("#qs-appview").hidden=false;
+  $("#qs-step").hidden=!all;$("#qs-next").hidden=!all;$("#qs-lead").hidden=all;
+  $("#qsheet-title").textContent=all?"まとめて共有":"アプリを共有";
+}
+$("#share-open").onclick=()=>{
+  $("#qs-menu").hidden=false;$("#qs-appview").hidden=true;$("#qsheet-title").textContent="共有";
   $("#qsheet").hidden=false;
 };
+$("#qs-app").onclick=()=>showAppQr(false);
+$("#qs-all").onclick=()=>{
+  if(isSample){toast("名簿を登録してから共有してください（アプリだけなら「アプリを共有」）");return}
+  showAppQr(true);
+};
+$("#qs-back").onclick=()=>{$("#qs-menu").hidden=false;$("#qs-appview").hidden=true;$("#qsheet-title").textContent="共有"};
+$("#qs-close0").onclick=()=>{$("#qsheet").hidden=true};
+$("#qs-next").onclick=()=>{$("#qsheet").hidden=true;openShare("all")};
 $("#qr-copy").onclick=async()=>{
   try{await navigator.clipboard.writeText(appUrl());toast("リンクをコピーしました")}
   catch{toast("コピーできませんでした。下のURLを長押ししてコピーしてください")}
@@ -1397,14 +1592,15 @@ $("#help-close").onclick=()=>showTab(lastTab);
 $("#tab-day").onclick=()=>showTab("day");
 $("#tab-plan").onclick=()=>showTab("plan");
 $("#tab-roster").onclick=()=>showTab("roster");
+$("#tab-todo").onclick=()=>showTab("todo");
 
 let pasteTimer=null;
 $("#day-paste").addEventListener("input",e=>{
   clearTimeout(pasteTimer);
-  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits=emptyEdits();day.times={};saveDay();renderDay()},200);
+  pasteTimer=setTimeout(()=>{day.text=e.target.value;day.edits=emptyEdits();day.times={};day.todo={};saveDay();renderDay()},200);
 });
 $("#day-clear").onclick=()=>{
-  $("#day-paste").value="";day.text="";day.edits=emptyEdits();day.times={};saveDay();renderDay();$("#day-paste").focus();toast("消しました");
+  $("#day-paste").value="";day.text="";day.edits=emptyEdits();day.times={};day.todo={};saveDay();renderDay();$("#day-paste").focus();toast("消しました");
 };
 $("#day-date").onchange=e=>{day.date=e.target.value;saveDay();refresh()};
 $("#to-plan").onclick=()=>{day.text=$("#day-paste").value;saveDay();showTab("plan")};
@@ -1424,7 +1620,7 @@ $("#roster-load").onclick=()=>{
   if(!prev&&r.groups===4)Object.values(r.staff).forEach(s=>{s.dept=s.group});
   if(!prev&&roster?.hours)r.hours=roster.hours;   // 例のデータで試した営業時間は引き継ぐ
   roster=r;isSample=false;applyHours();
-  if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std",times:{}};$("#day-paste").value=""}
+  if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std",times:{},todo:{}};$("#day-paste").value=""}
   saveRoster();saveDay();renderRoster();
   $("#roster-paste").value="";
   $("#roster-msg").textContent=prev?
@@ -1653,7 +1849,7 @@ $("#tsheet").addEventListener("click",e=>{if(e.target.id==="tsheet")$("#tsheet")
 $("#export").onclick=()=>{
   if(isSample){toast("名簿を登録してから書き出してください");return}
   const stamp=todayStr().replace(/-/g,"");
-  const blob=new Blob([JSON.stringify({app:"position",version:2,roster},null,2)],{type:"application/json"});
+  const blob=new Blob([JSON.stringify({app:"position",version:2,roster,...(todoData?{todo:todoData}:{})},null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);a.download=`position-meibo-${stamp}.json`;
   document.body.appendChild(a);a.click();a.remove();
@@ -1668,7 +1864,7 @@ function useRoster(ro){
   applyHours();
   isSample=false;saveRoster();renderRoster();
   // 名簿や営業時間が変わると、固定した担当や今日の時間がずれるので消す（ファイルとQRで共通）
-  day.edits=emptyEdits();day.times={};saveDay();refresh();
+  day.edits=emptyEdits();day.times={};day.todo={};saveDay();refresh();
 }
 $("#import").onchange=e=>{
   const f=e.target.files[0];if(!f)return;
@@ -1677,8 +1873,10 @@ $("#import").onchange=e=>{
     try{
       const data=JSON.parse(rd.result);const ro=data.roster||data;
       if(!ro.staff||!Array.isArray(ro.order))throw 0;
+      const td=data.todo==null?null:loadTodo(typeof data.todo==="string"?data.todo:JSON.stringify(data.todo));
+      if(td){todoData=td;saveTodo()}   // TODOの項目も入っていれば戻す
       useRoster(ro);
-      toast(`${Object.keys(roster.staff).length}人分を復元しました`);
+      toast(`${Object.keys(roster.staff).length}人分を復元しました`+(td?"（TODOの項目も）":""));
     }catch(_){toast("このファイルは読み込めません。書き出したファイルを選んでください")}
     e.target.value="";
   };
@@ -1721,37 +1919,59 @@ function rosterFromText(t){
 // QRは画面いっぱいに表示するので、1000バイト（約100マス）までは1枚にする。
 // 1枚：「PQZ1」＋圧縮した名簿。大きすぎるときだけ数枚に分けて、順番に切り替えて見せる：
 // 「PQZ2」＋渡すたびに変わる4文字＋何枚目（1バイト）＋全部で何枚（1バイト）＋圧縮した名簿の一部
-const MQ_ONE_MAX=1000, MQ_PART_BYTES=280;
+const MQ_ONE_MAX=1000, MQ_PART_BYTES=280, MQ_BIG_PART=900;   // 受け取る側は大きさを問わずにつなぐので、古い版とも受け渡しできる
 const toBin=u8=>{let s="";for(const b of u8)s+=String.fromCharCode(b);return s};
 const fromBin=s=>Uint8Array.from(s,c=>c.charCodeAt(0)&255);
 // split=true：読み取りにくいとき用に、1枚に収まる大きさでも小さいQR数枚に分ける
 function rosterQrParts(text,split=false){
   const z=fflate.deflateSync(new TextEncoder().encode(text),{level:9});
   if(z.length<=(split?MQ_PART_BYTES:MQ_ONE_MAX))return ["PQZ1"+toBin(z)];
-  const sid=Math.random().toString(36).slice(2,6).padEnd(4,"0"), n=Math.ceil(z.length/MQ_PART_BYTES), out=[];
-  for(let i=0;i<n;i++)out.push("PQZ2"+sid+String.fromCharCode(i+1,n)+toBin(z.subarray(i*MQ_PART_BYTES,(i+1)*MQ_PART_BYTES)));
+  const per=split?MQ_PART_BYTES:Math.ceil(z.length/Math.ceil(z.length/MQ_BIG_PART));   // 1枚あたりを均等に（最後の1枚だけ小さくならないように）
+  const sid=Math.random().toString(36).slice(2,6).padEnd(4,"0"), n=Math.ceil(z.length/per), out=[];
+  for(let i=0;i<n;i++)out.push("PQZ2"+sid+String.fromCharCode(i+1,n)+toBin(z.subarray(i*per,(i+1)*per)));
   return out;
 }
 // ---- 渡す ----
 let msTimer=null,msFlip=null;
 function closeMs(){clearInterval(msTimer);clearInterval(msFlip);$("#ms-box").innerHTML="";$("#msheet").hidden=true;$("#msheet").classList.remove("full")}
-$("#mq-send").onclick=()=>{
-  if(isSample){toast("名簿を登録してから渡してください");return}
+// 渡すもの：roster（名簿）/ todo（TODOの項目）/ all（名簿＋TODO）
+let shareKind="roster";
+const TQ_HEAD="POSITION-TODO1", AQ_HEAD="POSITION-ALL1";
+function shareText(kind){
+  if(kind==="todo")return TQ_HEAD+"\n"+JSON.stringify(todoData);
+  if(kind==="all")return AQ_HEAD+"\n"+JSON.stringify({meibo:rosterToText(roster),todo:todoData||null});
+  return rosterToText(roster);
+}
+const todoCount=D=>D?D.secs.reduce((a,s)=>a+s.items.length,0):0;
+function openShare(kind){
+  if(kind!=="todo"&&isSample){toast("名簿を登録してから渡してください");return}
+  if(kind==="todo"&&!todoData){toast("TODOの項目を作ってから渡してください（いまは見本です）");return}
+  shareKind=kind;
+  const titles={roster:"名簿をQRで渡す",todo:"TODOの項目をQRで渡す",all:"② 名簿とTODOをQRで渡す"};
+  $("#msheet-title").textContent=titles[kind];
+  $("#ms-what").innerHTML=kind==="todo"?`<b>TODOの区分・項目・色・早番L/遅番Lの時刻</b>が入ったQRコードを表示します。名前は入りません。`:
+    kind==="all"?`<b>名簿（名前・部門・役職・レベル・締め・営業時間）</b>と<b>${todoData?"TODOの項目":"（TODOは見本のままなので入れません）"}</b>が入ったQRコードを表示します。`:
+    `<b>名前・部門・役職・レベル・締め・営業時間</b>が入ったQRコードを表示します。`;
+  if(kind!=="roster")$("#ms-what").innerHTML+=`<br><span class="muted">※ 受け取る側のiPadも、左上が v70 以降になっていることを確かめてください（古い版では読めません）。</span>`;
   $("#ms-ask").hidden=false;$("#ms-qr").hidden=true;$("#msheet").hidden=false;
-};
+}
+$("#mq-send").onclick=()=>openShare("roster");
+$("#tq-send").onclick=()=>openShare("todo");
 let msSplit=false,msLeft=0;
 // 名簿のQRを表示する（split：分けて表示するか）。残り時間は切り替えても続ける
 function showRosterQr(split){
   let svgs;
   // 画面どうしで読むので誤り訂正は低くてよい（その分マスが減る）
-  try{svgs=rosterQrParts(rosterToText(roster),split).map(t=>qrSvg(t,"L",true))}
-  catch(_){toast("名簿が大きすぎてQRにできません。「書き出し」とAirDropを使ってください");closeMs();return}
+  const text=shareText(shareKind);
+  try{svgs=rosterQrParts(text,split).map(t=>qrSvg(t,"L",true))}
+  catch(_){toast("大きすぎてQRにできません。「名簿」の「書き出し」とAirDropを使ってください");closeMs();return}
   msSplit=split;
-  let k=0;const n=Object.keys(roster.staff).length,m=svgs.length;
+  let k=0;const m=svgs.length;
+  const what=shareKind==="todo"?`TODOの項目（${todoCount(todoData)}項目）です`:shareKind==="all"?`${Object.keys(roster.staff).length}人分の名簿${todoData?`とTODOの項目（${todoCount(todoData)}項目）`:""}です`:`${Object.keys(roster.staff).length}人分の名簿です`;
   const show=()=>{$("#ms-box").innerHTML=svgs[k];$("#ms-box").dataset.part=k+1;$("#ms-box").dataset.parts=m;k=(k+1)%m};
-  const tick=()=>{$("#ms-info").textContent=`${n}人分の名簿です`+(m>1?`（QR ${m}枚を順番に表示中。受け取る側はカメラを向けたままにしてください）`:"")+`。あと${msLeft}秒で消えます`;if(msLeft--<=0)closeMs()};
+  const tick=()=>{$("#ms-info").textContent=what+(m>1?`（QR ${m}枚を順番に表示中。受け取る側はカメラを向けたままにしてください）`:"")+`。あと${msLeft}秒で消えます`;if(msLeft--<=0)closeMs()};
   $("#ms-split").textContent=split?"1枚で表示に戻す":"読み取りにくいときは分けて表示";
-  $("#ms-split").hidden=!split&&rosterQrParts(rosterToText(roster),true).length===1;   // 分けても1枚なら出さない
+  $("#ms-split").hidden=!split&&rosterQrParts(text,true).length===1;   // 分けても1枚なら出さない
   show();tick();clearInterval(msTimer);clearInterval(msFlip);msTimer=setInterval(tick,1000);if(m>1)msFlip=setInterval(show,1300);
 }
 $("#ms-show").onclick=()=>{
@@ -1793,19 +2013,29 @@ function gotText(t){
     $("#rs-status").textContent=keep||"POSitionの名簿のQRではないようです。「QRで渡す」で出したQRを読み取ってください";
     return false;
   }
-  let r;
+  let got;
   try{
     if(!z)throw 0;
-    r=rosterFromText(new TextDecoder().decode(fflate.inflateSync(z)));
-  }catch(_){rsParts=null;$("#rs-status").textContent="POSitionの名簿のQRではないようです。「QRで渡す」で出したQRを読み取ってください";return false}
-  cancelAnimationFrame(rsLoop);rsLoop=0;rsFound=r;   // 読み取りは止める（カメラは、枠が光ってから止める）
-  const ids=Object.keys(r.staff),cnt={};
-  ids.forEach(id=>{const d=r.staff[id].dept;const k=d>=0?(r.depts[d]||DEFAULT_DEPTS[d]||"その他"):"部門なし";cnt[k]=(cnt[k]||0)+1});
-  const hrs=r.hours?`${r.hours.open}:00〜${r.hours.close}:00`:"9:00〜21:00";
-  $("#rs-summary").innerHTML=`<b>${ids.length}人分</b>の名簿を読み取りました。<br><span class="muted">${Object.entries(cnt).map(([k,v])=>`${esc(k)} ${v}人`).join("・")}／営業時間 ${hrs}</span>`;
-  const now=isSample?0:Object.keys(roster.staff).length;
-  $("#rs-warn").textContent=now?`このiPadの今の名簿（${now}人）は、この名簿に置き換わります。`:"このiPadに、この名簿を登録します。";
-  $("#rs-warn").className=now?"note-bad":"note-ok";
+    got=parseShared(new TextDecoder().decode(fflate.inflateSync(z)));
+  }catch(_){rsParts=null;$("#rs-status").textContent="POSitionの名簿・TODOのQRではないようです。「QRで渡す」で出したQRを読み取ってください";return false}
+  const r=got;
+  cancelAnimationFrame(rsLoop);rsLoop=0;rsFound=got;   // 読み取りは止める（カメラは、枠が光ってから止める）
+  const sum=[],warn=[];
+  if(got.roster){
+    const ro=got.roster, ids=Object.keys(ro.staff),cnt={};
+    ids.forEach(id=>{const d=ro.staff[id].dept;const k=d>=0?(ro.depts[d]||DEFAULT_DEPTS[d]||"その他"):"部門なし";cnt[k]=(cnt[k]||0)+1});
+    const hrs=ro.hours?`${ro.hours.open}:00〜${ro.hours.close}:00`:"9:00〜21:00";
+    sum.push(`<b>${ids.length}人分</b>の名簿<br><span class="muted">${Object.entries(cnt).map(([k,v])=>`${esc(k)} ${v}人`).join("・")}／営業時間 ${hrs}</span>`);
+    const now=isSample?0:Object.keys(roster.staff).length;
+    warn.push(now?`このiPadの今の名簿（${now}人）は、この名簿に置き換わります。`:"このiPadに、この名簿を登録します。");
+  }
+  if(got.todo){
+    sum.push(`<b>TODOの項目</b>（${got.todo.secs.length}区分・${todoCount(got.todo)}項目）`);
+    warn.push(todoData?"このiPadの今のTODOの項目は、置き換わります。":"このiPadに、このTODOの項目を登録します。");
+  }
+  $("#rs-summary").innerHTML=sum.join("<br>")+"<br>を読み取りました。";
+  $("#rs-warn").textContent=warn.join(" ");
+  $("#rs-warn").className=(got.roster&&!isSample)||(got.todo&&todoData)?"note-bad":"note-ok";
   const done=()=>{
     if(rsFound!==r)return;   // 閉じられた・やり直した
     stopCam();$(".cam-frame").classList.remove("ok");
@@ -1852,17 +2082,418 @@ $("#rs-photo").onchange=e=>{
   img.onerror=()=>{URL.revokeObjectURL(u);$("#rs-status").textContent="この写真は読み込めませんでした"};
   img.src=u;
 };
+// 読み取った中身：名簿だけ／TODOだけ／まとめて
+function parseShared(text){
+  const head=text.split("\n",1)[0];
+  if(head===MQ_HEAD)return {roster:rosterFromText(text)};
+  if(head===TQ_HEAD){const D=normTodo(JSON.parse(text.slice(TQ_HEAD.length+1)));if(!D.secs.length)throw new Error("empty");return {todo:D}}
+  if(head===AQ_HEAD){
+    const o=JSON.parse(text.slice(AQ_HEAD.length+1));
+    const out={roster:rosterFromText(o.meibo)};
+    if(o.todo&&Array.isArray(o.todo.secs)&&o.todo.secs.length)out.todo=normTodo(o.todo);
+    return out;
+  }
+  throw new Error("unknown");
+}
 $("#rs-apply").onclick=()=>{
   if(!rsFound)return;
-  const n=Object.keys(rsFound.staff).length;
-  useRoster(rsFound);
-  closeRs();showTab("roster");toast(`${n}人分の名簿を登録しました`);
+  const g=rsFound, msg=[];
+  todoEditing=false;todoUndo=null;   // 取り込んだら編集は終える
+  if(g.todo){todoData=g.todo;saveTodo();msg.push("TODOの項目")}
+  if(g.roster){msg.unshift(`${Object.keys(g.roster.staff).length}人分の名簿`);useRoster(g.roster)}
+  else refresh();
+  closeRs();showTab(g.roster?"roster":"todo");toast(msg.join("と")+"を登録しました");
 };
+$("#tq-recv").onclick=()=>$("#mq-recv").onclick();
 $("#rs-cancel").onclick=closeRs;
 document.addEventListener("touchstart",()=>{},{passive:true});   // iOSで :active（押し込み）を効かせる
 // アプリを離れたら（スリープ・ホーム画面に戻る）、名簿のQRを消し、カメラを止める
 document.addEventListener("visibilitychange",()=>{if(document.hidden){if(!$("#msheet").hidden)closeMs();if(!$("#rsheet").hidden&&!rsFound)closeRs()}});$("#rs-no").onclick=closeRs;
 $("#rsheet").addEventListener("click",e=>{if(e.target.id==="rsheet")closeRs()});
+
+/* =========================================================
+   TODO表：その日の作業の実施者を、レジ番と同じ出勤者から決める
+   項目は店ごとに違うので、アプリには見本だけを入れる（店の項目は端末の中だけに保存）
+   項目の形：{early:早番Lの基準(分), secs:[{name, cond:{type,t}, lead:"early"|"late", items:[{name,note,who,bg,red,redNote}]}]}
+     cond.type：startBefore（t より前に出勤）/ startFrom（t 以降に出勤）/ endFrom（t までいる）/ all / onlyLate / onlyEarly
+     who："any"（区分の対象の人）/ "leader" / "dept:0"〜"dept:3"
+   ========================================================= */
+const TODO_SAMPLE=[
+"# 例）朝の作業 | 12:00前に出勤 | 早番L",
+"例）開店前のチェック | 黄 | 例）鍵を受け取って確認",
+"例）雑巾の準備 | | 例）洗濯機コーナーから",
+"例）見積の確認・お客様に連絡 | 家電 赤メモ | 例）前レジのトレーを確認",
+"例）見積の確認・お客様に連絡 | 通信 赤メモ | 例）前レジのトレーを確認",
+"例）ごみ捨て | | 例）事務所・各レジ",
+"# 例）夕方の作業 | 12:00以降に出勤 | 早番L",
+"例）在庫の確認と印刷 | 黄 赤 | 例）0件でも画面を印刷",
+"例）事務所の掃除機がけ | 黄 | 例）床の掃除機がけとごみ拾い",
+"例）翌日の雑巾の準備 | |",
+"例）翌日のレジ番・TODOを作る | 黄 赤メモ |",
+"# 例）閉店の作業 | 21:30までいる | 遅番L",
+"例）ギフト券のチェック | | 例）枚数が日計表と合うか",
+"例）鍵のチェック（必ず2人で） | 赤 |",
+"例）ごみ捨て | | 例）事務所・各レジ",
+"# 例）役職者の作業 | 遅番Lだけ | 遅番L",
+"例）書類のチェック | 黄 赤 |"].join("\n");
+const TODO_YELLOW="#fff200";
+const TODO_COLORS=[["","なし"],["#fff200","黄"],["#9fd8ff","水色"],["#b6f0b0","緑"],["#ffc2d6","ピンク"],["#ffd08a","オレンジ"],["#d9d9d9","灰色"]];
+const COND_TYPES=[["startBefore","より前に出勤した人"],["startFrom","以降に出勤した人"],["endFrom","までいる人"],["all","出勤者全員"],["onlyLate","遅番Lだけ"],["onlyEarly","早番Lだけ"]];
+const condTimed=t=>t==="startBefore"||t==="startFrom"||t==="endFrom";
+let todoData=null;        // 保存した項目（null のときは見本）
+let todoEditing=false, todoUndo=null, todoDelArm={si:-1,t:0};
+const hm=(h,m)=>(+h)*60+(+(m||0));
+const HEX_RE=/^#[0-9a-f]{6}$/i;
+
+// ---------- テキスト ⇔ 項目 ----------
+// 区分「# 名前 | 対象 | 黄色を担当するリーダー」、項目「名前 | 印 | チェック項目」
+function parseTodo(text){
+  const secs=[],errs=[];let cur=null;
+  String(text||"").split(/\r?\n/).forEach((raw,n)=>{
+    const l=toHalf(raw).replace(/｜/g,"|").replace(/＃/g,"#").trim();
+    if(!l)return;
+    const isSec=l.startsWith("#");
+    const f=l.replace(/^#\s*/,"").split("|").map(x=>x.trim());
+    if(isSec){
+      const cond=f[1]||"",c={type:"all",t:720};let m;
+      if((m=cond.match(/(\d{1,2})(?::(\d{2}))?\s*(?:時)?\s*(?:より)?前に出勤/)))c.type="startBefore",c.t=hm(m[1],m[2]);
+      else if((m=cond.match(/(\d{1,2})(?::(\d{2}))?\s*(?:時)?\s*(?:以降|から)に?出勤/)))c.type="startFrom",c.t=hm(m[1],m[2]);
+      else if((m=cond.match(/(\d{1,2})(?::(\d{2}))?\s*(?:時)?\s*まで(?:いる|残る)/)))c.type="endFrom",c.t=hm(m[1],m[2]);
+      else if(/遅番\s*L?\s*だけ/i.test(cond))c.type="onlyLate";
+      else if(/早番\s*L?\s*だけ/i.test(cond))c.type="onlyEarly";
+      else if(cond&&!/全員/.test(cond))errs.push(`${n+1}行目：対象「${cond}」が読めません（例：12:00前に出勤）`);
+      cur={name:f[0]||"",cond:c,lead:/遅番/.test(f[2]||"")||c.type==="onlyLate"?"late":"early",items:[]};
+      secs.push(cur);return;
+    }
+    if(!cur){cur={name:"",cond:{type:"all",t:720},lead:"early",items:[]};secs.push(cur)}
+    const it={name:f[0],note:f[2]||"",who:"any",bg:"",red:false,redNote:false};
+    (f[1]||"").split(/[\s　,、]+/).filter(Boolean).forEach(t=>{
+      let m;
+      if(t==="黄"||t==="黄色"){it.who="leader";if(!it.bg)it.bg=TODO_YELLOW}
+      else if(t==="リーダー"||t==="L")it.who="leader";
+      else if((m=t.match(/^色[=:：](.+)$/))){const v=m[1];if(HEX_RE.test(v))it.bg=v.toLowerCase();else if(v==="なし")it.bg="";else{const c=TODO_COLORS.find(x=>x[1]===v);if(c)it.bg=c[0];else errs.push(`${n+1}行目：色「${v}」が読めません`)}}
+      else if(t==="赤")it.red=true;
+      else if(t==="赤メモ")it.redNote=true;
+      else{const d=deptOfMark(t);if(d!=null)it.who="dept:"+d;else errs.push(`${n+1}行目：印「${t}」が読めません（部門名・黄・赤・赤メモ・色=…）`)}
+    });
+    if(!it.name){errs.push(`${n+1}行目：項目の名前がありません`);return}
+    cur.items.push(it);
+  });
+  return {data:{early:720,late:null,secs},errs};
+}
+function todoToText(d){
+  const condText=c=>c.type==="startBefore"?fmt(c.t)+"前に出勤":c.type==="startFrom"?fmt(c.t)+"以降に出勤":c.type==="endFrom"?fmt(c.t)+"までいる":c.type==="onlyLate"?"遅番Lだけ":c.type==="onlyEarly"?"早番Lだけ":"出勤者全員";
+  const clean=s=>String(s||"").replace(/[|｜\n]/g," ");
+  return d.secs.map(s=>[`# ${clean(s.name)} | ${condText(s.cond)} | ${s.lead==="late"?"遅番L":"早番L"}`,
+    ...s.items.map(it=>{
+      const m=[];
+      if(it.who==="leader")m.push("リーダー");
+      else if(it.who.startsWith("dept:"))m.push(deptName(+it.who.slice(5)));
+      if(it.bg)m.push("色="+it.bg);
+      if(it.red)m.push("赤");if(it.redNote)m.push("赤メモ");
+      return `${clean(it.name)} | ${m.join(" ")} | ${clean(it.note)}`;
+    })].join("\n")).join("\n");
+}
+// 印の部門名（「季節」→「季節AV」のように、前の部分が合えばよい）
+function deptOfMark(t){
+  if(t==null)return null;
+  const ds=roster&&roster.depts||DEFAULT_DEPTS;
+  let k=ds.indexOf(t);
+  if(k<0)k=ds.findIndex(d=>d.startsWith(t)||t.startsWith(d));
+  if(k<0)k=DEFAULT_DEPTS.findIndex(d=>d===t||d.startsWith(t)||t.startsWith(d));   // 部門名を変えている店から受け取ったとき：元の名前でも探す
+  if(k<0){const m=toHalf(t).match(/^部門\s*([1-4])$/);if(m)k=+m[1]-1}                // 「部門1〜4」でも
+  return k<0?null:k;
+}
+// 保存してある形を読む（v67 はテキストで保存していた）
+function loadTodo(raw){
+  if(raw==null)return null;
+  try{const d=JSON.parse(raw);if(d&&Array.isArray(d.secs))return normTodo(d)}catch(e){}
+  const {data}=parseTodo(raw);return data.secs.length?data:null;
+}
+function normTodo(d){
+  const D={early:Number.isFinite(+d.early)?+d.early:720,late:d.late!=null&&Number.isFinite(+d.late)?+d.late:null,secs:[]};
+  (d.secs||[]).forEach(s=>{
+    const c=s.cond||{};
+    D.secs.push({name:String(s.name||""),cond:{type:COND_TYPES.some(x=>x[0]===c.type)?c.type:"all",t:Number.isFinite(+c.t)?+c.t:720},lead:s.lead==="late"?"late":"early",
+      items:(s.items||[]).map(it=>({name:String(it.name||""),note:String(it.note||""),who:/^(any|leader|dept:[0-3])$/.test(it.who)?it.who:"any",bg:HEX_RE.test(it.bg||"")?it.bg.toLowerCase():"",red:!!it.red,redNote:!!it.redNote}))});
+  });
+  return D;
+}
+const todoSample=()=>parseTodo(TODO_SAMPLE).data;
+// 遅番Lの基準：決めていなければ閉店時刻
+const todoLateT=D=>D.late!=null?D.late:storeHours().close*60;
+const todoGet=()=>todoData||todoSample();
+function saveTodo(){lsSet(LS_TODO,JSON.stringify(todoData))}
+
+// ---------- 実施者を決める ----------
+// TODOをする人：店長（役職）と、部門が店長・流通便の人は入れない
+const todoPeople=()=>presentPeople().filter(p=>p.role!=="manager"&&p.dept<4);
+function todoLeaders(ps,D){
+  const L=ps.filter(p=>p.role==="leader"), close=todoLateT(D), eb=D.early??720;
+  const early=L.filter(p=>p.start<eb).sort((a,b)=>a.start-b.start||a.name.localeCompare(b.name,"ja"))[0]||null;
+  const late=L.filter(p=>p.end>=close).sort((a,b)=>b.end-a.end||a.name.localeCompare(b.name,"ja"))[0]||null;
+  return {early,late};
+}
+function inTodoSec(p,c){
+  if(c.type==="startBefore")return p.start<c.t;
+  if(c.type==="startFrom")return p.start>=c.t;
+  if(c.type==="endFrom")return p.end>=c.t;
+  return true;
+}
+const onlyOf=c=>c.type==="onlyLate"?"late":c.type==="onlyEarly"?"early":null;
+// 手で選んだもの → リーダーの項目 → 部門の項目 → そのほか の順
+function buildTodo(){
+  const D=todoGet(), secs=D.secs;
+  const ps=todoPeople(), ld=todoLeaders(ps,D), byId=Object.fromEntries(ps.map(p=>[p.id,p]));
+  const ed=day.todo||{}, cnt={}, regN={}, seed=day.date||"";
+  ps.forEach(p=>cnt[p.id]=0);
+  plan.forEach(q=>{if(q.id)regN[q.id]=(regN[q.id]||0)+1});
+  const rows=[], seen={};
+  secs.forEach((s,si)=>s.items.forEach((it,ii)=>{
+    let key=si+":"+it.name;seen[key]=(seen[key]||0)+1;if(seen[key]>1)key+="#"+seen[key];   // 同じ区分に同じ名前があっても区別する
+    const dept=it.who.startsWith("dept:")?+it.who.slice(5):null;
+    rows.push({key,s,si,ii,it,dept,id:null,man:false,warn:""});
+  }));
+  const pick=pool=>pool.slice().sort((a,b)=>cnt[a.id]-cnt[b.id]||(regN[a.id]||0)-(regN[b.id]||0)||dayHash(seed+a.id)-dayHash(seed+b.id))[0]||null;
+  const give=(r,p)=>{r.id=p?p.id:null;if(p)cnt[p.id]++};
+  rows.forEach(r=>{
+    const v=ed[r.key];
+    if(v==="-"){r.man=true;return}
+    if(v&&byId[v]){r.man=true;give(r,byId[v])}
+  });
+  const auto=rows.filter(r=>!r.man);
+  auto.forEach(r=>{
+    const o=onlyOf(r.s.cond);
+    if(o){const L=ld[o];give(r,L);if(!L)r.warn=o==="late"?"締めまでいるリーダーがいません":"早番のリーダーがいません";return}
+    if(r.it.who!=="leader")return;
+    const L=r.s.lead==="late"?ld.late:(ld.early||ld.late);   // 早番Lがいない日は遅番L
+    give(r,L);
+    if(!L)r.warn=r.s.lead==="late"?"締めまでいるリーダーがいません":"リーダーがいません";
+  });
+  const rest=auto.filter(r=>!onlyOf(r.s.cond)&&r.it.who!=="leader");
+  [...rest.filter(r=>r.dept!=null),...rest.filter(r=>r.dept==null)].forEach(r=>{
+    const all=ps.filter(p=>inTodoSec(p,r.s.cond)&&p.level!==0), pool=all.filter(p=>p.role!=="leader");   // 見習い（レベル0）は自動では入れない（レジ番と同じ。手で選ぶことはできる）
+    let cand=pool;
+    if(r.dept!=null){
+      const dp=pool.filter(p=>p.dept===r.dept);
+      if(dp.length)cand=dp;else r.warn=`${deptName(r.dept)}の人がいないので、ほかの部門から`;
+    }
+    if(!cand.length){cand=all;if(all.length)r.warn="対象の人がリーダーしかいません"}
+    const p=pick(cand);give(r,p);
+    if(!p)r.warn="対象の人がいません（区分の条件を確認）";
+  });
+  return {D,secs,rows,ps,ld,cnt};
+}
+
+// ---------- 表示 ----------
+let todoLast=null;
+const condLabel=c=>condTimed(c.type)?fmt(c.t)+(COND_TYPES.find(x=>x[0]===c.type)[1]):COND_TYPES.find(x=>x[0]===c.type)[1];
+const rowStyle=it=>it.bg?` style="--rowc:${it.bg}"`:"";
+function renderTodo(){
+  const T=todoLast=buildTodo();
+  $("#todo-date").textContent=dateLabel()+" のTODO";
+  document.querySelectorAll(".todo-close").forEach(e=>e.textContent=storeHours().close+":00");
+  document.querySelectorAll(".todo-early").forEach(e=>e.textContent=fmt(T.D.early??720));
+  document.querySelectorAll(".todo-late").forEach(e=>e.textContent=fmt(todoLateT(T.D))+(T.D.late==null?"（閉店時刻）":""));
+  const nMan=T.rows.filter(r=>r.man).length;
+  $("#todo-reset").disabled=!nMan||todoEditing;
+  $("#todo-reset").textContent=nMan?`手動変更をリセット（${nMan}件）`:"手動変更をリセット";
+  $("#p-todo").classList.toggle("todo-editing",todoEditing);
+  $("#todo-edit").textContent=todoEditing?"編集を終わる":"項目を編集";
+  $("#todo-edit").classList.toggle("primary",todoEditing);
+  $("#todo-undo").hidden=!todoEditing;
+  $("#todo-undo").disabled=!todoEditing||todoUndo===JSON.stringify(todoData);
+  $("#todo-print").hidden=$("#todo-copy").hidden=$("#todo-reset").hidden=todoEditing;
+  const warn=[];
+  if(todoData==null)warn.push("いまは見本の項目です。「項目を編集」で、店の項目に書き換えてください。");
+  if(!todoEditing&&!T.ld.early&&!T.ld.late&&T.ps.length)warn.push("名簿の役職が「リーダー」の人が今日いません。リーダーの項目は手で選んでください。");
+  $("#todo-warn").hidden=!warn.length;$("#todo-warn").innerHTML=warn.map(esc).join("<br>");
+  if(todoEditing){renderTodoEdit(T);return}
+  const name=id=>id&&roster.staff[id]?roster.staff[id].name:"";
+  const leadLabel=s=>onlyOf(s.cond)?"":`リーダー項目の担当：${s.lead==="late"?"遅番L":"早番L"}`+
+    `（${(s.lead==="late"||!T.ld.early)?(T.ld.late?T.ld.late.name:"いない"):T.ld.early.name}）`;
+  $("#todo-sheet").innerHTML=`<p class="todo-title">${esc(dateLabel())} 分</p>`+T.secs.map((s,si)=>{
+    const rs=T.rows.filter(r=>r.si===si);
+    return `<div class="tsec"><div class="tsec-head">${esc(s.name||"（区分の名前なし）")}<span>${esc([condLabel(s.cond),leadLabel(s)].filter(Boolean).join("・"))}</span></div>`+
+    `<table class="ttable"><colgroup><col><col class="c-who"><col class="c-chk"><col class="c-note"></colgroup>`+
+    `<thead><tr><th>項目</th><th>実施者</th><th class="tc">確認者</th><th class="tnote">チェック項目</th></tr></thead><tbody>`+
+    (rs.map(r=>todoRow(r,T,name)).join("")||`<tr><td colspan="4" class="muted">項目がありません</td></tr>`)+`</tbody></table></div>`;
+  }).join("")||`<p class="muted">項目がありません。「項目を編集」で足してください。</p>`;
+}
+function todoRow(r,T,name){
+  const it=r.it, cur=r.id, o=onlyOf(r.s.cond);
+  // 選べる人：区分の条件に合う人を先に、ほかの出勤者は後ろに
+  const ok=T.ps.filter(p=>o?p.role==="leader":inTodoSec(p,r.s.cond)), others=T.ps.filter(p=>!ok.includes(p));
+  const opt=p=>`<option value="${p.id}" ${r.man&&cur===p.id?"selected":""}>${esc(p.name)}${p.role==="leader"?"（L）":p.level===0?"（見習い）":""}・${T.cnt[p.id]||0}件</option>`;
+  const autoLabel=r.man?"自動に戻す":(cur?name(cur):"（いない）");
+  const sel=`<select data-key="${esc(r.key)}" class="${r.man?"man":""}${!cur?" none":""}" aria-label="${esc(it.name)}の実施者">`+
+    `<option value="" ${r.man?"":"selected"}>${esc(autoLabel)}</option>`+
+    (ok.length?`<optgroup label="対象の人">${ok.map(opt).join("")}</optgroup>`:"")+
+    (others.length?`<optgroup label="ほかの出勤者">${others.map(opt).join("")}</optgroup>`:"")+
+    `<option value="-" ${r.man&&!cur?"selected":""}>（なし）</option></select>`;
+  return `<tr class="${it.bg?"bgc":""}${it.red?" red":""}${it.redNote?" rednote":""}"${rowStyle(it)}>`+
+    `<td class="tn">${esc(it.name||"（名前なし）")}${it.note?`<small class="nt-in">${esc(it.note)}</small>`:""}</td>`+
+    `<td class="tw">${sel}<span class="pv">${esc(name(cur))}</span>${r.man?'<small class="man-tag">手動</small>':""}${r.warn?`<small class="tw-warn">${esc(r.warn)}</small>`:""}</td>`+
+    `<td class="tc"></td><td class="tnote">${esc(it.note)}</td></tr>`;
+}
+
+// ---------- 編集（画面の上で直接） ----------
+function timeOpts(sel){let o="";for(let m=6*60;m<=23*60+30;m+=30)o+=`<option value="${m}" ${m===sel?"selected":""}>${fmt(m)}</option>`;return o}
+function whoOpts(sel){
+  const ds=(roster&&roster.depts||DEFAULT_DEPTS);
+  return `<option value="any" ${sel==="any"?"selected":""}>区分の対象の人</option><option value="leader" ${sel==="leader"?"selected":""}>リーダー</option>`+
+    `<optgroup label="部門の人">`+ds.map((d,k)=>`<option value="dept:${k}" ${sel==="dept:"+k?"selected":""}>${esc(d)}</option>`).join("")+`</optgroup>`;
+}
+function renderTodoEdit(T){
+  const D=T.D;
+  const swatches=(it)=>TODO_COLORS.map(([c,l])=>`<button type="button" class="sw${c?"":" sw-none"}" data-op="bg" data-c="${c}" aria-pressed="${(it.bg||"")===c}" title="${l}" aria-label="背景：${l}"${c?` style="--sw:${c}"`:""}>${c?"":"なし"}</button>`).join("")+
+    `<label class="sw sw-pick" title="好きな色" aria-pressed="${!!it.bg&&!TODO_COLORS.some(x=>x[0]===it.bg)}"><input type="color" class="ti-cc" value="${it.bg||"#ffffff"}" aria-label="背景を好きな色に">＋</label>`;
+  const tog=(f,v,label)=>`<span class="tg" role="group" aria-label="${label}"><span class="tg-l">${label}</span><button type="button" data-op="${f}" data-v="0" aria-pressed="${!v}">黒</button><button type="button" data-op="${f}" data-v="1" aria-pressed="${!!v}" class="tg-red">赤</button></span>`;
+  $("#todo-sheet").innerHTML=
+    `<div class="tedit-top"><label class="tedit-early"><b>早番L</b>＝役職「リーダー」で<select id="todo-early">${timeOpts(D.early??720)}</select>より前に出勤した人</label>`+
+    `<label class="tedit-early"><b>遅番L</b>＝役職「リーダー」で<select id="todo-late"><option value="" ${T.D.late==null?"selected":""}>閉店時刻（${storeHours().close}:00）</option>${timeOpts(T.D.late)}</select>までいる人</label>`+
+    `<span class="muted">変えたところはすぐ保存されます</span></div>`+
+    D.secs.map((s,si)=>`<div class="tsec tsec-ed" data-s="${si}">`+
+      `<div class="tsec-head ed">`+
+        `<input class="ts-name" value="${esc(s.name)}" placeholder="区分の名前（例：早番からの行動）" aria-label="区分の名前">`+
+        `<span class="ts-cond"><span class="ts-lbl">対象</span><select class="ts-t" aria-label="時刻" ${condTimed(s.cond.type)?"":"hidden"}>${timeOpts(s.cond.t)}</select>`+
+        `<select class="ts-type" aria-label="対象の決め方">${COND_TYPES.map(([k,l])=>`<option value="${k}" ${s.cond.type===k?"selected":""}>${l}</option>`).join("")}</select></span>`+
+        `<span class="ts-cond" ${onlyOf(s.cond)?"hidden":""}><span class="ts-lbl">リーダー項目の担当</span><select class="ts-lead" aria-label="担当がリーダーの項目を、だれがするか"><option value="early" ${s.lead==="early"?"selected":""}>早番L（いなければ遅番L）</option><option value="late" ${s.lead==="late"?"selected":""}>遅番L</option></select></span>`+
+        `<span class="ts-ops"><button type="button" data-op="sup" aria-label="区分を上へ" ${si?"":"disabled"}>↑</button><button type="button" data-op="sdown" aria-label="区分を下へ" ${si<D.secs.length-1?"":"disabled"}>↓</button><button type="button" data-op="sdel" class="del">区分を削除</button></span>`+
+      `</div>`+
+      s.items.map((it,ii)=>`<div class="ti${it.bg?" bgc":""}${it.red?" red":""}${it.redNote?" rednote":""}" data-i="${ii}"${rowStyle(it)}>`+
+        `<div class="ti-main"><input class="ti-name" value="${esc(it.name)}" placeholder="項目の名前" aria-label="項目の名前">`+
+        `<textarea class="ti-note" rows="1" placeholder="チェック項目（なくてもOK）" aria-label="チェック項目">${esc(it.note)}</textarea></div>`+
+        `<div class="ti-opts"><label class="ti-who"><span class="tg-l">担当</span><select class="ti-w" aria-label="担当">${whoOpts(it.who)}</select></label>`+
+        `<span class="sws" role="group" aria-label="背景の色"><span class="tg-l">背景</span>${swatches(it)}</span>`+
+        tog("red",it.red,"項目の字")+tog("redNote",it.redNote,"チェックの字")+
+        `<span class="ts-ops"><button type="button" data-op="iup" aria-label="項目を上へ" ${ii?"":"disabled"}>↑</button><button type="button" data-op="idown" aria-label="項目を下へ" ${ii<s.items.length-1?"":"disabled"}>↓</button><button type="button" data-op="idel" class="del" aria-label="項目を削除">削除</button></span></div>`+
+      `</div>`).join("")+
+      `<button type="button" class="btn add" data-op="iadd">＋ 項目を追加</button></div>`).join("")+
+    `<button type="button" class="btn add" data-op="sadd">＋ 区分を追加</button>`;
+  document.querySelectorAll("#todo-sheet .ti-note").forEach(fitNote);
+}
+function fitNote(t){t.style.height="auto";t.style.height=Math.max(38,t.scrollHeight+2)+"px"}
+// 編集を始めるとき：見本なら見本をもとに店の項目を作る
+function todoBegin(){if(!todoData)todoData=todoSample()}
+function todoChanged(redraw){
+  saveTodo();
+  if(redraw)renderTodo();
+  else $("#todo-undo").disabled=todoUndo===JSON.stringify(todoData);
+}
+$("#todo-edit").onclick=()=>{
+  if(todoEditing){todoEditing=false;todoUndo=null;renderTodo();toast("TODOの項目を保存しました");return}
+  todoUndo=todoData?JSON.stringify(todoData):null;todoEditing=true;renderTodo();
+};
+$("#todo-undo").onclick=()=>{
+  todoData=todoUndo?normTodo(JSON.parse(todoUndo)):null;
+  if(todoData)saveTodo();else{try{localStorage.removeItem(LS_TODO)}catch(e){}}
+  renderTodo();toast("編集前に戻しました");
+};
+$("#todo-sheet").addEventListener("input",e=>{
+  if(!todoEditing)return;
+  const t=e.target, sEl=t.closest("[data-s]");if(!sEl)return;
+  todoBegin();
+  const s=todoData.secs[+sEl.dataset.s], iEl=t.closest("[data-i]"), it=iEl?s.items[+iEl.dataset.i]:null;
+  if(t.classList.contains("ts-name"))s.name=t.value;
+  else if(t.classList.contains("ti-name")&&it)it.name=t.value;
+  else if(t.classList.contains("ti-note")&&it){it.note=t.value.replace(/\n/g," ");fitNote(t)}
+  else if(t.classList.contains("ti-cc")&&it){
+    it.bg=t.value.toLowerCase();iEl.style.setProperty("--rowc",it.bg);iEl.classList.add("bgc");
+    iEl.querySelectorAll(".sw").forEach(w=>w.setAttribute("aria-pressed",w.classList.contains("sw-pick")?String(!TODO_COLORS.some(x=>x[0]===it.bg)):String((w.dataset.c||"")===it.bg)));   // iPadでは change が来ないことがある
+  }
+  else return;
+  todoChanged(false);
+});
+$("#todo-sheet").addEventListener("change",e=>{
+  const t=e.target;
+  if(!todoEditing){   // 実施者を手で選ぶ
+    const s=t.closest("select[data-key]");if(!s)return;
+    if(!day.todo)day.todo={};
+    if(s.value==="")delete day.todo[s.dataset.key];else day.todo[s.dataset.key]=s.value;
+    saveDay();renderTodo();return;
+  }
+  todoBegin();
+  if(t.id==="todo-early"){todoData.early=+t.value;todoChanged(true);return}
+  if(t.id==="todo-late"){todoData.late=t.value===""?null:+t.value;todoChanged(true);return}
+  const sEl=t.closest("[data-s]");if(!sEl)return;
+  const s=todoData.secs[+sEl.dataset.s], iEl=t.closest("[data-i]"), it=iEl?s.items[+iEl.dataset.i]:null;
+  if(t.classList.contains("ts-t"))s.cond.t=+t.value;
+  else if(t.classList.contains("ts-type")){s.cond.type=t.value;if(t.value==="onlyLate")s.lead="late";if(t.value==="onlyEarly")s.lead="early"}
+  else if(t.classList.contains("ts-lead"))s.lead=t.value;
+  else if(t.classList.contains("ti-w")&&it){const was=it.who;it.who=t.value;if(t.value==="leader"&&was!=="leader"&&!it.bg)it.bg=TODO_YELLOW}   // リーダーにしたら、背景が空なら黄色に
+  else if(t.classList.contains("ti-cc")&&it)it.bg=t.value.toLowerCase();
+  else return;
+  todoChanged(true);
+});
+$("#todo-sheet").addEventListener("click",e=>{
+  if(!todoEditing)return;
+  const b=e.target.closest("button[data-op]");if(!b)return;
+  todoBegin();
+  const D=todoData, op=b.dataset.op, sEl=b.closest("[data-s]"), si=sEl?+sEl.dataset.s:-1, s=D.secs[si];
+  const iEl=b.closest("[data-i]"), ii=iEl?+iEl.dataset.i:-1, it=s&&ii>=0?s.items[ii]:null;
+  const swap=(a,i,j)=>{if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]]};
+  let focus=null;
+  if(op==="sadd"){D.secs.push({name:"",cond:{type:"all",t:720},lead:"early",items:[{name:"",note:"",who:"any",bg:"",red:false,redNote:false}]});focus=`[data-s="${D.secs.length-1}"] .ts-name`}
+  else if(op==="sdel"){
+    if(todoDelArm.si!==si||Date.now()-todoDelArm.t>4000){   // 1回目：押し間違いを防ぐ（確認ダイアログは出さない）
+      todoDelArm={si,t:Date.now()};b.textContent="もう一度押すと削除";b.classList.add("armed");return;
+    }
+    todoDelArm={si:-1,t:0};D.secs.splice(si,1);toast("区分を削除しました（「編集前に戻す」で戻せます）");
+  }
+  else if(op==="sup")swap(D.secs,si,si-1);
+  else if(op==="sdown")swap(D.secs,si,si+1);
+  else if(op==="iadd"){s.items.push({name:"",note:"",who:"any",bg:"",red:false,redNote:false});focus=`[data-s="${si}"] [data-i="${s.items.length-1}"] .ti-name`}
+  else if(op==="idel"&&it)s.items.splice(ii,1);
+  else if(op==="iup")swap(s.items,ii,ii-1);
+  else if(op==="idown")swap(s.items,ii,ii+1);
+  else if(op==="bg"&&it)it.bg=b.dataset.c;
+  else if((op==="red"||op==="redNote")&&it)it[op]=b.dataset.v==="1";
+  else return;
+  todoChanged(true);
+  if(focus){const f=$("#todo-sheet "+focus);if(f){f.focus();f.scrollIntoView({block:"center"})}}
+});
+$("#todo-reset").onclick=()=>{day.todo={};saveDay();renderTodo();toast("TODOの手動変更を元に戻しました")};
+$("#todo-print").onclick=()=>{renderTodo();window.print()};
+$("#todo-copy").onclick=async()=>{
+  const T=todoLast||buildTodo(), honor=n=>n.endsWith("さん")?n:n+"さん";
+  const out=[`${dateLabel()} TODO`];let last=null;
+  T.rows.forEach(r=>{
+    if(r.s!==last){out.push("",`【${r.s.name}】`);last=r.s}
+    out.push(`・${r.it.name}：${r.id&&roster.staff[r.id]?honor(roster.staff[r.id].name):"（なし）"}`);
+  });
+  const txt=out.join("\n");
+  try{await navigator.clipboard.writeText(txt);toast("コピーしました")}
+  catch(e){
+    const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");toast("コピーしました")}catch(_){toast("コピーできませんでした")}
+    ta.remove();
+  }
+};
+// テキストでまとめて書き換え（ほかの店から項目をもらうとき・最初に店の項目を入れるとき）
+$("#todo-edit-box").addEventListener("toggle",e=>{if(e.target.open){$("#todo-src").value=todoToText(todoGet());$("#todo-msg").textContent=""}});
+$("#todo-save").onclick=()=>{
+  const {data,errs}=parseTodo($("#todo-src").value);
+  if(errs.length){$("#todo-msg").textContent="保存していません："+errs.join("／");return}
+  const n=data.secs.reduce((a,s)=>a+s.items.length,0);
+  if(!n){$("#todo-msg").textContent="保存していません：項目が1つもありません";return}
+  data.early=todoGet().early??720;data.late=todoGet().late??null;
+  todoData=data;saveTodo();
+  $("#todo-msg").textContent=`${data.secs.length}区分・${n}項目を保存しました`;
+  renderTodo();toast("TODOの項目を保存しました");
+};
+$("#todo-sample").onclick=()=>{
+  if(!confirmTodoSample())return;
+  todoData=null;try{localStorage.removeItem(LS_TODO)}catch(e){}
+  $("#todo-src").value=TODO_SAMPLE;$("#todo-msg").textContent="見本に戻しました";renderTodo();
+};
+// 確認のダイアログは出さない（iPadで操作が止まるため）。続けて2回押したら戻す
+let todoSampleArm=0;
+function confirmTodoSample(){
+  if(todoData==null)return true;
+  if(Date.now()-todoSampleArm<4000){todoSampleArm=0;return true}
+  todoSampleArm=Date.now();$("#todo-msg").textContent="店の項目が消えます。もう一度押すと見本に戻します";return false;
+}
 
 /* =========================================================
    起動
@@ -1874,8 +2505,9 @@ $("#rsheet").addEventListener("click",e=>{if(e.target.id==="rsheet")closeRs()});
   }catch(e){}
   try{
     const d=JSON.parse(lsGet(LS_DAY)||"null");
-    if(d)day={date:d.date||"",text:d.text||"",edits:{...emptyEdits(),...(d.edits||{})},plan:d.plan||"std",times:d.times||{}};
+    if(d)day={date:d.date||"",text:d.text||"",edits:{...emptyEdits(),...(d.edits||{})},plan:d.plan||"std",times:d.times||{},todo:d.todo&&typeof d.todo==="object"?d.todo:{}};
   }catch(e){}
+  todoData=loadTodo(lsGet(LS_TODO));   // TODOの項目（保存していなければ見本）
   if(isSample){roster=sampleRoster();day.text=SAMPLE_DAY}
   if(!day.date)day.date=todayStr();
   $("#day-date").value=day.date;
