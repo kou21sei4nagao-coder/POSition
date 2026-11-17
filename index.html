@@ -251,6 +251,8 @@ td select{min-height:38px;padding:4px 8px}
 .qr svg{width:100%;height:auto;display:block}
 .qr.big{width:min(440px,84vw)}
 .beta{font-size:.62em;font-weight:700;margin-left:3px;letter-spacing:.02em;color:var(--warn);vertical-align:1px}
+.ps-wrap{max-height:48vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.ps-wrap img{width:100%;display:block}
 .share-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 8px;cursor:pointer;min-height:44px}
 .share-opt b{font-size:1rem}
 .share-opt span{font-size:.82rem;color:var(--muted)}
@@ -489,7 +491,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v73</span> · <span id="app-date">11/17</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v74</span> · <span id="app-date">11/17</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -845,12 +847,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v73 · 11/17」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v74 · 11/17」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v73（2026年11月17日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v74（2026年11月17日 更新）</p>
   </section>
 </div>
 
@@ -874,6 +876,18 @@ details.howto[open]>summary{margin-bottom:4px}
     <p class="muted" style="margin:0;font-size:.82rem">このQRコードに入っているのはアプリのURLだけです。名簿やシフトは入っていません。</p>
     <div class="bar"><button class="btn primary" id="qs-next" hidden>次へ：② 名簿とTODOのQR</button><button class="btn" id="qs-back">戻る</button><button class="btn" id="qsheet-close">閉じる</button></div>
     </div>
+  </div>
+</div>
+
+<div class="sheet" id="psheet" hidden>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="psheet-title">
+    <h2 id="psheet-title">TODO表を印刷</h2>
+    <p class="muted" style="margin:0">ホーム画面から開いたアプリでは、iPadの仕組みで印刷の画面を直接出せません。紙と同じ形の画像にしました。</p>
+    <ol class="steps" style="margin:0"><li>「共有してプリント」を押す</li><li>出てきた一覧から「プリント」を選ぶ</li></ol>
+    <p class="muted" style="margin:0">「共有してプリント」が出ないときは、下の画像を長押し →「共有」→「プリント」。</p>
+    <div class="ps-wrap"><img id="ps-img" alt="TODO表の画像"></div>
+    <p class="note-bad" style="margin:0">画像には名前が入っています。プリント以外（LINE・メールなど）には送らないでください。</p>
+    <div class="bar"><button class="btn primary" id="ps-share" hidden>共有してプリント</button><button class="btn" id="ps-close">閉じる</button></div>
   </div>
 </div>
 
@@ -2454,7 +2468,7 @@ $("#todo-sheet").addEventListener("click",e=>{
   if(focus){const f=$("#todo-sheet "+focus);if(f){f.focus();f.scrollIntoView({block:"center"})}}
 });
 $("#todo-reset").onclick=()=>{day.todo={};saveDay();renderTodo();toast("TODOの手動変更を元に戻しました")};
-$("#todo-print").onclick=()=>{renderTodo();window.print()};
+$("#todo-print").onclick=()=>{renderTodo();if(isStandalone())openTodoImage();else window.print()};   // ホーム画面から開いたときは画像にする
 $("#todo-copy").onclick=async()=>{
   const T=todoLast||buildTodo(), honor=n=>n.endsWith("さん")?n:n+"さん";
   const out=[`${dateLabel()} TODO`];let last=null;
@@ -2494,6 +2508,73 @@ function confirmTodoSample(){
   if(Date.now()-todoSampleArm<4000){todoSampleArm=0;return true}
   todoSampleArm=Date.now();$("#todo-msg").textContent="店の項目が消えます。もう一度押すと見本に戻します";return false;
 }
+
+// ---------- 印刷：ホーム画面から開いたアプリでは window.print が効かないので、紙と同じ形の画像にして「共有 → プリント」 ----------
+const isStandalone=()=>navigator.standalone===true||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);
+// TODO表を A4（縦）の画像に描く。字は端末の文字で描くので、ネットは使わない
+function todoCanvas(){
+  const T=buildTodo(), name=id=>id&&roster.staff[id]?roster.staff[id].name:"";
+  const W=1240, M=44, CW=W-M*2, cols=[.34,.15,.09,.42].map(x=>x*CW), FONT='"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif';
+  const meas=document.createElement("canvas").getContext("2d");
+  const wrap=(t,w,font)=>{meas.font=font;const out=[];let cur="";for(const ch of String(t||"")){if(meas.measureText(cur+ch).width>w&&cur){out.push(cur);cur=ch}else cur+=ch}if(cur||!out.length)out.push(cur);return out};
+  const F={title:`700 26px ${FONT}`,sec:`700 24px ${FONT}`,secR:`500 17px ${FONT}`,th:`700 15px ${FONT}`,item:`700 19px ${FONT}`,who:`700 19px ${FONT}`,note:`400 15px ${FONT}`};
+  const P=7, LH={item:25,note:20};
+  const leadLabel=s=>onlyOf(s.cond)?"":`リーダー項目：${s.lead==="late"?"遅番L":"早番L"}（${(s.lead==="late"||!T.ld.early)?(T.ld.late?T.ld.late.name:"いない"):T.ld.early.name}）`;
+  // まず高さを測る
+  const blocks=T.secs.map((s,si)=>({s,rows:T.rows.filter(r=>r.si===si).map(r=>{
+    const a=wrap(r.it.name||"（名前なし）",cols[0]-P*2,F.item), b=wrap(name(r.id),cols[1]-P*2,F.who), d=wrap(r.it.note,cols[3]-P*2,F.note);
+    return {r,a,b,d,h:Math.max(a.length*LH.item,b.length*LH.item,d.length*LH.note)+P*2};
+  })}));
+  const SEC_H=40, TH_H=26, GAP=12;
+  let H=M+40;blocks.forEach(bk=>{H+=SEC_H+TH_H+bk.rows.reduce((x,y)=>x+y.h,0)+GAP});H+=M-GAP;
+  // A4の比率に合わせる（長いときは1枚に収まるように縮める）
+  const A4H=Math.round(W*297/210), sc=Math.min(1,A4H/H), cv=document.createElement("canvas");
+  cv.width=W;cv.height=A4H;
+  const c=cv.getContext("2d");c.fillStyle="#fff";c.fillRect(0,0,W,A4H);
+  c.save();c.translate((W-W*sc)/2,0);c.scale(sc,sc);
+  c.textBaseline="top";
+  let y=M;
+  c.font=F.title;c.fillStyle="#000";c.textAlign="right";c.fillText(dateLabel()+" 分",W-M,y);c.textAlign="left";y+=40;
+  const line=(x1,y1,x2,y2)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()};
+  c.strokeStyle="#000";c.lineWidth=1.2;
+  blocks.forEach(bk=>{
+    const s=bk.s, top=y;
+    c.fillStyle="#1d58b8";c.fillRect(M,y,CW,SEC_H);
+    c.fillStyle="#fff";c.font=F.sec;c.fillText(s.name||"（区分の名前なし）",M+12,y+8);
+    c.font=F.secR;c.textAlign="right";c.fillText([condLabel(s.cond),leadLabel(s)].filter(Boolean).join("・"),M+CW-12,y+12);c.textAlign="left";
+    y+=SEC_H;
+    c.fillStyle="#000";c.font=F.th;
+    let x=M;["項目","実施者","確認者","チェック項目"].forEach((t,k)=>{c.fillText(t,x+P,y+5);x+=cols[k]});
+    line(M,y+TH_H,M+CW,y+TH_H);y+=TH_H;
+    bk.rows.forEach(({r,a,b,d,h})=>{
+      if(r.it.bg){c.fillStyle=r.it.bg;c.fillRect(M,y,CW,h)}
+      let x=M;
+      c.font=F.item;c.fillStyle=r.it.red?"#d00000":"#000";a.forEach((t,i)=>c.fillText(t,x+P,y+P+i*LH.item));x+=cols[0];
+      c.font=F.who;c.fillStyle="#000";b.forEach((t,i)=>c.fillText(t,x+P,y+P+i*LH.item));x+=cols[1]+cols[2];
+      c.font=F.note;c.fillStyle=r.it.redNote?"#d00000":"#000";d.forEach((t,i)=>c.fillText(t,x+P,y+P+i*LH.note+2));
+      line(M,y+h,M+CW,y+h);y+=h;
+    });
+    // 外枠と縦の線
+    c.strokeRect(M,top,CW,y-top);
+    let vx=M;for(let k=0;k<3;k++){vx+=cols[k];line(vx,top+SEC_H,vx,y)}
+    y+=GAP;
+  });
+  c.restore();
+  return cv;
+}
+let todoImgFile=null;
+function openTodoImage(){
+  const cv=todoCanvas();
+  $("#ps-img").src=cv.toDataURL("image/png");
+  todoImgFile=null;
+  cv.toBlob(b=>{if(b)todoImgFile=new File([b],`TODO_${(day.date||todayStr()).replace(/-/g,"")}.png`,{type:"image/png"});
+    $("#ps-share").hidden=!(todoImgFile&&navigator.canShare&&navigator.canShare({files:[todoImgFile]}))},"image/png");
+  $("#ps-share").hidden=true;
+  $("#psheet").hidden=false;
+}
+$("#ps-share").onclick=()=>{if(todoImgFile)navigator.share({files:[todoImgFile]}).catch(()=>{})};   // 押したその場で呼ぶ（iPadは、押した直後でないと共有を開けない）
+$("#ps-close").onclick=()=>{$("#psheet").hidden=true;$("#ps-img").removeAttribute("src");todoImgFile=null};
+$("#psheet").addEventListener("click",e=>{if(e.target.id==="psheet")$("#ps-close").onclick()});
 
 /* =========================================================
    起動
