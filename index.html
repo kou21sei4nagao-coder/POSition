@@ -25,12 +25,12 @@
   --font-mono:ui-monospace,"SF Mono",Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#12171d; --surface:#1a2129; --ink:#e6ebf0; --muted:#93a1ae; --line:#2c3642; --accent:#6f9ef0; --accent-ink:#0d1520;
-  --on:#2b3d58; --warn:#f0a35e; --warn-bg:#3a2a1a; --bad:#f08a80; --bad-bg:#3b1f1d; --soft:#232d38;
+  --bg:#000; --surface:#1c1c1e; --ink:#f2f2f7; --muted:#a1a1a6; --line:#3a3a3c; --accent:#5e9eff; --accent-ink:#000;
+  --on:#4a4f59; --warn:#ffa95e; --warn-bg:#3a2a1a; --bad:#ff8a80; --bad-bg:#3b1f1d; --soft:#2c2c2e; --dsec-mix:28%;
   --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#12171d; --surface:#1a2129; --ink:#e6ebf0; --muted:#93a1ae; --line:#2c3642; --accent:#6f9ef0; --accent-ink:#0d1520;
-  --on:#2b3d58; --warn:#f0a35e; --warn-bg:#3a2a1a; --bad:#f08a80; --bad-bg:#3b1f1d; --soft:#232d38;
+  --bg:#000; --surface:#1c1c1e; --ink:#f2f2f7; --muted:#a1a1a6; --line:#3a3a3c; --accent:#5e9eff; --accent-ink:#000;
+  --on:#4a4f59; --warn:#ffa95e; --warn-bg:#3a2a1a; --bad:#ff8a80; --bad-bg:#3b1f1d; --soft:#2c2c2e; --dsec-mix:28%;
   --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}
 
 /* =========================================================
@@ -144,7 +144,7 @@ button.match.off{color:var(--muted)}
 .side-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 12px 6px}
 .hours{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;padding:0 12px 4px}
 .hours .hrow{display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
-.dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) 70%,var(--surface));margin-top:8px}
+.dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) var(--dsec-mix,70%),var(--surface));margin-top:8px}   /* ダークでは色を薄くして、横棒を見やすく */
 .dsec.d0{--dc:var(--d0);--dt:var(--d0bg)}.dsec.d1{--dc:var(--d1);--dt:var(--d1bg)}.dsec.d2{--dc:var(--d2);--dt:var(--d2bg)}.dsec.d3{--dc:var(--d3);--dt:var(--d3bg)}
 .dept-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 12px 6px;color:var(--dc);font-weight:700;font-size:.92rem}
 .dept-head span{font-weight:500;font-size:.75rem;color:var(--muted)}
@@ -253,6 +253,11 @@ td select{min-height:38px;padding:4px 8px}
 .beta{font-size:.62em;font-weight:700;margin-left:3px;letter-spacing:.02em;color:var(--warn);vertical-align:1px}
 .ps-wrap{max-height:48vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
 .ps-wrap img{width:100%;display:block}
+.day-alert{border:2px solid var(--bad);background:var(--bad-bg);color:var(--ink);border-radius:12px;padding:12px 16px;margin:8px 0 4px}
+.day-alert b{display:block;color:var(--bad);font-size:1.3rem;line-height:1.35;margin-bottom:6px}
+.day-alert ul{margin:0 0 6px;padding-left:1.2em}
+.day-alert li{margin:2px 0}
+.day-alert span{font-weight:700}
 .share-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 8px;cursor:pointer;min-height:44px}
 .share-opt b{font-size:1rem}
 .share-opt span{font-size:.82rem;color:var(--muted)}
@@ -379,8 +384,8 @@ details.howto[open]>summary{margin-bottom:4px}
 }
 /* TODO表：紙の作業表と同じ並び（黄色＝リーダーの仕事、赤字＝注意） */
 :root{--todo-head:#1d58b8;--todo-head-ink:#fff;--todo-red:#c0261b;--todo-mix:45%}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--todo-head:#2c5aa6;--todo-red:#ff8a80;--todo-mix:18%}}
-:root[data-theme="dark"]{--todo-head:#2c5aa6;--todo-red:#ff8a80;--todo-mix:18%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--todo-head:#2a5bb0;--todo-red:#ff8a80;--todo-mix:22%}}
+:root[data-theme="dark"]{--todo-head:#2a5bb0;--todo-red:#ff8a80;--todo-mix:22%}
 .todo-sheet{display:flex;flex-direction:column;gap:12px}
 .todo-title{display:none}
 .tsec{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -491,7 +496,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v75</span> · <span id="app-date">11/17</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v78</span> · <span id="app-date">11/18</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -522,6 +527,14 @@ details.howto[open]>summary{margin-bottom:4px}
     <textarea id="day-paste" placeholder="ここにその日の列を貼り付け" style="min-height:140px"></textarea>
     <div class="bar"><button class="btn" id="day-clear">貼り付けを消す</button></div>
     <p class="muted" id="day-msg" style="margin:0"></p>
+    <div class="day-alert" id="day-alert" role="alert" hidden>
+      <b>コピーミスか、名簿の更新がされていません！</b>
+      <ul>
+        <li>新しい人が入った・辞めた人がいる → 「名簿」タブで名前を貼り付けて登録し直す</li>
+        <li>名簿は合っている → シフト表で、名簿と同じ行から同じ行まで（部門の間の空白も含めて）コピーし直す</li>
+      </ul>
+      <span>このままレジ番表を作ると、名前と時間がずれます。</span>
+    </div>
     <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
     <p class="muted" style="margin:0">急な休み・急な出勤は、名前をタップすると今日の時間を変えられます。</p>
     <div class="list" id="day-list"></div>
@@ -663,7 +676,7 @@ details.howto[open]>summary{margin-bottom:4px}
       <button class="btn" id="roster-clear">貼り付けを消す</button>
       <span class="muted" id="roster-msg"></span>
     </div>
-    <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。</p>
+    <p class="muted" style="margin:0">登録し直しても、同じ名前の人の部門・役職・レベルはそのまま残ります。新しく増えた人は、見習い（レベル0）で、部門は同じグループの人たちと同じになります。</p>
     <div class="qr-in"><span>別のiPadと名簿をやり取りするときは、QRコードが簡単です</span><span class="bar" style="margin:0"><button class="btn primary" id="mq-send">QRで渡す</button><button class="btn" id="mq-recv">QRで受け取る</button></span></div>
 
     <div>
@@ -845,14 +858,14 @@ details.howto[open]>summary{margin-bottom:4px}
       <table class="htable">
         <tr><th>こんなとき</th><th>こうする</th></tr>
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
-        <tr><td>「行がずれている可能性」と出る</td><td>コピーした行の範囲が名簿と違います。名簿と同じ行から同じ行までコピーし直してください</td></tr>
+        <tr><td>「コピーミスか、名簿の更新がされていません！」と出る</td><td>新しい人が入った・辞めた人がいるなら「名簿」で登録し直す。名簿が合っていれば、名簿と同じ行から同じ行までコピーし直してください。なお、辞めた人の行が消えただけ、などでは気づけないことがあるので、照合結果で名前と時間が合っているかも見てください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v75 · 11/17」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v78 · 11/18」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v75（2026年11月17日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v78（2026年11月18日 更新）</p>
   </section>
 </div>
 
@@ -1127,11 +1140,19 @@ function buildRoster(text,prev){
     let id=idOf(n);
     if(staff[id])id=idOf(n+"#"+order.length);   // 同じ名前が2人いるとき
     order.push(id);
-    const old=prev?.staff?.[id];
+    const old=prev?.staff?.[id];   // 新しい人は、下でまとめて見習い・グループの部門にする
     staff[id]=normStaff(old?{...old,name:n,group:g}:{name:n,dept:-1,role:"baito",level:1,group:g});
     (groups[g]||(groups[g]=[])).push(id);
   });
-  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,...(prev?.hours?{hours:prev.hours}:{})};
+  // 登録し直したときの新しい人：見習い（レベル0）にして、部門は同じグループの人たちの部門にする
+  const newIds=prev?Object.keys(staff).filter(id=>!prev.staff?.[id]):[];
+  newIds.forEach(id=>{
+    const s=staff[id];s.level=0;
+    const cnt=new Map();
+    (groups[s.group]||[]).forEach(x=>{if(prev.staff?.[x]&&staff[x].dept>=0)cnt.set(staff[x].dept,(cnt.get(staff[x].dept)||0)+1)});
+    if(cnt.size)s.dept=[...cnt.entries()].sort((a,b)=>b[1]-a[1])[0][0];   // いちばん多い部門（同じ数なら上の人の部門）
+  });
+  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,...(prev?{newIds}:{}),...(prev?.hours?{hours:prev.hours}:{})};
 }
 function sampleRoster(){
   const r=buildRoster(SAMPLE_NAMES.join("\n"),null);
@@ -1336,6 +1357,7 @@ function renderDay(){
   $("#sample-note").hidden=!isSample;
   const m=matchDay(),list=$("#day-list");
   const working=m.rows.filter(x=>x.id&&effTime(x)).length;
+  $("#day-alert").hidden=true;
   if(!day.text.trim()){
     list.innerHTML=`<p class="muted" style="padding:12px;margin:0">貼り付けると、ここに名前と時間が並びます。</p>`;
     $("#day-msg").textContent="";
@@ -1353,9 +1375,10 @@ function renderDay(){
   const stray=m.rows.filter(x=>!x.id&&x.raw).length;
   const changed=m.rows.filter(isChanged).length;
   let msg=`<span class="ok">${working}人出勤</span>（名簿 ${Object.keys(roster.staff).length}人中）`+(changed?`・手で変えた人 ${changed}人`:"");
-  if(m.extra||stray)msg+=`・<b style="color:var(--bad)">名簿より行が多いか、部門の間の空白の行に時間や文字（「休」など）が入っています。`+
-    `行がずれている可能性があります。名簿と同じ行から同じ行までコピーしたか確認してください</b>`;
+  const off=!!(m.extra||stray);   // 名簿より行が多い・部門の間の空白の行に文字がある ＝ 行がずれている
+  if(off)msg+=`・<b style="color:var(--bad)">${m.extra?`名簿より${m.extra}行多い`:""}${m.extra&&stray?"・":""}${stray?`部門の間の空白の行に文字がある（${stray}か所）`:""}</b>`;
   $("#day-msg").innerHTML=msg;
+  $("#day-alert").hidden=!off;
 }
 const timeText=x=>x.t?fmt(x.t.start)+"〜"+fmt(x.t.end):"";
 const spanText=t=>fmt(t.start)+"〜"+fmt(t.end);
@@ -1633,12 +1656,15 @@ $("#roster-load").onclick=()=>{
   // 新規登録でグループがちょうど4つなら、上から部門を割り当てる
   if(!prev&&r.groups===4)Object.values(r.staff).forEach(s=>{s.dept=s.group});
   if(!prev&&roster?.hours)r.hours=roster.hours;   // 例のデータで試した営業時間は引き継ぐ
+  const newIds=r.newIds||[];delete r.newIds;
   roster=r;isSample=false;applyHours();
   if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std",times:{},todo:{}};$("#day-paste").value=""}
   saveRoster();saveDay();renderRoster();
   $("#roster-paste").value="";
+  const noDept=newIds.filter(id=>r.staff[id].dept<0).length;
   $("#roster-msg").textContent=prev?
-    `${n}人で登録し直しました（設定を引き継いだ人 ${kept}人・新しい人 ${n-kept}人・外れた人 ${Math.max(0,before-kept)}人）`:
+    `${n}人で登録し直しました（設定を引き継いだ人 ${kept}人・新しい人 ${n-kept}人・外れた人 ${Math.max(0,before-kept)}人）`+
+    (newIds.length?`。新しい人（${newIds.map(id=>r.staff[id].name).join("・")}）は見習い（レベル0）で、部門は同じグループの人に合わせました${noDept?`（${noDept}人は新しいグループなので部門を選んでください）`:""}。違えば直してください`:""):
     `${n}人・${r.groups}グループを登録しました${r.groups===4?"（グループを上から季節AV・家電・情報・通信にしました。違えば直してください）":""}`;
   toast("名簿を登録しました");
 };
