@@ -392,12 +392,14 @@ details.howto[open]>summary{margin-bottom:4px}
 .todo-sheet{display:flex;flex-direction:column;gap:12px}
 .todo-title{display:none}
 .todo-leads{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin:-4px 0 2px}
-.tl{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tl{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:100%;min-width:0}
+.tl select{max-width:min(100%,22em)}
 .tl-k{font-size:.78rem;font-weight:700;color:#000;background:var(--todo-lead-chip,#fff200);border-radius:6px;padding:2px 8px}
 .tl b{font-size:1.05rem}
 .tl select{min-height:40px;font:inherit;font-weight:700;border-radius:8px;border:2px solid var(--accent);background:var(--surface);color:var(--ink);padding:4px 8px}
 .tl-n{font-size:.75rem;color:var(--muted)}
 .tl-none{color:var(--bad)}
+.tl select.none{border-color:var(--bad);color:var(--bad)}
 .todo-editing .todo-leads{display:none}
 .todo-title-l{font-size:9pt;font-weight:700}
 .tsec{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -513,7 +515,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v86</span> · <span id="app-date">11/18</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v88</span> · <span id="app-date">11/18</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -550,12 +552,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <li>新しい人が入った・辞めた人がいる → 「名簿」タブで名前を貼り付けて登録し直す</li>
         <li>名簿は合っている → シフト表で、名簿と同じ行から同じ行まで（部門の間の空白も含めて）コピーし直す</li>
       </ul>
-      <span>このままレジ番表を出力すると、名前と時間がずれます。</span>
+      <span>このまま出力すると、名前と時間がずれます。</span>
     </div>
     <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
     <p class="muted" style="margin:0">急な休み・急な出勤は、名前をタップすると今日の時間を変えられます。</p>
     <div class="list" id="day-list"></div>
-    <button class="btn primary wide" id="to-plan">レジ番表を出力 →</button>
+    <button class="btn primary wide" id="to-plan">出力</button>
   </section>
 
   <!-- レジ番表 -->
@@ -641,8 +643,7 @@ details.howto[open]>summary{margin-bottom:4px}
       <button class="btn" id="todo-edit" style="margin-left:auto">項目を編集</button>
       <button class="btn" id="todo-undo" hidden>編集前に戻す</button>
       <button class="btn" id="todo-reset">手動変更をリセット</button>
-      <button class="btn" id="todo-print">出力</button>
-      <button class="btn primary" id="todo-copy">テキストでコピー</button>
+      <button class="btn primary" id="todo-print">出力</button>
     </div>
     <div class="todo-leads" id="todo-leads"></div>
     <div class="notice" id="todo-warn" hidden></div>
@@ -658,7 +659,8 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>遅番L</td><td>役職が「リーダー」の人のうち、<span class="todo-early"></span>以降に出勤して、<span class="todo-late"></span>までいる人（そういう人がいない日は、閉店までいるリーダー）。2人以上いる日は選べます（はじめはランダム）。時刻は「項目を編集」で変えられます。決めていなければ閉店時刻</td></tr>
         <tr><td>そのほかの項目</td><td>区分の対象（出勤・退勤の時刻）に合う人から。リーダーは入れない。担当が部門の項目は、その部門の人から</td></tr>
         <tr><td>偏らないように</td><td>① TODO の数が少ない人 → ② その日のレジの回数が少ない人 → ③ 日替わり の順</td></tr>
-        <tr><td>入らない人</td><td>店長（役職）、部門が「店長」「流通便」の人。見習い（レベル0）は自動では入れません（名前をタップすれば選べます）</td></tr>
+        <tr><td>店長</td><td>ふだんの項目には入りません。早番L・遅番Lのリーダーがいない日は、店長がリーダーの項目を担当します。日付の下や名前をタップして、手で選ぶこともできます</td></tr>
+        <tr><td>入らない人</td><td>部門が「流通便」の人。見習い（レベル0）は自動では入れません（名前をタップすれば選べます）</td></tr>
       </table>
     </details>
     <details class="rules" id="todo-edit-box">
@@ -760,7 +762,7 @@ details.howto[open]>summary{margin-bottom:4px}
       <ol class="hsteps">
         <li><b>シフト表の、その日の列をコピー</b><span>名簿と<b>同じ行から同じ行まで</b>選びます（下の「最初の準備」の見本の②）</span></li>
         <li><b>「今日のシフト」タブに貼り付ける</b><span>名前と時間が横に並びます。ずれていないか、ざっと確認</span></li>
-        <li><b>「レジ番表を出力」を押して、案を選ぶ</b><span>迷ったら「標準」。部門の人数差が大きい日は「バランス」、フロアが手薄になる時間がある日は「フロア優先」（下の「3つの案の選び方」）。直したい時間は手で直せます（下の「手で直す」）</span></li>
+        <li><b>「出力」を押して、案を選ぶ</b><span>迷ったら「標準」。部門の人数差が大きい日は「バランス」、フロアが手薄になる時間がある日は「フロア優先」（下の「3つの案の選び方」）。直したい時間は手で直せます（下の「手で直す」）</span></li>
         <li><b>「テキストでコピー」を押して、LINEなどに貼る</b><span>「9:00-10:00 〇〇さん」の形で、営業時間の分だけ並びます</span></li>
       </ol>
     </div>
@@ -879,12 +881,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「コピーミスか、名簿の更新がされていません！」と出る</td><td>新しい人が入った・辞めた人がいるなら「名簿」で登録し直す。名簿が合っていれば、名簿と同じ行から同じ行までコピーし直してください。なお、辞めた人の行が消えただけ、などでは気づけないことがあるので、照合結果で名前と時間が合っているかも見てください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v86 · 11/18」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v88 · 11/18」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v86（2026年11月18日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v88（2026年11月18日 更新）</p>
   </section>
 </div>
 
@@ -2287,19 +2289,31 @@ function saveTodo(){lsSet(LS_TODO,JSON.stringify(todoData))}
 // ---------- 実施者を決める ----------
 // TODOをする人：店長（役職）と、部門が店長・流通便の人は入れない
 const todoPeople=()=>presentPeople().filter(p=>p.role!=="manager"&&p.dept<4);
-// 早番L・遅番L。当てはまるリーダーが2人以上いる日（土日など）は選べる。選んでいなければ日替わりでランダム
+// 店長（役職が店長、または部門が店長の人）：ふだんの項目には入れないが、リーダーの項目は担当できる
+const todoBosses=()=>presentPeople().filter(p=>p.role==="manager"||p.dept===4);
+// 早番L・遅番L。当てはまるリーダーが2人以上いる日（土日など）は選べる。選んでいなければランダム
+// リーダーがいない日は店長。条件に合う人がいなくても、今日いるリーダー・店長から手で選べる
 function todoLeaders(ps,D){
-  const L=ps.filter(p=>p.role==="leader"), close=todoLateT(D), eb=D.early??720, seed=day.date||"", ed=day.todo||{};
+  const bosses=todoBosses(), seed=day.date||"", ed=day.todo||{}, close=todoLateT(D), eb=D.early??720;
+  const all=[...ps.filter(p=>p.role==="leader"),...bosses];   // 手で選べる人（リーダー → 店長）
+  const pickFrom=(f)=>{const l=ps.filter(p=>p.role==="leader"&&f(p));if(l.length)return {c:l,boss:false};const m=bosses.filter(f);return {c:m,boss:m.length>0}};
   const byName=(a,b)=>a.name.localeCompare(b.name,"ja");
-  const earlyC=L.filter(p=>p.start<eb).sort((a,b)=>a.start-b.start||byName(a,b));
-  // 遅番L：早番Lの時刻以降に出勤して、遅番Lの時刻までいる人。いない日だけ、閉店までいるリーダーなら出勤時刻を問わない
+  const E=pickFrom(p=>p.start<eb);
+  let earlyC=E.c.sort((a,b)=>a.start-b.start||byName(a,b));
+  // 遅番L：早番Lの時刻以降に出勤して、遅番Lの時刻までいる人。いない日だけ、閉店までいるリーダーなら出勤時刻を問わない（それもいなければ店長）
+  const L=ps.filter(p=>p.role==="leader");
   const lateStrict=L.filter(p=>p.start>=eb&&p.end>=close), lateAny=L.filter(p=>p.end>=close);
   const lateLoose=!lateStrict.length&&lateAny.length>0;
-  const lateC=(lateStrict.length?lateStrict:lateAny).sort((a,b)=>b.end-a.end||byName(a,b));
+  let lateC=lateStrict.length?lateStrict:lateAny, lateBoss=false;
+  if(!lateC.length){const m=bosses.filter(p=>p.start>=eb&&p.end>=close);lateC=m.length?m:bosses.filter(p=>p.end>=close);lateBoss=lateC.length>0}
+  lateC=lateC.slice().sort((a,b)=>b.end-a.end||byName(a,b));
+  // 紙の決まり「早番Lが居ない時は遅番L」を先に。早番のリーダーがいなくて遅番のリーダーがいる日は、店長にしない
+  if(E.boss&&lateC.length&&!lateBoss){earlyC=[];E.boss=false}
   const rnd=(cs,avoid)=>{const pool=cs.length>1&&avoid?cs.filter(p=>p.id!==avoid):cs;return pool.slice().sort((a,b)=>dayHash(seed+"L"+a.id)-dayHash(seed+"L"+b.id))[0]||null};
-  const early=earlyC.find(p=>p.id===ed["@early"])||rnd(earlyC);
-  const late=lateC.find(p=>p.id===ed["@late"])||rnd(lateC,early&&early.id);   // できれば早番Lと別の人
-  return {early,late,earlyC,lateC,lateLoose};
+  const chosen=k=>ed[k]==="-"?null:all.find(p=>p.id===ed[k]);   // 手で選んだ人（今日いなければ使わない）
+  const early=ed["@early"]==="-"?null:chosen("@early")||rnd(earlyC);
+  const late=ed["@late"]==="-"?null:chosen("@late")||rnd(lateC,early&&early.id);   // できれば早番Lと別の人
+  return {early,late,earlyC,lateC,lateLoose,all,earlyBoss:E.boss,lateBoss};
 }
 function inTodoSec(p,c){
   if(c.type==="startBefore")return p.start<c.t;
@@ -2311,9 +2325,9 @@ const onlyOf=c=>c.type==="onlyLate"?"late":c.type==="onlyEarly"?"early":null;
 // 手で選んだもの → リーダーの項目 → 部門の項目 → そのほか の順
 function buildTodo(){
   const D=todoGet(), secs=D.secs;
-  const ps=todoPeople(), ld=todoLeaders(ps,D), byId=Object.fromEntries(ps.map(p=>[p.id,p]));
+  const ps=todoPeople(), ld=todoLeaders(ps,D), bosses=todoBosses(), byId=Object.fromEntries([...ps,...bosses].map(p=>[p.id,p]));
   const ed=day.todo||{}, cnt={}, regN={}, seed=day.date||"";
-  ps.forEach(p=>cnt[p.id]=0);
+  [...ps,...bosses].forEach(p=>cnt[p.id]=0);
   plan.forEach(q=>{if(q.id)regN[q.id]=(regN[q.id]||0)+1});
   const rows=[], seen={};
   secs.forEach((s,si)=>s.items.forEach((it,ii)=>{
@@ -2349,7 +2363,7 @@ function buildTodo(){
     const p=pick(cand);give(r,p);
     if(!p)r.warn="対象の人がいません（区分の条件を確認）";
   });
-  return {D,secs,rows,ps,ld,cnt};
+  return {D,secs,rows,ps,ld,cnt,bosses,bossIds:new Set(bosses.map(p=>p.id))};
 }
 
 // ---------- 表示 ----------
@@ -2363,9 +2377,8 @@ function renderTodo(){
   document.querySelectorAll(".todo-early").forEach(e=>e.textContent=fmt(T.D.early??720));
   document.querySelectorAll(".todo-late").forEach(e=>e.textContent=fmt(todoLateT(T.D))+(T.D.late==null?"（閉店時刻）":""));
   const ed0=day.todo||{};
-  const nMan=T.rows.filter(r=>r.man).length+
-    (T.ld.earlyC.length>1&&T.ld.early&&T.ld.early.id===ed0["@early"]?1:0)+
-    (T.ld.lateC.length>1&&T.ld.late&&T.ld.late.id===ed0["@late"]?1:0);   // 早番L・遅番Lを手で選んだ分も数える
+  const leadMan=k=>ed0["@"+k]==="-"||(T.ld[k]&&T.ld[k].id===ed0["@"+k]);   // 手で選んで、それが効いている
+  const nMan=T.rows.filter(r=>r.man).length+(leadMan("early")?1:0)+(leadMan("late")?1:0);   // 早番L・遅番Lを手で選んだ分も数える
   $("#todo-reset").disabled=!nMan||todoEditing;
   $("#todo-reset").textContent=nMan?`手動変更をリセット（${nMan}件）`:"手動変更をリセット";
   $("#p-todo").classList.toggle("todo-editing",todoEditing);
@@ -2373,22 +2386,32 @@ function renderTodo(){
   $("#todo-edit").classList.toggle("primary",todoEditing);
   $("#todo-undo").hidden=!todoEditing;
   $("#todo-undo").disabled=!todoEditing||todoUndo===JSON.stringify(todoData);
-  $("#todo-print").hidden=$("#todo-copy").hidden=$("#todo-reset").hidden=todoEditing;
+  $("#todo-print").hidden=$("#todo-reset").hidden=todoEditing;
   const warn=[];
   if(todoData==null)warn.push("いまは見本の項目です。「項目を編集」で、店の項目に書き換えてください。");
-  if(!todoEditing&&!T.ld.early&&!T.ld.late&&T.ps.length)warn.push("名簿の役職が「リーダー」の人が今日いません。リーダーの項目は手で選んでください。");
+  if(!todoEditing&&!T.ld.all.length&&T.ps.length)warn.push("名簿の役職が「リーダー」「店長」の人が今日いません。リーダーの項目は手で選んでください。");
   $("#todo-warn").hidden=!warn.length;$("#todo-warn").innerHTML=warn.map(esc).join("<br>");
   if(todoEditing){renderTodoEdit(T);return}
   const name=id=>id&&roster.staff[id]?roster.staff[id].name:"";
   const leadLabel=s=>onlyOf(s.cond)?"":`リーダー項目の担当：${s.lead==="late"?"遅番L":"早番L"}`+
     `（${(s.lead==="late"||!T.ld.early)?(T.ld.late?T.ld.late.name:"いない"):T.ld.early.name}）`;
   // 日付の下：早番L・遅番L（2人以上いれば選べる）
-  const leadPick=(k,lab,cur,cs)=>`<span class="tl"><span class="tl-k">${lab}</span>`+(cs.length>1?
-    `<select data-lead="${k}" aria-label="${lab}を選ぶ">${cs.map(p=>`<option value="${p.id}" ${cur&&cur.id===p.id?"selected":""}>${esc(p.name)}（${fmt(p.start)}〜${fmt(p.end)}）</option>`).join("")}</select>`+
-    `<span class="tl-n">${cs.length}人から${(day.todo||{})["@"+k]?"選択":"ランダム"}</span>`:
-    `<b>${cur?esc(cur.name):'<span class="tl-none">いない</span>'}</b>`)+`</span>`;
+  // 条件に合う人を先に、ほかの今日いるリーダー・店長は後ろに。いない日も選べる
+  const leadPick=(k,lab,cur,cs)=>{
+    const others=T.ld.all.filter(p=>!cs.includes(p)), man=leadMan(k);
+    const op=p=>`<option value="${p.id}" ${cur&&cur.id===p.id?"selected":""}>${esc(p.name)}${isBoss(T,p)?"（店長）":""}（${fmt(p.start)}〜${fmt(p.end)}）</option>`;
+    if(cs.length===1&&!others.length)return `<span class="tl"><span class="tl-k">${lab}</span><b>${esc(cs[0].name)}${isBoss(T,cs[0])?"（店長）":""}</b></span>`;
+    if(!T.ld.all.length)return `<span class="tl"><span class="tl-k">${lab}</span><b><span class="tl-none">いない</span></b></span>`;
+    const note=man?"手で選択":!cs.length?"条件に合う人がいません":cs.length>1?`${cs.length}人からランダム`:"";
+    return `<span class="tl"><span class="tl-k">${lab}</span><select data-lead="${k}" class="${cur?"":"none"}" aria-label="${lab}を選ぶ">`+
+      `<option value="-" ${cur?"":"selected"}>いない</option>`+
+      (cs.length?`<optgroup label="条件に合う人">${cs.map(op).join("")}</optgroup>`:"")+
+      (others.length?`<optgroup label="ほかのリーダー・店長">${others.map(op).join("")}</optgroup>`:"")+
+      `</select>${note?`<span class="tl-n">${note}</span>`:""}</span>`;
+  };
   $("#todo-leads").innerHTML=leadPick("early","早番L",T.ld.early,T.ld.earlyC)+leadPick("late","遅番L",T.ld.late,T.ld.lateC)+
-    (T.ld.lateLoose?`<span class="tl-n" style="color:var(--warn)">${fmt(T.D.early??720)}以降に来たリーダーがいないので、閉店までいるリーダーから選んでいます</span>`:"");
+    (T.ld.lateLoose&&!leadMan("late")?`<span class="tl-n" style="color:var(--warn)">${fmt(T.D.early??720)}以降に来たリーダーがいないので、閉店までいるリーダーから選んでいます</span>`:"")+
+    ((T.ld.earlyBoss&&!leadMan("early"))||(T.ld.lateBoss&&!leadMan("late"))?`<span class="tl-n" style="color:var(--warn)">リーダーがいないので、店長にしています</span>`:"");
   const leadsLine=`早番L：${T.ld.early?T.ld.early.name:"いない"}　遅番L：${T.ld.late?T.ld.late.name:"いない"}`;
   $("#todo-sheet").innerHTML=`<p class="todo-title">${esc(dateLabel())} 分<br><span class="todo-title-l">${esc(leadsLine)}</span></p>`+T.secs.map((s,si)=>{
     const rs=T.rows.filter(r=>r.si===si);
@@ -2398,11 +2421,13 @@ function renderTodo(){
     (rs.map(r=>todoRow(r,T,name)).join("")||`<tr><td colspan="4" class="muted">項目がありません</td></tr>`)+`</tbody></table></div>`;
   }).join("")||`<p class="muted">項目がありません。「項目を編集」で足してください。</p>`;
 }
+const isBoss=(T,p)=>T.bossIds.has(p.id);
 function todoRow(r,T,name){
   const it=r.it, cur=r.id, o=onlyOf(r.s.cond);
   // 選べる人：区分の条件に合う人を先に、ほかの出勤者は後ろに
-  const ok=T.ps.filter(p=>o?p.role==="leader":inTodoSec(p,r.s.cond)), others=T.ps.filter(p=>!ok.includes(p));
-  const opt=p=>`<option value="${p.id}" ${r.man&&cur===p.id?"selected":""}>${esc(p.name)}${p.role==="leader"?"（L）":p.level===0?"（見習い）":""}・${T.cnt[p.id]||0}件</option>`;
+  const everyone=[...T.ps,...T.bosses];
+  const ok=everyone.filter(p=>(o||it.who==="leader")?(p.role==="leader"||isBoss(T,p)):(!isBoss(T,p)&&inTodoSec(p,r.s.cond))), others=everyone.filter(p=>!ok.includes(p));
+  const opt=p=>`<option value="${p.id}" ${r.man&&cur===p.id?"selected":""}>${esc(p.name)}${isBoss(T,p)?"（店長）":p.role==="leader"?"（L）":p.level===0?"（見習い）":""}・${T.cnt[p.id]||0}件</option>`;
   const autoLabel=r.man?"自動に戻す":(cur?name(cur):"（いない）");
   const sel=`<select data-key="${esc(r.key)}" class="${r.man?"man":""}${!cur?" none":""}" aria-label="${esc(it.name)}の実施者">`+
     `<option value="" ${r.man?"":"selected"}>${esc(autoLabel)}</option>`+
@@ -2538,21 +2563,6 @@ $("#todo-leads").addEventListener("change",e=>{
 });
 $("#todo-reset").onclick=()=>{day.todo={};saveDay();renderTodo();toast("TODOの手動変更を元に戻しました")};
 $("#todo-print").onclick=()=>{renderTodo();if(isStandalone())openTodoImage();else window.print()};   // ホーム画面から開いたときは画像にする
-$("#todo-copy").onclick=async()=>{
-  const T=todoLast||buildTodo(), honor=n=>n.endsWith("さん")?n:n+"さん";
-  const out=[`${dateLabel()} TODO`];let last=null;
-  T.rows.forEach(r=>{
-    if(r.s!==last){out.push("",`【${r.s.name}】`);last=r.s}
-    out.push(`・${r.it.name}：${r.id&&roster.staff[r.id]?honor(roster.staff[r.id].name):"（なし）"}`);
-  });
-  const txt=out.join("\n");
-  try{await navigator.clipboard.writeText(txt);toast("コピーしました")}
-  catch(e){
-    const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
-    try{document.execCommand("copy");toast("コピーしました")}catch(_){toast("コピーできませんでした")}
-    ta.remove();
-  }
-};
 // テキストでまとめて書き換え（ほかの店から項目をもらうとき・最初に店の項目を入れるとき）
 $("#todo-edit-box").addEventListener("toggle",e=>{if(e.target.open){$("#todo-src").value=todoToText(todoGet());$("#todo-msg").textContent=""}});
 $("#todo-save").onclick=()=>{
