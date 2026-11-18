@@ -26,11 +26,11 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#000; --surface:#1c1c1e; --ink:#f2f2f7; --muted:#a1a1a6; --line:#3a3a3c; --accent:#5e9eff; --accent-ink:#000;
-  --on:#4a4f59; --warn:#ffa95e; --warn-bg:#3a2a1a; --bad:#ff8a80; --bad-bg:#3b1f1d; --soft:#2c2c2e; --dsec-mix:28%;
+  --on:#6c6d74; --warn:#ffa95e; --warn-bg:#3a2a1a; --bad:#ff8a80; --bad-bg:#3b1f1d; --soft:#2c2c2e; --dsec-mix:0%; --cell-empty:rgb(255 255 255 / .07); --cell-dash:transparent;
   --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#000; --surface:#1c1c1e; --ink:#f2f2f7; --muted:#a1a1a6; --line:#3a3a3c; --accent:#5e9eff; --accent-ink:#000;
-  --on:#4a4f59; --warn:#ffa95e; --warn-bg:#3a2a1a; --bad:#ff8a80; --bad-bg:#3b1f1d; --soft:#2c2c2e; --dsec-mix:28%;
+  --on:#6c6d74; --warn:#ffa95e; --warn-bg:#3a2a1a; --bad:#ff8a80; --bad-bg:#3b1f1d; --soft:#2c2c2e; --dsec-mix:0%; --cell-empty:rgb(255 255 255 / .07); --cell-dash:transparent;
   --d0:#5fd1bf; --d0bg:#173430; --d1:#e6bb52; --d1bg:#352c14; --d2:#ef8fb1; --d2bg:#3a1f2a; --d3:#a99cf2; --d3bg:#28243f; color-scheme:dark}
 
 /* =========================================================
@@ -146,6 +146,9 @@ button.match.off{color:var(--muted)}
 .hours .hrow{display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-align:center}
 .dsec{--dc:var(--muted);--dt:var(--soft);border-left:6px solid var(--dc);background:color-mix(in srgb,var(--dt) var(--dsec-mix,70%),var(--surface));margin-top:8px}   /* ダークでは色を薄くして、横棒を見やすく */
 .dsec.d0{--dc:var(--d0);--dt:var(--d0bg)}.dsec.d1{--dc:var(--d1);--dt:var(--d1bg)}.dsec.d2{--dc:var(--d2);--dt:var(--d2bg)}.dsec.d3{--dc:var(--d3);--dt:var(--d3bg)}
+/* ダーク：部門の色を左端でいちばん濃く、右へ行くほど薄く（横棒の所は背景をじゃましない） */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dsec{background:linear-gradient(90deg,color-mix(in srgb,var(--dc) 34%,var(--surface)) 0%,color-mix(in srgb,var(--dc) 12%,var(--surface)) 35%,var(--surface) 80%)}}
+:root[data-theme="dark"] .dsec{background:linear-gradient(90deg,color-mix(in srgb,var(--dc) 34%,var(--surface)) 0%,color-mix(in srgb,var(--dc) 12%,var(--surface)) 35%,var(--surface) 80%)}
 .dept-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 12px 6px;color:var(--dc);font-weight:700;font-size:.92rem}
 .dept-head span{font-weight:500;font-size:.75rem;color:var(--muted)}
 .pr{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) 2.2em;gap:8px;align-items:center;padding:5px 12px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
@@ -156,7 +159,7 @@ button.match.off{color:var(--muted)}
 .pr .cnt{font-family:var(--font-mono);font-weight:700;text-align:right;font-size:.85rem}
 .pr.off .nm{color:var(--muted)}
 .bars{display:grid;grid-template-columns:repeat(var(--slots,12),minmax(0,1fr));gap:2px}
-.cell{display:inline-block;height:14px;border-radius:3px;background:transparent;border:1px dashed var(--line)}
+.cell{display:inline-block;height:14px;border-radius:3px;background:var(--cell-empty,transparent);border:1px dashed var(--cell-dash,var(--line))}   /* ダークでは、いない時間は点線をやめて薄い面に（出勤・レジのマスを目立たせる） */
 .cell.on{background:var(--on);border-color:transparent}
 .cell.reg{background:var(--accent);border-color:transparent}
 .cell.trn{background:repeating-linear-gradient(135deg,var(--accent) 0 3px,transparent 3px 6px);border:1px solid var(--accent)}
@@ -388,6 +391,15 @@ details.howto[open]>summary{margin-bottom:4px}
 :root[data-theme="dark"]{--todo-head:#2a5bb0;--todo-red:#ff8a80;--todo-mix:22%}
 .todo-sheet{display:flex;flex-direction:column;gap:12px}
 .todo-title{display:none}
+.todo-leads{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin:-4px 0 2px}
+.tl{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tl-k{font-size:.78rem;font-weight:700;color:#000;background:var(--todo-lead-chip,#fff200);border-radius:6px;padding:2px 8px}
+.tl b{font-size:1.05rem}
+.tl select{min-height:40px;font:inherit;font-weight:700;border-radius:8px;border:2px solid var(--accent);background:var(--surface);color:var(--ink);padding:4px 8px}
+.tl-n{font-size:.75rem;color:var(--muted)}
+.tl-none{color:var(--bad)}
+.todo-editing .todo-leads{display:none}
+.todo-title-l{font-size:9pt;font-weight:700}
 .tsec{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .tsec-head{background:var(--todo-head);color:var(--todo-head-ink);font-weight:700;padding:8px 14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px}
 .tsec-head span{font-weight:500;font-size:.8rem;opacity:.9}
@@ -410,9 +422,11 @@ details.howto[open]>summary{margin-bottom:4px}
 .ts-ops button:disabled{opacity:.35;cursor:default}
 .ts-ops .del{color:var(--bad);padding:0 10px}
 .ts-ops .del.armed{background:var(--bad);color:#fff;border-color:var(--bad)}
-.ti{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}
-.ti.bgc{background:color-mix(in srgb,var(--rowc) var(--todo-mix),var(--surface))}
-.ti-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px}
+.ti{display:flex;flex-direction:column;gap:8px;padding:10px 12px;margin:10px 12px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 1px 0 rgb(0 0 0 / .25)}   /* 1項目＝1枚のカード */
+.ti.bgc{background:color-mix(in srgb,var(--rowc) var(--todo-mix),var(--surface));border-left:6px solid var(--rowc)}
+.ti-main{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.3fr) auto;gap:8px;align-items:center}
+.ti-no{min-width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:800;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.ti-main .ts-ops{margin-left:0}
 .ti-main input,.ti-main textarea{font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);padding:6px 8px;min-height:40px;width:100%;box-sizing:border-box;resize:none}
 .ti-name{font-weight:700}
 .ti.red .ti-name,.ti.rednote .ti-note{color:var(--todo-red)}
@@ -434,10 +448,13 @@ details.howto[open]>summary{margin-bottom:4px}
 .tg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .tg button.tg-red[aria-pressed="true"]{background:var(--todo-red);color:#fff;border-color:var(--todo-red)}
 .tsec-ed>.btn.add{margin:8px 12px 12px;align-self:flex-start}
-.tsec-ed{display:flex;flex-direction:column}
+.tsec-ed{display:flex;flex-direction:column;background:var(--bg)}   /* カードが浮いて見えるよう、区分の中は一段暗く */
 .todo-sheet>.btn.add{align-self:flex-start}
 @media (max-width:640px){
-  .ti-main{grid-template-columns:1fr}
+  .ti-main{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"no name" "note note" "ops ops"}
+  .ti-main .ts-ops{justify-self:end}
+  .ti-main .ti-no{grid-area:no}.ti-main .ti-name{grid-area:name}.ti-main .ti-note{grid-area:note}.ti-main .ts-ops{grid-area:ops}
+  .ti{margin:8px 8px 0}
   .ts-ops{margin-left:0}
   .tsec-head.ed .ts-name{flex-basis:100%}
 }
@@ -496,7 +513,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v78</span> · <span id="app-date">11/18</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v86</span> · <span id="app-date">11/18</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -533,12 +550,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <li>新しい人が入った・辞めた人がいる → 「名簿」タブで名前を貼り付けて登録し直す</li>
         <li>名簿は合っている → シフト表で、名簿と同じ行から同じ行まで（部門の間の空白も含めて）コピーし直す</li>
       </ul>
-      <span>このままレジ番表を作ると、名前と時間がずれます。</span>
+      <span>このままレジ番表を出力すると、名前と時間がずれます。</span>
     </div>
     <h2 class="sec"><span class="stepno">2</span>照合結果を確認</h2>
     <p class="muted" style="margin:0">急な休み・急な出勤は、名前をタップすると今日の時間を変えられます。</p>
     <div class="list" id="day-list"></div>
-    <button class="btn primary wide" id="to-plan">レジ番表を作る →</button>
+    <button class="btn primary wide" id="to-plan">レジ番表を出力 →</button>
   </section>
 
   <!-- レジ番表 -->
@@ -624,9 +641,10 @@ details.howto[open]>summary{margin-bottom:4px}
       <button class="btn" id="todo-edit" style="margin-left:auto">項目を編集</button>
       <button class="btn" id="todo-undo" hidden>編集前に戻す</button>
       <button class="btn" id="todo-reset">手動変更をリセット</button>
-      <button class="btn" id="todo-print">印刷</button>
+      <button class="btn" id="todo-print">出力</button>
       <button class="btn primary" id="todo-copy">テキストでコピー</button>
     </div>
+    <div class="todo-leads" id="todo-leads"></div>
     <div class="notice" id="todo-warn" hidden></div>
     <div id="todo-sheet" class="todo-sheet"></div>
     <p class="muted" style="margin:0">実施者は、レジ番と同じ出勤者から自動で決まります。名前をタップすると選び直せます（選んだ人は「手動」になり、ほかの項目が組み直されます）。区分の名前・対象の時刻・項目・色は「項目を編集」で直せます。</p>
@@ -636,8 +654,8 @@ details.howto[open]>summary{margin-bottom:4px}
       <table>
         <tr><th>項目</th><th>決め方</th></tr>
         <tr><td>担当が「リーダー」の項目</td><td>区分で決めた早番L・遅番Lが担当。早番Lの区分で早番Lがいない日は、遅番Lが担当</td></tr>
-        <tr><td>早番L</td><td>名簿で役職が「リーダー」の人のうち、<span class="todo-early"></span>より前に出勤した人（いちばん早い人）。時刻は「項目を編集」で変えられます</td></tr>
-        <tr><td>遅番L</td><td>役職が「リーダー」の人のうち、<span class="todo-late"></span>までいる人（いちばん遅くまでいる人）。時刻は「項目を編集」で変えられます。決めていなければ閉店時刻</td></tr>
+        <tr><td>早番L</td><td>名簿で役職が「リーダー」の人のうち、<span class="todo-early"></span>より前に出勤した人。2人以上いる日（土日など）は、日付の下で選べます（選ぶまではランダム）。時刻は「項目を編集」で変えられます</td></tr>
+        <tr><td>遅番L</td><td>役職が「リーダー」の人のうち、<span class="todo-early"></span>以降に出勤して、<span class="todo-late"></span>までいる人（そういう人がいない日は、閉店までいるリーダー）。2人以上いる日は選べます（はじめはランダム）。時刻は「項目を編集」で変えられます。決めていなければ閉店時刻</td></tr>
         <tr><td>そのほかの項目</td><td>区分の対象（出勤・退勤の時刻）に合う人から。リーダーは入れない。担当が部門の項目は、その部門の人から</td></tr>
         <tr><td>偏らないように</td><td>① TODO の数が少ない人 → ② その日のレジの回数が少ない人 → ③ 日替わり の順</td></tr>
         <tr><td>入らない人</td><td>店長（役職）、部門が「店長」「流通便」の人。見習い（レベル0）は自動では入れません（名前をタップすれば選べます）</td></tr>
@@ -730,6 +748,7 @@ details.howto[open]>summary{margin-bottom:4px}
       <button type="button" data-jump="h-daily">毎日の使い方</button>
       <button type="button" data-jump="h-plans">3つの案</button>
       <button type="button" data-jump="h-fix">手で直す</button>
+      <button type="button" data-jump="h-todo">TODO表</button>
       <button type="button" data-jump="h-setup">最初の準備</button>
       <button type="button" data-jump="h-level">レベル・役職</button>
       <button type="button" data-jump="h-backup">バックアップ</button>
@@ -741,7 +760,7 @@ details.howto[open]>summary{margin-bottom:4px}
       <ol class="hsteps">
         <li><b>シフト表の、その日の列をコピー</b><span>名簿と<b>同じ行から同じ行まで</b>選びます（下の「最初の準備」の見本の②）</span></li>
         <li><b>「今日のシフト」タブに貼り付ける</b><span>名前と時間が横に並びます。ずれていないか、ざっと確認</span></li>
-        <li><b>「レジ番表を作る」を押して、案を選ぶ</b><span>迷ったら「標準」。部門の人数差が大きい日は「バランス」、フロアが手薄になる時間がある日は「フロア優先」（下の「3つの案の選び方」）。直したい時間は手で直せます（下の「手で直す」）</span></li>
+        <li><b>「レジ番表を出力」を押して、案を選ぶ</b><span>迷ったら「標準」。部門の人数差が大きい日は「バランス」、フロアが手薄になる時間がある日は「フロア優先」（下の「3つの案の選び方」）。直したい時間は手で直せます（下の「手で直す」）</span></li>
         <li><b>「テキストでコピー」を押して、LINEなどに貼る</b><span>「9:00-10:00 〇〇さん」の形で、営業時間の分だけ並びます</span></li>
       </ol>
     </div>
@@ -771,7 +790,7 @@ details.howto[open]>summary{margin-bottom:4px}
 
     <div class="hcard" id="h-todo">
       <h3>TODO表（その日の作業の担当）<span class="beta">(BETA)</span></h3>
-      <p>「TODO」タブで、その日の作業ごとの実施者を、レジ番と同じ出勤者から自動で決めます。印刷すると紙の作業表と同じ形になります（確認者の欄は手書き用）。</p>
+      <p>「TODO」タブで、その日の作業ごとの実施者を、レジ番と同じ出勤者から自動で決めます。「出力」で印刷すると紙の作業表と同じ形になります（確認者の欄は手書き用）。</p>
       <table class="htable">
         <tr><th>こうしたい</th><th>こうする</th></tr>
         <tr><td>店の項目にする（最初だけ）</td><td>「TODO」タブの「項目を編集」。区分の名前・対象の時刻、項目の追加・削除・並べ替え・担当・背景の色・文字の色（黒・赤）を画面の上で直せます。このiPadの中だけに残ります</td></tr>
@@ -860,12 +879,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「コピーミスか、名簿の更新がされていません！」と出る</td><td>新しい人が入った・辞めた人がいるなら「名簿」で登録し直す。名簿が合っていれば、名簿と同じ行から同じ行までコピーし直してください。なお、辞めた人の行が消えただけ、などでは気づけないことがあるので、照合結果で名前と時間が合っているかも見てください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v78 · 11/18」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v86 · 11/18」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v78（2026年11月18日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v86（2026年11月18日 更新）</p>
   </section>
 </div>
 
@@ -894,7 +913,7 @@ details.howto[open]>summary{margin-bottom:4px}
 
 <div class="sheet" id="psheet" hidden>
   <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="psheet-title">
-    <h2 id="psheet-title">TODO表を印刷</h2>
+    <h2 id="psheet-title">TODO表を出力</h2>
     <p class="muted" style="margin:0">ホーム画面から開いたアプリでは、iPadの仕組みで印刷の画面を直接出せません。紙と同じ形の画像にしました。</p>
     <ol class="steps" style="margin:0"><li>「共有してプリント」を押す</li><li>出てきた一覧から「プリント」を選ぶ</li></ol>
     <p class="muted" style="margin:0">「共有してプリント」が出ないときは、下の画像を長押し →「共有」→「プリント」。</p>
@@ -2268,11 +2287,19 @@ function saveTodo(){lsSet(LS_TODO,JSON.stringify(todoData))}
 // ---------- 実施者を決める ----------
 // TODOをする人：店長（役職）と、部門が店長・流通便の人は入れない
 const todoPeople=()=>presentPeople().filter(p=>p.role!=="manager"&&p.dept<4);
+// 早番L・遅番L。当てはまるリーダーが2人以上いる日（土日など）は選べる。選んでいなければ日替わりでランダム
 function todoLeaders(ps,D){
-  const L=ps.filter(p=>p.role==="leader"), close=todoLateT(D), eb=D.early??720;
-  const early=L.filter(p=>p.start<eb).sort((a,b)=>a.start-b.start||a.name.localeCompare(b.name,"ja"))[0]||null;
-  const late=L.filter(p=>p.end>=close).sort((a,b)=>b.end-a.end||a.name.localeCompare(b.name,"ja"))[0]||null;
-  return {early,late};
+  const L=ps.filter(p=>p.role==="leader"), close=todoLateT(D), eb=D.early??720, seed=day.date||"", ed=day.todo||{};
+  const byName=(a,b)=>a.name.localeCompare(b.name,"ja");
+  const earlyC=L.filter(p=>p.start<eb).sort((a,b)=>a.start-b.start||byName(a,b));
+  // 遅番L：早番Lの時刻以降に出勤して、遅番Lの時刻までいる人。いない日だけ、閉店までいるリーダーなら出勤時刻を問わない
+  const lateStrict=L.filter(p=>p.start>=eb&&p.end>=close), lateAny=L.filter(p=>p.end>=close);
+  const lateLoose=!lateStrict.length&&lateAny.length>0;
+  const lateC=(lateStrict.length?lateStrict:lateAny).sort((a,b)=>b.end-a.end||byName(a,b));
+  const rnd=(cs,avoid)=>{const pool=cs.length>1&&avoid?cs.filter(p=>p.id!==avoid):cs;return pool.slice().sort((a,b)=>dayHash(seed+"L"+a.id)-dayHash(seed+"L"+b.id))[0]||null};
+  const early=earlyC.find(p=>p.id===ed["@early"])||rnd(earlyC);
+  const late=lateC.find(p=>p.id===ed["@late"])||rnd(lateC,early&&early.id);   // できれば早番Lと別の人
+  return {early,late,earlyC,lateC,lateLoose};
 }
 function inTodoSec(p,c){
   if(c.type==="startBefore")return p.start<c.t;
@@ -2335,7 +2362,10 @@ function renderTodo(){
   document.querySelectorAll(".todo-close").forEach(e=>e.textContent=storeHours().close+":00");
   document.querySelectorAll(".todo-early").forEach(e=>e.textContent=fmt(T.D.early??720));
   document.querySelectorAll(".todo-late").forEach(e=>e.textContent=fmt(todoLateT(T.D))+(T.D.late==null?"（閉店時刻）":""));
-  const nMan=T.rows.filter(r=>r.man).length;
+  const ed0=day.todo||{};
+  const nMan=T.rows.filter(r=>r.man).length+
+    (T.ld.earlyC.length>1&&T.ld.early&&T.ld.early.id===ed0["@early"]?1:0)+
+    (T.ld.lateC.length>1&&T.ld.late&&T.ld.late.id===ed0["@late"]?1:0);   // 早番L・遅番Lを手で選んだ分も数える
   $("#todo-reset").disabled=!nMan||todoEditing;
   $("#todo-reset").textContent=nMan?`手動変更をリセット（${nMan}件）`:"手動変更をリセット";
   $("#p-todo").classList.toggle("todo-editing",todoEditing);
@@ -2352,7 +2382,15 @@ function renderTodo(){
   const name=id=>id&&roster.staff[id]?roster.staff[id].name:"";
   const leadLabel=s=>onlyOf(s.cond)?"":`リーダー項目の担当：${s.lead==="late"?"遅番L":"早番L"}`+
     `（${(s.lead==="late"||!T.ld.early)?(T.ld.late?T.ld.late.name:"いない"):T.ld.early.name}）`;
-  $("#todo-sheet").innerHTML=`<p class="todo-title">${esc(dateLabel())} 分</p>`+T.secs.map((s,si)=>{
+  // 日付の下：早番L・遅番L（2人以上いれば選べる）
+  const leadPick=(k,lab,cur,cs)=>`<span class="tl"><span class="tl-k">${lab}</span>`+(cs.length>1?
+    `<select data-lead="${k}" aria-label="${lab}を選ぶ">${cs.map(p=>`<option value="${p.id}" ${cur&&cur.id===p.id?"selected":""}>${esc(p.name)}（${fmt(p.start)}〜${fmt(p.end)}）</option>`).join("")}</select>`+
+    `<span class="tl-n">${cs.length}人から${(day.todo||{})["@"+k]?"選択":"ランダム"}</span>`:
+    `<b>${cur?esc(cur.name):'<span class="tl-none">いない</span>'}</b>`)+`</span>`;
+  $("#todo-leads").innerHTML=leadPick("early","早番L",T.ld.early,T.ld.earlyC)+leadPick("late","遅番L",T.ld.late,T.ld.lateC)+
+    (T.ld.lateLoose?`<span class="tl-n" style="color:var(--warn)">${fmt(T.D.early??720)}以降に来たリーダーがいないので、閉店までいるリーダーから選んでいます</span>`:"");
+  const leadsLine=`早番L：${T.ld.early?T.ld.early.name:"いない"}　遅番L：${T.ld.late?T.ld.late.name:"いない"}`;
+  $("#todo-sheet").innerHTML=`<p class="todo-title">${esc(dateLabel())} 分<br><span class="todo-title-l">${esc(leadsLine)}</span></p>`+T.secs.map((s,si)=>{
     const rs=T.rows.filter(r=>r.si===si);
     return `<div class="tsec"><div class="tsec-head">${esc(s.name||"（区分の名前なし）")}<span>${esc([condLabel(s.cond),leadLabel(s)].filter(Boolean).join("・"))}</span></div>`+
     `<table class="ttable"><colgroup><col><col class="c-who"><col class="c-chk"><col class="c-note"></colgroup>`+
@@ -2391,7 +2429,7 @@ function renderTodoEdit(T){
   const tog=(f,v,label)=>`<span class="tg" role="group" aria-label="${label}"><span class="tg-l">${label}</span><button type="button" data-op="${f}" data-v="0" aria-pressed="${!v}">黒</button><button type="button" data-op="${f}" data-v="1" aria-pressed="${!!v}" class="tg-red">赤</button></span>`;
   $("#todo-sheet").innerHTML=
     `<div class="tedit-top"><label class="tedit-early"><b>早番L</b>＝役職「リーダー」で<select id="todo-early">${timeOpts(D.early??720)}</select>より前に出勤した人</label>`+
-    `<label class="tedit-early"><b>遅番L</b>＝役職「リーダー」で<select id="todo-late"><option value="" ${T.D.late==null?"selected":""}>閉店時刻（${storeHours().close}:00）</option>${timeOpts(T.D.late)}</select>までいる人</label>`+
+    `<label class="tedit-early"><b>遅番L</b>＝役職「リーダー」で、早番Lの時刻以降に出勤して<select id="todo-late"><option value="" ${T.D.late==null?"selected":""}>閉店時刻（${storeHours().close}:00）</option>${timeOpts(T.D.late)}</select>までいる人</label>`+
     `<span class="muted">変えたところはすぐ保存されます</span></div>`+
     D.secs.map((s,si)=>`<div class="tsec tsec-ed" data-s="${si}">`+
       `<div class="tsec-head ed">`+
@@ -2402,12 +2440,12 @@ function renderTodoEdit(T){
         `<span class="ts-ops"><button type="button" data-op="sup" aria-label="区分を上へ" ${si?"":"disabled"}>↑</button><button type="button" data-op="sdown" aria-label="区分を下へ" ${si<D.secs.length-1?"":"disabled"}>↓</button><button type="button" data-op="sdel" class="del">区分を削除</button></span>`+
       `</div>`+
       s.items.map((it,ii)=>`<div class="ti${it.bg?" bgc":""}${it.red?" red":""}${it.redNote?" rednote":""}" data-i="${ii}"${rowStyle(it)}>`+
-        `<div class="ti-main"><input class="ti-name" value="${esc(it.name)}" placeholder="項目の名前" aria-label="項目の名前">`+
-        `<textarea class="ti-note" rows="1" placeholder="チェック項目（なくてもOK）" aria-label="チェック項目">${esc(it.note)}</textarea></div>`+
+        `<div class="ti-main"><span class="ti-no" aria-hidden="true">${ii+1}</span><input class="ti-name" value="${esc(it.name)}" placeholder="項目の名前" aria-label="${ii+1}番目の項目の名前">`+
+        `<textarea class="ti-note" rows="1" placeholder="チェック項目（なくてもOK）" aria-label="チェック項目">${esc(it.note)}</textarea>`+
+        `<span class="ts-ops"><button type="button" data-op="iup" aria-label="項目を上へ" ${ii?"":"disabled"}>↑</button><button type="button" data-op="idown" aria-label="項目を下へ" ${ii<s.items.length-1?"":"disabled"}>↓</button><button type="button" data-op="idel" class="del" aria-label="項目を削除">削除</button></span></div>`+
         `<div class="ti-opts"><label class="ti-who"><span class="tg-l">担当</span><select class="ti-w" aria-label="担当">${whoOpts(it.who)}</select></label>`+
         `<span class="sws" role="group" aria-label="背景の色"><span class="tg-l">背景</span>${swatches(it)}</span>`+
-        tog("red",it.red,"項目の字")+tog("redNote",it.redNote,"チェックの字")+
-        `<span class="ts-ops"><button type="button" data-op="iup" aria-label="項目を上へ" ${ii?"":"disabled"}>↑</button><button type="button" data-op="idown" aria-label="項目を下へ" ${ii<s.items.length-1?"":"disabled"}>↓</button><button type="button" data-op="idel" class="del" aria-label="項目を削除">削除</button></span></div>`+
+        tog("red",it.red,"項目の字")+tog("redNote",it.redNote,"チェックの字")+`</div>`+
       `</div>`).join("")+
       `<button type="button" class="btn add" data-op="iadd">＋ 項目を追加</button></div>`).join("")+
     `<button type="button" class="btn add" data-op="sadd">＋ 区分を追加</button>`;
@@ -2493,6 +2531,11 @@ $("#todo-sheet").addEventListener("click",e=>{
   todoChanged(true);
   if(focus){const f=$("#todo-sheet "+focus);if(f){f.focus();f.scrollIntoView({block:"center"})}}
 });
+$("#todo-leads").addEventListener("change",e=>{
+  const s=e.target.closest("select[data-lead]");if(!s)return;
+  if(!day.todo)day.todo={};
+  day.todo["@"+s.dataset.lead]=s.value;saveDay();renderTodo();
+});
 $("#todo-reset").onclick=()=>{day.todo={};saveDay();renderTodo();toast("TODOの手動変更を元に戻しました")};
 $("#todo-print").onclick=()=>{renderTodo();if(isStandalone())openTodoImage();else window.print()};   // ホーム画面から開いたときは画像にする
 $("#todo-copy").onclick=async()=>{
@@ -2549,18 +2592,21 @@ function todoCanvas(){
   // まず高さを測る
   const blocks=T.secs.map((s,si)=>({s,rows:T.rows.filter(r=>r.si===si).map(r=>{
     const a=wrap(r.it.name||"（名前なし）",cols[0]-P*2,F.item), b=wrap(name(r.id),cols[1]-P*2,F.who), d=wrap(r.it.note,cols[3]-P*2,F.note);
-    return {r,a,b,d,h:Math.max(a.length*LH.item,b.length*LH.item,d.length*LH.note)+P*2};
+    return {r,a,b,d,h:Math.max(a.length*LH.item,b.length*LH.item,d.length*LH.note+2)+P*2};   // チェック項目は2下げて描くので、その分も高さに
   })}));
   const SEC_H=40, TH_H=26, GAP=12;
-  let H=M+40;blocks.forEach(bk=>{H+=SEC_H+TH_H+bk.rows.reduce((x,y)=>x+y.h,0)+GAP});H+=M-GAP;
+  const leadsLine=`早番L：${T.ld.early?T.ld.early.name:"いない"}　遅番L：${T.ld.late?T.ld.late.name:"いない"}`;
+  let H=M+40+30;blocks.forEach(bk=>{H+=SEC_H+TH_H+bk.rows.reduce((x,y)=>x+y.h,0)+GAP});H+=M-GAP;
   // A4の比率に合わせる（長いときは1枚に収まるように縮める）
   const A4H=Math.round(W*297/210), sc=Math.min(1,A4H/H), cv=document.createElement("canvas");
-  cv.width=W;cv.height=A4H;
-  const c=cv.getContext("2d");c.fillStyle="#fff";c.fillRect(0,0,W,A4H);
+  const DPR=2;   // 実際のマスは2倍（印刷・Retinaで字がくっきり）。座標は1倍のまま
+  cv.width=W*DPR;cv.height=A4H*DPR;
+  const c=cv.getContext("2d");c.scale(DPR,DPR);c.fillStyle="#fff";c.fillRect(0,0,W,A4H);
   c.save();c.translate((W-W*sc)/2,0);c.scale(sc,sc);
   c.textBaseline="top";
   let y=M;
-  c.font=F.title;c.fillStyle="#000";c.textAlign="right";c.fillText(dateLabel()+" 分",W-M,y);c.textAlign="left";y+=40;
+  c.font=F.title;c.fillStyle="#000";c.textAlign="right";c.fillText(dateLabel()+" 分",W-M,y);
+  c.font=F.who;c.fillText(leadsLine,W-M,y+36);c.textAlign="left";y+=40+30;
   const line=(x1,y1,x2,y2)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()};
   c.strokeStyle="#000";c.lineWidth=1.2;
   blocks.forEach(bk=>{
