@@ -61,9 +61,23 @@ h1 .pos{color:var(--accent);letter-spacing:.04em}
 .sub{color:var(--muted);font-size:.85rem;margin:0}
 
 /* タブ */
-.tabs{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px}
-.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;padding:10px 12px;border-radius:9px;cursor:pointer;min-height:44px}
-.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+.tabs{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px;position:relative}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;padding:10px 12px;border-radius:9px;cursor:pointer;min-height:44px;position:relative;z-index:1;transition:color .2s}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+/* 選んでいるタブの白い板：タップした所へヌルッと動く */
+.tab-ind{position:absolute;top:4px;bottom:4px;left:0;width:0;border-radius:9px;background:var(--surface);box-shadow:0 1px 3px rgb(0 0 0 / .12);pointer-events:none;opacity:0}
+.tab-ind.on{opacity:1}
+.tabs{touch-action:pan-y;-webkit-user-select:none;user-select:none}   /* 横になぞってタブを動かせるように（縦のスクロールはそのまま） */
+.tabs.dragging button{transition:none}
+.tabs.dragging button[aria-selected="true"]:not(.drag-over){color:var(--muted)}
+.tabs.dragging button.drag-over{color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){
+  .tab-ind.ready{transition:transform .34s cubic-bezier(.3,1.25,.4,1),width .34s cubic-bezier(.3,1.25,.4,1),opacity .2s}
+  @keyframes pq-tab-r{from{opacity:0;transform:translateX(28px)}}
+  @keyframes pq-tab-l{from{opacity:0;transform:translateX(-28px)}}
+  .panel.tab-in-r{animation:pq-tab-r .3s cubic-bezier(.2,.8,.2,1)}
+  .panel.tab-in-l{animation:pq-tab-l .3s cubic-bezier(.2,.8,.2,1)}
+}
 
 /* ボタン・入力 */
 button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -515,13 +529,13 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v88</span> · <span id="app-date">11/18</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v92</span> · <span id="app-date">11/19</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
   </header>
 
-  <div class="tabs" role="tablist">
+  <div class="tabs" role="tablist"><span class="tab-ind" id="tab-ind" aria-hidden="true"></span>
     <button role="tab" id="tab-day" aria-selected="true">今日のシフト</button>
     <button role="tab" id="tab-plan" aria-selected="false">レジ番表</button>
     <button role="tab" id="tab-todo" aria-selected="false">TODO<span class="beta">(BETA)</span></button>
@@ -881,12 +895,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「コピーミスか、名簿の更新がされていません！」と出る</td><td>新しい人が入った・辞めた人がいるなら「名簿」で登録し直す。名簿が合っていれば、名簿と同じ行から同じ行までコピーし直してください。なお、辞めた人の行が消えただけ、などでは気づけないことがあるので、照合結果で名前と時間が合っているかも見てください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v88 · 11/18」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v92 · 11/19」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v88（2026年11月18日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v92（2026年11月19日 更新）</p>
   </section>
 </div>
 
@@ -1592,8 +1606,58 @@ function saveDay(){if(!isSample)lsSet(LS_DAY,JSON.stringify(day))}
    操作：タブ・今日のシフト
    ========================================================= */
 let lastTab="day";   // 使い方を閉じたときに戻るタブ
+const TABS=["day","plan","todo","roster"];
+// 選んでいるタブの板を、そのタブの位置・幅に合わせる
+function moveTabInd(){
+  const ind=$("#tab-ind"), b=document.querySelector('.tabs button[aria-selected="true"]');
+  if(!b){ind.classList.remove("on");return}
+  const r=b.getBoundingClientRect(), t=b.parentNode.getBoundingClientRect();   // 小数まで合わせる（offsetLeft は整数に丸められてずれる）
+  ind.style.width=r.width+"px";ind.style.transform=`translateX(${r.left-t.left}px)`;ind.classList.add("on");
+}
+// タブの幅が変わったら（画面の回転・スクロールバーの出入りなど）、動かさずに合わせ直す
+const tabIndFix=()=>{const ind=$("#tab-ind");ind.classList.remove("ready");moveTabInd();requestAnimationFrame(()=>ind.classList.add("ready"))};
+if(window.ResizeObserver)new ResizeObserver(tabIndFix).observe($(".tabs"));else addEventListener("resize",tabIndFix);
+// タブを押したまま横にすべらせると、白い板が指についてきて、離した所のタブに切り替わる
+(()=>{
+  const bar=$(".tabs"), ind=$("#tab-ind"), btns=()=>[...bar.querySelectorAll('button[role="tab"]')];
+  let drag=null, suppress=0;
+  bar.addEventListener("pointerdown",e=>{
+    if(e.pointerType==="mouse"&&e.button!==0)return;
+    const sel=bar.querySelector('button[aria-selected="true"]');if(!sel)return;
+    drag={x0:e.clientX,id:e.pointerId,moved:false,w:sel.getBoundingClientRect().width};
+  });
+  bar.addEventListener("pointermove",e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    if(!drag.moved){
+      if(Math.abs(e.clientX-drag.x0)<8)return;   // 少し動いただけなら、ふつうのタップ
+      drag.moved=true;try{bar.setPointerCapture(e.pointerId)}catch(_){}
+      ind.classList.remove("ready");bar.classList.add("dragging");
+    }
+    const t=bar.getBoundingClientRect(), x=Math.min(Math.max(e.clientX-t.left-drag.w/2,4),t.width-4-drag.w);
+    ind.style.transform=`translateX(${x}px)`;
+    const c=t.left+x+drag.w/2;
+    btns().forEach(b=>{const r=b.getBoundingClientRect();b.classList.toggle("drag-over",c>=r.left&&c<r.right)});
+  });
+  const end=(e,cancel)=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    const moved=drag.moved;drag=null;
+    if(!moved)return;
+    suppress=Date.now();   // 離したときの「タップ」は無視する
+    const over=cancel?null:btns().find(b=>b.classList.contains("drag-over"));
+    btns().forEach(b=>b.classList.remove("drag-over"));bar.classList.remove("dragging");
+    ind.classList.add("ready");
+    requestAnimationFrame(()=>{if(over&&over.getAttribute("aria-selected")!=="true")showTab(over.id.slice(4));else moveTabInd()});
+  };
+  bar.addEventListener("pointerup",e=>end(e,false));
+  bar.addEventListener("pointercancel",e=>end(e,true));
+  bar.addEventListener("click",e=>{if(Date.now()-suppress<400){e.stopPropagation();e.preventDefault()}},true);
+})();
 function showTab(name){
-  ["day","plan","todo","roster"].forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
+  const from=TABS.indexOf(lastTab), to=TABS.indexOf(name), wasHelp=!$("#p-help").hidden;
+  TABS.forEach(n=>{$("#tab-"+n).setAttribute("aria-selected",n===name);$("#p-"+n).hidden=n!==name});
+  moveTabInd();
+  // 中身は、右のタブへ行くときは右から、左のタブへ行くときは左から入る
+  if(to>=0&&from>=0&&to!==from&&!wasHelp){const p=$("#p-"+name);p.classList.remove("tab-in-r","tab-in-l");void p.offsetWidth;p.classList.add(to>from?"tab-in-r":"tab-in-l");p.addEventListener("animationend",()=>p.classList.remove("tab-in-r","tab-in-l"),{once:true})}
   $("#p-help").hidden=name!=="help";
   if(name==="help"){window.scrollTo(0,0);return}
   lastTab=name;
@@ -2679,6 +2743,8 @@ $("#psheet").addEventListener("click",e=>{if(e.target.id==="psheet")$("#ps-close
   if(!roster.depts)roster.depts=[...DEFAULT_DEPTS];
   applyHours();
   refresh();renderLog();
+  moveTabInd();requestAnimationFrame(()=>requestAnimationFrame(()=>$("#tab-ind").classList.add("ready")));   // 最初は動かさずに置く
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{const i=$("#tab-ind");i.classList.remove("ready");moveTabInd();requestAnimationFrame(()=>i.classList.add("ready"))});
   if("serviceWorker" in navigator&&location.protocol!=="file:"){navigator.serviceWorker.register("sw.js").catch(()=>{})}
 })();
 </script>
