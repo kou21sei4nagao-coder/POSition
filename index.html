@@ -529,7 +529,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v92</span> · <span id="app-date">11/19</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v93</span> · <span id="app-date">11/20</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -672,7 +672,7 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>早番L</td><td>名簿で役職が「リーダー」の人のうち、<span class="todo-early"></span>より前に出勤した人。2人以上いる日（土日など）は、日付の下で選べます（選ぶまではランダム）。時刻は「項目を編集」で変えられます</td></tr>
         <tr><td>遅番L</td><td>役職が「リーダー」の人のうち、<span class="todo-early"></span>以降に出勤して、<span class="todo-late"></span>までいる人（そういう人がいない日は、閉店までいるリーダー）。2人以上いる日は選べます（はじめはランダム）。時刻は「項目を編集」で変えられます。決めていなければ閉店時刻</td></tr>
         <tr><td>そのほかの項目</td><td>区分の対象（出勤・退勤の時刻）に合う人から。リーダーは入れない。担当が部門の項目は、その部門の人から</td></tr>
-        <tr><td>偏らないように</td><td>① TODO の数が少ない人 → ② その日のレジの回数が少ない人 → ③ 日替わり の順</td></tr>
+        <tr><td>偏らないように</td><td>① TODO の数が少ない人 → ② 同じ数ならランダム（日ごとに変わる）</td></tr>
         <tr><td>店長</td><td>ふだんの項目には入りません。早番L・遅番Lのリーダーがいない日は、店長がリーダーの項目を担当します。日付の下や名前をタップして、手で選ぶこともできます</td></tr>
         <tr><td>入らない人</td><td>部門が「流通便」の人。見習い（レベル0）は自動では入れません（名前をタップすれば選べます）</td></tr>
       </table>
@@ -895,12 +895,12 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「コピーミスか、名簿の更新がされていません！」と出る</td><td>新しい人が入った・辞めた人がいるなら「名簿」で登録し直す。名簿が合っていれば、名簿と同じ行から同じ行までコピーし直してください。なお、辞めた人の行が消えただけ、などでは気づけないことがあるので、照合結果で名前と時間が合っているかも見てください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v92 · 11/19」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v93 · 11/20」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v92（2026年11月19日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v93（2026年11月20日 更新）</p>
   </section>
 </div>
 
@@ -2390,16 +2390,15 @@ const onlyOf=c=>c.type==="onlyLate"?"late":c.type==="onlyEarly"?"early":null;
 function buildTodo(){
   const D=todoGet(), secs=D.secs;
   const ps=todoPeople(), ld=todoLeaders(ps,D), bosses=todoBosses(), byId=Object.fromEntries([...ps,...bosses].map(p=>[p.id,p]));
-  const ed=day.todo||{}, cnt={}, regN={}, seed=day.date||"";
+  const ed=day.todo||{}, cnt={}, seed=day.date||"";
   [...ps,...bosses].forEach(p=>cnt[p.id]=0);
-  plan.forEach(q=>{if(q.id)regN[q.id]=(regN[q.id]||0)+1});
   const rows=[], seen={};
   secs.forEach((s,si)=>s.items.forEach((it,ii)=>{
     let key=si+":"+it.name;seen[key]=(seen[key]||0)+1;if(seen[key]>1)key+="#"+seen[key];   // 同じ区分に同じ名前があっても区別する
     const dept=it.who.startsWith("dept:")?+it.who.slice(5):null;
     rows.push({key,s,si,ii,it,dept,id:null,man:false,warn:""});
   }));
-  const pick=pool=>pool.slice().sort((a,b)=>cnt[a.id]-cnt[b.id]||(regN[a.id]||0)-(regN[b.id]||0)||dayHash(seed+a.id)-dayHash(seed+b.id))[0]||null;
+  const pick=pool=>pool.slice().sort((a,b)=>cnt[a.id]-cnt[b.id]||dayHash(seed+a.id)-dayHash(seed+b.id))[0]||null;   // TODOの件数が少ない人 → ランダム（レジの回数は見ない）
   const give=(r,p)=>{r.id=p?p.id:null;if(p)cnt[p.id]++};
   rows.forEach(r=>{
     const v=ed[r.key];
