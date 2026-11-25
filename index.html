@@ -529,7 +529,7 @@ details.howto[open]>summary{margin-bottom:4px}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v93</span> · <span id="app-date">11/20</span></span></h1>
+      <h1><span class="pos">POS</span>ition <span class="ver" title="何回目の更新か・更新した日"><span id="app-ver">v96</span> · <span id="app-date">11/25</span></span></h1>
       <p class="sub">レジ番メーカー｜<span id="hours-label">9:00〜21:00</span>（1時間交代）</p>
     </div>
     <div class="hbtns"><button class="btn" id="share-open">共有</button><button class="btn" id="help-open">使い方</button></div>
@@ -673,7 +673,7 @@ details.howto[open]>summary{margin-bottom:4px}
         <tr><td>遅番L</td><td>役職が「リーダー」の人のうち、<span class="todo-early"></span>以降に出勤して、<span class="todo-late"></span>までいる人（そういう人がいない日は、閉店までいるリーダー）。2人以上いる日は選べます（はじめはランダム）。時刻は「項目を編集」で変えられます。決めていなければ閉店時刻</td></tr>
         <tr><td>そのほかの項目</td><td>区分の対象（出勤・退勤の時刻）に合う人から。リーダーは入れない。担当が部門の項目は、その部門の人から</td></tr>
         <tr><td>偏らないように</td><td>① TODO の数が少ない人 → ② 同じ数ならランダム（日ごとに変わる）</td></tr>
-        <tr><td>店長</td><td>ふだんの項目には入りません。早番L・遅番Lのリーダーがいない日は、店長がリーダーの項目を担当します。日付の下や名前をタップして、手で選ぶこともできます</td></tr>
+        <tr><td>店長</td><td>ふだんの項目には入りません。早番L・遅番Lに当てはまるリーダーがいない日は、最後の手段として店長が早番L・遅番Lになり、リーダーの項目を担当します。日付の下や名前をタップして、手で選ぶこともできます</td></tr>
         <tr><td>入らない人</td><td>部門が「流通便」の人。見習い（レベル0）は自動では入れません（名前をタップすれば選べます）</td></tr>
       </table>
     </details>
@@ -683,7 +683,7 @@ details.howto[open]>summary{margin-bottom:4px}
       <table class="todo-fmt">
         <tr><th>行</th><th>書き方</th><th>例</th></tr>
         <tr><td>区分</td><td><code>#</code> 区分の名前 <code>|</code> 対象 <code>|</code> リーダーの項目を担当する人</td><td><code># 早番からの行動 | 12:00前に出勤 | 早番L</code></td></tr>
-        <tr><td>対象</td><td><code>12:00前に出勤</code>／<code>12:00以降に出勤</code>／<code>21:30までいる</code>／<code>遅番Lだけ</code>／<code>出勤者全員</code></td><td></td></tr>
+        <tr><td>対象</td><td><code>12:00前に出勤</code>／<code>12:00以降に出勤</code>／<code>21:30までいる</code>／<code>始めからいる</code>／<code>最後までいる</code>／<code>遅番Lだけ</code>／<code>出勤者全員</code></td><td></td></tr>
         <tr><td>項目</td><td>項目の名前 <code>|</code> 印 <code>|</code> チェック項目（空欄でも可）</td><td><code>ごみ捨て | | 事務所、各POS</code></td></tr>
         <tr><td>印</td><td><code>リーダー</code>／部門名（<code>家電</code> など）／<code>色=#fff200</code>（背景）／<code>赤</code>（項目を赤字）／<code>赤メモ</code>（チェック項目を赤字）。<code>黄</code> は「リーダー＋黄色」</td><td><code>リーダー 色=#fff200 赤</code></td></tr>
       </table>
@@ -720,6 +720,10 @@ details.howto[open]>summary{margin-bottom:4px}
         <label class="fld">閉店<select id="close-hour" aria-label="閉店の時間"></select></label>
       </div>
       <p class="muted" style="margin:6px 0 0">レジ番はこの時間に1時間ずつ組み、最後の1時間を締めにします。変えると、その日の手動変更は戻ります。</p>
+      <h3 style="margin:12px 0 4px;font-size:.95rem">シフト表の言葉</h3>
+      <p class="muted" style="margin:0 0 6px">シフト表に時間ではなく言葉で書いてある勤務を、時間として読みます。1行に1つ、「言葉=開始-終了」の形で書きます。ここにない言葉（「研修」「応援」「有給」など）は休みとして扱います。</p>
+      <textarea id="shift-words" rows="3" spellcheck="false" style="font-family:var(--font-mono);font-size:.9rem;min-height:80px" aria-label="シフト表の言葉"></textarea>
+      <p class="muted" id="shift-words-msg" style="margin:4px 0 0"></p>
     </div>
 
     <h2 class="sec" style="margin-top:8px">スタッフ設定</h2>
@@ -892,15 +896,15 @@ details.howto[open]>summary{margin-bottom:4px}
       <h3>困ったとき</h3>
       <table class="htable">
         <tr><th>こんなとき</th><th>こうする</th></tr>
-        <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
+        <tr><td>出勤している人が「休み」になる</td><td>時間の書き方を確認。「9-18」「9:30-18」「930-1730」などは読めます。「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろを読みます。「早フル」「遅フル」のような言葉は、「名簿」→「店の設定」の「シフト表の言葉」で時間を決めると読めます。読めない書き方のときは、照合結果で名前をタップして時間を選んでください</td></tr>
         <tr><td>「コピーミスか、名簿の更新がされていません！」と出る</td><td>新しい人が入った・辞めた人がいるなら「名簿」で登録し直す。名簿が合っていれば、名簿と同じ行から同じ行までコピーし直してください。なお、辞めた人の行が消えただけ、などでは気づけないことがあるので、照合結果で名前と時間が合っているかも見てください</td></tr>
         <tr><td>表に「部門が空く」「見習いだけ残る」と出る</td><td>その時間はレジに出すとフロアが手薄になります。人が足りない日に出る警告なので、必要なら担当を変えてください</td></tr>
-        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v93 · 11/20」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
+        <tr><td>画面が新しくならない</td><td>アプリを閉じて開き直す。左上の「v96 · 11/25」のような表示で、何回目の更新か・いつの更新かを確認できます</td></tr>
         <tr><td>決め方のルールを知りたい</td><td>「レジ番表」タブの一番下の「割り当てルールを見る」</td></tr>
       </table>
     </div>
 
-    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v93（2026年11月20日 更新）</p>
+    <p class="muted" id="help-ver" style="margin:0;font-size:.8rem">v96（2026年11月25日 更新）</p>
   </section>
 </div>
 
@@ -1138,9 +1142,19 @@ const TIME_RE=/(\d{1,2})(?:[:.]?(\d{2}))?\s*[-~〜～ー－−⁻₋‐-―﹣�
 // 「11-20→休み」「11-20→12-21」のように矢印で書き換えたセルは、矢印の後ろ（いまの予定）だけを読む
 const ARROW_RE=/\s*(?:->|=>|[→⇒➡⇨➜➔⟶])\s*/;
 const afterArrow=s=>{const p=String(s).split(ARROW_RE);return p[p.length-1]};
+// 時間の書き方だけを読む（言葉は見ない）。言葉の設定の入力チェックに使う
+function parseTimeRaw(s){const m=toHalf(s).match(TIME_RE);if(!m||+m[2]>=60||+m[4]>=60)return null;const a=+m[1]*60+(+m[2]||0),b=+m[3]*60+(+m[4]||0);return b>a?{start:a,end:b}:null}
+// シフト表の言葉（「早フル」「遅フル」など）と、その時間。店の設定で変えられる
+const DEFAULT_WORDS=[{w:"早フル",start:510,end:1080},{w:"遅フル",start:720,end:1290}];
+const shiftWords=()=>roster&&Array.isArray(roster.words)?roster.words:DEFAULT_WORDS;
+function wordTime(s){
+  const t=toHalf(s).replace(/[\s　]/g,"");
+  const w=shiftWords().filter(x=>x.w&&t.includes(x.w)).sort((a,b)=>b.w.length-a.w.length)[0];   // 長い言葉を先に（「早フル」と「早」があれば「早フル」）
+  return w?{start:w.start,end:w.end}:null;
+}
 function parseTime(s){
   const m=toHalf(afterArrow(s)).match(TIME_RE);
-  if(!m)return null;
+  if(!m)return wordTime(afterArrow(s));   // 時間の書き方でなければ、言葉で読む（「研修」「有給」などは休み）
   if(+m[2]>=60||+m[4]>=60)return null;
   const a=+m[1]*60+(+m[2]||0), b=+m[3]*60+(+m[4]||0);
   return b>a?{start:a,end:b}:null;
@@ -1187,7 +1201,7 @@ function buildRoster(text,prev){
     (groups[s.group]||[]).forEach(x=>{if(prev.staff?.[x]&&staff[x].dept>=0)cnt.set(staff[x].dept,(cnt.get(staff[x].dept)||0)+1)});
     if(cnt.size)s.dept=[...cnt.entries()].sort((a,b)=>b[1]-a[1])[0][0];   // いちばん多い部門（同じ数なら上の人の部門）
   });
-  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,...(prev?{newIds}:{}),...(prev?.hours?{hours:prev.hours}:{})};
+  return {depts:prev?.depts||[...DEFAULT_DEPTS],order,staff,groups:groups.length,...(prev?{newIds}:{}),...(prev?.hours?{hours:prev.hours}:{}),...(prev?.words?{words:prev.words}:{})};
 }
 function sampleRoster(){
   const r=buildRoster(SAMPLE_NAMES.join("\n"),null);
@@ -1545,7 +1559,9 @@ function personRow(p,regBy,trnBy){
 /* =========================================================
    表示：名簿
    ========================================================= */
+const wordsToText=ws=>ws.map(x=>`${x.w}=${fmt(x.start)}-${fmt(x.end)}`).join("\n");
 function renderHoursSetting(){
+  if(document.activeElement!==$("#shift-words"))$("#shift-words").value=wordsToText(shiftWords());
   const {open,close}=storeHours();
   const opt=(from,to,sel)=>{let o="";for(let h=from;h<=to;h++)o+=`<option value="${h}" ${h===sel?"selected":""}>${h}:00</option>`;return o};
   $("#open-hour").innerHTML=opt(9,13,open);    // 一番早い開店は9時
@@ -1741,6 +1757,7 @@ $("#roster-load").onclick=()=>{
   // 新規登録でグループがちょうど4つなら、上から部門を割り当てる
   if(!prev&&r.groups===4)Object.values(r.staff).forEach(s=>{s.dept=s.group});
   if(!prev&&roster?.hours)r.hours=roster.hours;   // 例のデータで試した営業時間は引き継ぐ
+  if(!prev&&roster?.words)r.words=roster.words;
   const newIds=r.newIds||[];delete r.newIds;
   roster=r;isSample=false;applyHours();
   if(!prev){day={date:day.date,text:"",edits:emptyEdits(),plan:day.plan||"std",times:{},todo:{}};$("#day-paste").value=""}
@@ -1777,6 +1794,21 @@ function changeHours(){
   applyHours();saveRoster();saveDay();
   toast(`営業時間を ${open}:00〜${close}:00 にしました`+(isSample?"（例のデータなので保存されません）":""));
 }
+// シフト表の言葉を変えたとき
+$("#shift-words").addEventListener("change",e=>{
+  const ws=[],bad=[];
+  e.target.value.split("\n").forEach((l,i)=>{
+    const t=toHalf(l).replace(/＝/g,"=").trim();if(!t)return;
+    const k=t.indexOf("="), w=k>0?t.slice(0,k).replace(/[\s　]/g,""):"", tm=k>0?parseTimeRaw(t.slice(k+1)):null;
+    if(!w||!tm||/\d/.test(w)){bad.push(`${i+1}行目「${l.trim()}」`);return}
+    ws.push({w,start:tm.start,end:tm.end});
+  });
+  if(bad.length){$("#shift-words-msg").textContent="保存していません。読めない行があります："+bad.join("・")+"（例：早フル=8:30-18:00）";return}
+  roster.words=ws;saveRoster();
+  $("#shift-words-msg").textContent=ws.length?`${ws.length}個の言葉を保存しました`:"言葉をなしにしました";
+  e.target.value=wordsToText(ws);renderDay();
+  toast("シフト表の言葉を保存しました"+(isSample?"（例のデータなので保存されません）":""));
+});
 $("#open-hour").onchange=changeHours;
 $("#close-hour").onchange=changeHours;
 $("#dept-names").addEventListener("change",e=>{
@@ -1985,7 +2017,7 @@ $("#export").onclick=()=>{
 function useRoster(ro){
   closeSheet(true);
   Object.values(ro.staff).forEach(normStaff);
-  roster={depts:(ro.depts||DEFAULT_DEPTS).slice(0,4),order:ro.order,staff:ro.staff,groups:ro.groups||0,...(ro.hours?{hours:ro.hours}:{})};
+  roster={depts:(ro.depts||DEFAULT_DEPTS).slice(0,4),order:ro.order,staff:ro.staff,groups:ro.groups||0,...(ro.hours?{hours:ro.hours}:{}),...(Array.isArray(ro.words)?{words:ro.words}:{})};
   applyHours();
   isSample=false;saveRoster();renderRoster();
   // 名簿や営業時間が変わると、固定した担当や今日の時間がずれるので消す（ファイルとQRで共通）
@@ -2064,7 +2096,7 @@ let shareKind="roster";
 const TQ_HEAD="POSITION-TODO1", AQ_HEAD="POSITION-ALL1";
 function shareText(kind){
   if(kind==="todo")return TQ_HEAD+"\n"+JSON.stringify(todoData);
-  if(kind==="all")return AQ_HEAD+"\n"+JSON.stringify({meibo:rosterToText(roster),todo:todoData||null});
+  if(kind==="all")return AQ_HEAD+"\n"+JSON.stringify({meibo:rosterToText(roster),todo:todoData||null,...(roster.words?{words:roster.words}:{})});
   return rosterToText(roster);
 }
 const todoCount=D=>D?D.secs.reduce((a,s)=>a+s.items.length,0):0;
@@ -2215,6 +2247,7 @@ function parseShared(text){
   if(head===AQ_HEAD){
     const o=JSON.parse(text.slice(AQ_HEAD.length+1));
     const out={roster:rosterFromText(o.meibo)};
+    if(Array.isArray(o.words))out.roster.words=o.words.filter(x=>x&&typeof x.w==="string"&&Number.isFinite(+x.start)&&Number.isFinite(+x.end)).map(x=>({w:x.w,start:+x.start,end:+x.end}));
     if(o.todo&&Array.isArray(o.todo.secs)&&o.todo.secs.length)out.todo=normTodo(o.todo);
     return out;
   }
@@ -2263,7 +2296,7 @@ const TODO_SAMPLE=[
 "例）書類のチェック | 黄 赤 |"].join("\n");
 const TODO_YELLOW="#fff200";
 const TODO_COLORS=[["","なし"],["#fff200","黄"],["#9fd8ff","水色"],["#b6f0b0","緑"],["#ffc2d6","ピンク"],["#ffd08a","オレンジ"],["#d9d9d9","灰色"]];
-const COND_TYPES=[["startBefore","より前に出勤した人"],["startFrom","以降に出勤した人"],["endFrom","までいる人"],["all","出勤者全員"],["onlyLate","遅番Lだけ"],["onlyEarly","早番Lだけ"]];
+const COND_TYPES=[["startBefore","より前に出勤した人"],["startFrom","以降に出勤した人"],["endFrom","までいる人"],["all","出勤者全員"],["firstIn","始めからいる人"],["lastOut","最後までいる人"],["onlyLate","遅番Lだけ"],["onlyEarly","早番Lだけ"]];   // 始め・最後：その日いちばん早く来る人たち／いちばん遅くまでいる人たち
 const condTimed=t=>t==="startBefore"||t==="startFrom"||t==="endFrom";
 let todoData=null;        // 保存した項目（null のときは見本）
 let todoEditing=false, todoUndo=null, todoDelArm={si:-1,t:0};
@@ -2284,6 +2317,8 @@ function parseTodo(text){
       if((m=cond.match(/(\d{1,2})(?::(\d{2}))?\s*(?:時)?\s*(?:より)?前に出勤/)))c.type="startBefore",c.t=hm(m[1],m[2]);
       else if((m=cond.match(/(\d{1,2})(?::(\d{2}))?\s*(?:時)?\s*(?:以降|から)に?出勤/)))c.type="startFrom",c.t=hm(m[1],m[2]);
       else if((m=cond.match(/(\d{1,2})(?::(\d{2}))?\s*(?:時)?\s*まで(?:いる|残る)/)))c.type="endFrom",c.t=hm(m[1],m[2]);
+      else if(/始めから/.test(cond))c.type="firstIn";
+      else if(/最後まで/.test(cond))c.type="lastOut";
       else if(/遅番\s*L?\s*だけ/i.test(cond))c.type="onlyLate";
       else if(/早番\s*L?\s*だけ/i.test(cond))c.type="onlyEarly";
       else if(cond&&!/全員/.test(cond))errs.push(`${n+1}行目：対象「${cond}」が読めません（例：12:00前に出勤）`);
@@ -2307,7 +2342,7 @@ function parseTodo(text){
   return {data:{early:720,late:null,secs},errs};
 }
 function todoToText(d){
-  const condText=c=>c.type==="startBefore"?fmt(c.t)+"前に出勤":c.type==="startFrom"?fmt(c.t)+"以降に出勤":c.type==="endFrom"?fmt(c.t)+"までいる":c.type==="onlyLate"?"遅番Lだけ":c.type==="onlyEarly"?"早番Lだけ":"出勤者全員";
+  const condText=c=>c.type==="startBefore"?fmt(c.t)+"前に出勤":c.type==="startFrom"?fmt(c.t)+"以降に出勤":c.type==="endFrom"?fmt(c.t)+"までいる":c.type==="onlyLate"?"遅番Lだけ":c.type==="onlyEarly"?"早番Lだけ":c.type==="firstIn"?"始めからいる":c.type==="lastOut"?"最後までいる":"出勤者全員";
   const clean=s=>String(s||"").replace(/[|｜\n]/g," ");
   return d.secs.map(s=>[`# ${clean(s.name)} | ${condText(s.cond)} | ${s.lead==="late"?"遅番L":"早番L"}`,
     ...s.items.map(it=>{
@@ -2339,7 +2374,7 @@ function normTodo(d){
   const D={early:Number.isFinite(+d.early)?+d.early:720,late:d.late!=null&&Number.isFinite(+d.late)?+d.late:null,secs:[]};
   (d.secs||[]).forEach(s=>{
     const c=s.cond||{};
-    D.secs.push({name:String(s.name||""),cond:{type:COND_TYPES.some(x=>x[0]===c.type)?c.type:"all",t:Number.isFinite(+c.t)?+c.t:720},lead:s.lead==="late"?"late":"early",
+    D.secs.push({name:String(s.name||""),cond:(()=>{const type=COND_TYPES.some(x=>x[0]===c.type)?c.type:"all";return {type,t:condTimed(type)&&Number.isFinite(+c.t)?+c.t:720}})(),lead:s.lead==="late"?"late":"early",
       items:(s.items||[]).map(it=>({name:String(it.name||""),note:String(it.note||""),who:/^(any|leader|dept:[0-3])$/.test(it.who)?it.who:"any",bg:HEX_RE.test(it.bg||"")?it.bg.toLowerCase():"",red:!!it.red,redNote:!!it.redNote}))});
   });
   return D;
@@ -2371,15 +2406,18 @@ function todoLeaders(ps,D){
   let lateC=lateStrict.length?lateStrict:lateAny, lateBoss=false;
   if(!lateC.length){const m=bosses.filter(p=>p.start>=eb&&p.end>=close);lateC=m.length?m:bosses.filter(p=>p.end>=close);lateBoss=lateC.length>0}
   lateC=lateC.slice().sort((a,b)=>b.end-a.end||byName(a,b));
-  // 紙の決まり「早番Lが居ない時は遅番L」を先に。早番のリーダーがいなくて遅番のリーダーがいる日は、店長にしない
-  if(E.boss&&lateC.length&&!lateBoss){earlyC=[];E.boss=false}
+  // 早番のリーダーがいない日は、最後の手段として店長を早番Lにする（店長もいなければ「いない」→ 早番の黄色は遅番L）
   const rnd=(cs,avoid)=>{const pool=cs.length>1&&avoid?cs.filter(p=>p.id!==avoid):cs;return pool.slice().sort((a,b)=>dayHash(seed+"L"+a.id)-dayHash(seed+"L"+b.id))[0]||null};
   const chosen=k=>ed[k]==="-"?null:all.find(p=>p.id===ed[k]);   // 手で選んだ人（今日いなければ使わない）
   const early=ed["@early"]==="-"?null:chosen("@early")||rnd(earlyC);
   const late=ed["@late"]==="-"?null:chosen("@late")||rnd(lateC,early&&early.id);   // できれば早番Lと別の人
   return {early,late,earlyC,lateC,lateLoose,all,earlyBoss:E.boss,lateBoss};
 }
+// その日の「始め」（いちばん早い出勤）と「最後」（いちばん遅い退勤）。buildTodo のたびに出勤者から決める
+let todoSpan={first:0,last:24*60};
 function inTodoSec(p,c){
+  if(c.type==="firstIn")return p.start<=todoSpan.first;
+  if(c.type==="lastOut")return p.end>=todoSpan.last;
   if(c.type==="startBefore")return p.start<c.t;
   if(c.type==="startFrom")return p.start>=c.t;
   if(c.type==="endFrom")return p.end>=c.t;
@@ -2389,7 +2427,9 @@ const onlyOf=c=>c.type==="onlyLate"?"late":c.type==="onlyEarly"?"early":null;
 // 手で選んだもの → リーダーの項目 → 部門の項目 → そのほか の順
 function buildTodo(){
   const D=todoGet(), secs=D.secs;
-  const ps=todoPeople(), ld=todoLeaders(ps,D), bosses=todoBosses(), byId=Object.fromEntries([...ps,...bosses].map(p=>[p.id,p]));
+  const ps=todoPeople();
+  todoSpan=ps.length?{first:Math.min(...ps.map(p=>p.start)),last:Math.max(...ps.map(p=>p.end))}:{first:0,last:24*60};
+  const ld=todoLeaders(ps,D), bosses=todoBosses(), byId=Object.fromEntries([...ps,...bosses].map(p=>[p.id,p]));
   const ed=day.todo||{}, cnt={}, seed=day.date||"";
   [...ps,...bosses].forEach(p=>cnt[p.id]=0);
   const rows=[], seen={};
@@ -2431,7 +2471,7 @@ function buildTodo(){
 
 // ---------- 表示 ----------
 let todoLast=null;
-const condLabel=c=>condTimed(c.type)?fmt(c.t)+(COND_TYPES.find(x=>x[0]===c.type)[1]):COND_TYPES.find(x=>x[0]===c.type)[1];
+const condLabel=c=>c.type==="firstIn"?`始めからいる人（${fmt(todoSpan.first)}〜）`:c.type==="lastOut"?`最後までいる人（〜${fmt(todoSpan.last)}）`:condTimed(c.type)?fmt(c.t)+(COND_TYPES.find(x=>x[0]===c.type)[1]):COND_TYPES.find(x=>x[0]===c.type)[1];
 const rowStyle=it=>it.bg?` style="--rowc:${it.bg}"`:"";
 function renderTodo(){
   const T=todoLast=buildTodo();
